@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./CSS/Login.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/d98933ff45.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Login</title>
+  </head>
+  <body>
+    <div class="loginPage">
+      <!-- Navbar Component Start -->
+      <div class="navbarComponent">
+        <div class="logo">
+          <!-- <div class="logoImage"></div>
+            <div class="logoName">Quantum</div> -->
+          <img src="./Images/image 1.png" alt="logo" srcset="" />
+        </div>
+      </div>
+      <!-- Navbar Component End -->
+
+      <!-- Login Page Start -->
+      <div class="loginComponent">
+        <div class="loginHeading">
+          <i class="fa-solid fa-arrow-left"></i>
+          <h2>Log in with Quantum</h2>
+        </div>
+        <div class="radio-options">
+          <div>
+            <input type="radio" name="school" id="district" />
+            <label for="district">District</label>
+          </div>
+          <div>
+            <input type="radio" name="school" id="independentSchool" />
+            <label for="independentSchool">Independent School</label>
+          </div>
+        </div>
+        <div class="form">
+          <div class="inputField">
+            <select name="state" id="state">
+              <option value="Alabama">Alabama</option>
+              <option value="option2">Option2</option>
+            </select>
+            <label class="label2" for="state">State*</label>
+          </div>
+          <div class="inputField" style="margin-top: 45px; margin-bottom: 56px">
+            <select name="district" id="district">
+              <option value="district1">Alabama School District</option>
+              <option value="option2">Option2</option>
+            </select>
+            <label class="label2" for="district">District*</label>
+          </div>
+
+          <div class="inputField">
+            <input type="text" name="username" id="username" />
+            <label class="label1" for="username">Username/Email ID*</label>
+          </div>
+          <div class="forgot">
+            <a>Forgot username?</a>
+          </div>
+          <div class="inputField">
+            <label class="label1" for="password">Password*</label>
+            <input type="text" name="password" id="password" />
+            <i class="fa-solid fa-eye"></i>
+          </div>
+          <div class="forgot">
+            <a>Forgot password?</a>
+          </div>
+          <div class="checkboxBtn">
+            <input type="checkbox" name="rememberMe" id="rememberMe" />
+            <label for="rememberMe">Remember Me</label>
+          </div>
+          <div class="submitBtn">
+            <button type="submit">LOG IN</button>
+          </div>
+        </div>
+      </div>
+      <!-- Login Page End -->
+
+      <!-- Footer section start -->
+      <div class="footerSection">
+        <div class="footer1">
+          <span>About</span>
+          |
+          <span>Contact Us</span>
+        </div>
+        <div class="footer2">
+          <span class="footerlogo">
+            <img src="./Images/footerImage.png" alt="" srcset="" />
+          </span>
+          <span>
+              |
+          </span>
+          <div class="copyright">
+            <p>Copyright © 2020-2021</p>
+            <p>Zeus Systems Pvt. Ltd.</p>
+            <p>All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Footer section end -->
+    </div>
+  </body>
+</html>

@@ -1,0 +1,135 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Quicksand", sans-serif;
+  background-color: #eeeeee;
+  height: 100vh;
+}
+.dashboard {
+  margin: 0 24px;
+}
+.header1 {
+  display: flex;
+  background-color: #8ddc97;
+  height: 64px;
+  border-radius: 2px;
+  margin-top: 24px;
+}
+.header1 > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  color: #222222;
+}
+.header1 > .activeTab {
+  border-bottom: 3px solid #222222;
+}
+.headerTab > p {
+  font: 600 16px/20px "Quicksand";
+  display: flex;
+  align-items: center;
+}
+.headerTab > p > span {
+  font: 700 24px/28px "Quicksand";
+  padding: 0 8px;
+}
+.headerTab > i {
+  font-size: 25px;
+}
+
+.header2 {
+  display: flex;
+  justify-content: space-between;
+  height: 45px;
+  margin-top: 24px;
+}
+.header2 > p {
+  align-self: end;
+  font: 500 12px/14px "Quicksand";
+  color: #686868;
+}
+.sortFunction {
+  align-self: center;
+  display: flex;
+  align-items: center;
+}
+.sortFunction > label {
+  font: 500 12px/16px "Quicksand";
+  color: #686868;
+  padding-right: 6px;
+}
+.sortFunction > i {
+  color: #1f7a54;
+  padding-left: 24px;
+}
+
+.inputField {
+  width: 160px;
+  border-bottom: 2px solid #00000027;
+}
+.inputField > select {
+  width: 100%;
+  border: none;
+  outline: none;
+  font: 600 16px/20px "Quicksand";
+  margin-left: -5px;
+
+  color: #333333;
+}
+
+hr {
+  margin: 17px 0;
+  border: 1px solid rgba(128, 128, 128, 0.156);
+}
+
+.courseCard {
+  width: 476px;
+  height: 246px;
+  background-color: white;
+  padding-top: 24px;
+}
+.courseImage {
+  background-color: red;
+  width: 132px;
+  height: 157px;
+  margin: 0 16px 16px 24px;
+}
+.coursesInfo {
+  display: flex;
+}
+
+.courseName {
+  display: flex;
+  justify-content: space-between;
+  font: 600 16px/20px "Quicksand";
+  color: #222222;
+}
+.courseName > i {
+  color: #edc900;
+  font-size: 24px;
+}
+.courseSub {
+  display: flex;
+  font: 600 12px/16px "Quicksand";
+  color: #666666;
+  gap: 9px;
+  margin: 7px 0;
+}
+.courseLen {
+  display: flex;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  gap: 6px;
+  margin-top: 8px;
+}
+.courseDate {
+  display: flex;
+  font: 600 12px/16px "Quicksand";
+  color: #666666;
+  gap: 8px;
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./CSS/Dashboard.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/d98933ff45.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="header1">
+        <div class="headerTab activeTab">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <p><span>4</span> Courses</p>
+        </div>
+        <div class="headerTab">
+          <i class="fa-solid fa-user-group"></i>
+          <p><span>4</span> Classes</p>
+        </div>
+      </div>
+      <div class="header2">
+        <p>Showing 4 of 4 courses</p>
+        <div class="sortFunction">
+          <label for="sort">Sort By:</label>
+          <div class="inputField">
+            <select name="sort" id="sort">
+              <option value="courseName">Course Name</option>
+              <option value="option2">Option2</option>
+            </select>
+          </div>
+          <i class="fa-solid fa-arrow-up"></i>
+        </div>
+      </div>
+
+      <hr/>
+
+      <div class="coursesSection">
+        <div class="courseCard">
+            <div class="coursesInfo">
+                <div class="courseImage"></div>
+                <div class="courseDetail">
+                    <div class="courseName">
+                        <p>Acceleration</p>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div class="courseSub">
+                        <p>Physics</p>
+                        <p>|</p>
+                        <p>Grade 7 +2</p>
+                    </div>
+                    <div class="courseLen">
+                        <p> <b>4</b> Units </p>
+                        <p> <b>18</b> Lessons </p>
+                        <p> <b>24</b> Topics </p>
+                    </div>
+                    <div class="courseTeacher">
+
+                    </div>
+                    <div class="courseDate">
+                        <p>50 Students</p>
+                        <p>|</p>
+                        <p>21-jan-2020  -  21-Aug-2020</p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="coursesActions"></div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>
