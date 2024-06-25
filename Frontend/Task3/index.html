@@ -17,21 +17,22 @@
     <title>Login</title>
   </head>
   <body>
-    <div class="loginPage">
+
       <!-- Navbar Component Start -->
       <div class="navbarComponent">
         <div class="logo">
-          <!-- <div class="logoImage"></div>
-            <div class="logoName">Quantum</div> -->
-          <img src="./Images/image 1.png" alt="logo" srcset="" />
-        </div>
+            <img
+              src="./Images/icons/logo used in header.svg"
+              alt="logo"
+            />
+      </div>
       </div>
       <!-- Navbar Component End -->
-
+<div class="main">
       <!-- Login Page Start -->
-      <div class="loginComponent">
+      <div class="loginComponent" id="loginComponent">
         <div class="loginHeading">
-          <i class="fa-solid fa-arrow-left"></i>
+          <img src="./Images/icons/back.svg" alt="icon">
           <h2>Log in with Quantum</h2>
         </div>
         <div class="radio-options">
@@ -45,6 +46,7 @@
           </div>
         </div>
         <div class="form">
+
           <div class="inputField">
             <select name="state" id="state">
               <option value="Alabama">Alabama</option>
@@ -52,6 +54,7 @@
             </select>
             <label class="label2" for="state">State*</label>
           </div>
+
           <div class="inputField" style="margin-top: 45px; margin-bottom: 56px">
             <select name="district" id="district">
               <option value="district1">Alabama School District</option>
@@ -62,15 +65,17 @@
 
           <div class="inputField">
             <input type="text" name="username" id="username" />
-            <label class="label1" for="username">Username/Email ID*</label>
+            <label for="username">Username/Email ID*</label>
           </div>
+
+
           <div class="forgot">
             <a>Forgot username?</a>
           </div>
           <div class="inputField">
-            <label class="label1" for="password">Password*</label>
             <input type="text" name="password" id="password" />
-            <i class="fa-solid fa-eye"></i>
+            <label for="password">Password*</label>
+            <img src="./Images/icons/preview.svg" alt="icon">
           </div>
           <div class="forgot">
             <a>Forgot password?</a>
@@ -85,9 +90,9 @@
         </div>
       </div>
       <!-- Login Page End -->
-
+    </div>
       <!-- Footer section start -->
-      <div class="footerSection">
+      <div class="footerSection" id="footer">
         <div class="footer1">
           <span>About</span>
           |
@@ -95,7 +100,7 @@
         </div>
         <div class="footer2">
           <span class="footerlogo">
-            <img src="./Images/footerImage.png" alt="" srcset="" />
+            <img src="./Images/icons/logo used in footer.svg" alt="footer logo"/>
           </span>
           <span>
               |
@@ -108,6 +113,7 @@
         </div>
       </div>
       <!-- Footer section end -->
-    </div>
+       
+    <script src="./Js/login.js"></script>
   </body>
 </html>

@@ -6,17 +6,101 @@
 body {
   font-family: "Quicksand", sans-serif;
   background-color: #eeeeee;
-  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-.dashboard {
-  margin: 0 24px;
+
+
+/* Navbar component start  */
+.navbarSection {
+  background-color: #1f2834;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  align-items: center;
+}
+.logo > img {
+  width: 134px;
+  height: 36px;
+}
+.navOptions {
+  display: flex;
+  color: #3fd28b;
+  gap: 32px;
+  font-weight: 500;
+  align-items: center;
+}
+.navOptions .nav {
+  display: flex;
+  font-size: 14px;
+  line-height: 14.5px;
+  gap: 32px;
+  text-transform: uppercase;
+  align-items: center;
+}
+.navOptions span {
+  cursor: pointer;
+}
+.navOptions .activetab {
+  border-bottom: 5px solid white;
+  padding: 20px 0;
+  color: white;
+}
+.navicon {
+  position: relative;
+}
+.navicon span {
+  position: absolute;
+  top: -8px;
+  right: -13px;
+  background-color: #2a7ff3;
+  font-size: 12px;
+  color: white;
+  width: 7px;
+  height: 15px;
+  border-radius: 50%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.accountIcon img {
+  width: 32px;
+  height: 32px;
+}
+.accountIcon span {
+  top: -3px;
+  right: -8px;
+  font-size: 8px;
+  width: 16px;
+  height: 16px;
+  background-color: #ffffff;
+  color: #222222;
+}
+.hamburger-menu {
+  display: none;
+}
+.hamburger-menu img {
+  width: 40px;
+}
+/* Navbar component end  */
+
+
+
+
+
+/* header component start  */
+.headers {
+  margin: 24px;
 }
 .header1 {
   display: flex;
   background-color: #8ddc97;
   height: 64px;
   border-radius: 2px;
-  margin-top: 24px;
 }
 .header1 > div {
   display: flex;
@@ -27,6 +111,10 @@ body {
 }
 .header1 > .activeTab {
   border-bottom: 3px solid #222222;
+  transition: 5ms;
+}
+.headerTab {
+  cursor: pointer;
 }
 .headerTab > p {
   font: 600 16px/20px "Quicksand";
@@ -36,9 +124,6 @@ body {
 .headerTab > p > span {
   font: 700 24px/28px "Quicksand";
   padding: 0 8px;
-}
-.headerTab > i {
-  font-size: 25px;
 }
 
 .header2 {
@@ -62,14 +147,11 @@ body {
   color: #686868;
   padding-right: 6px;
 }
-.sortFunction > i {
-  color: #1f7a54;
-  padding-left: 24px;
-}
-
 .inputField {
   width: 160px;
-  border-bottom: 2px solid #00000027;
+  border-bottom: 1px solid #00000027;
+  background: transparent;
+  margin-right: 24px;
 }
 .inputField > select {
   width: 100%;
@@ -77,43 +159,75 @@ body {
   outline: none;
   font: 600 16px/20px "Quicksand";
   margin-left: -5px;
-
+  background-color: transparent;
   color: #333333;
 }
+/* Header component end  */
 
 hr {
-  margin: 17px 0;
+  margin: 17px 24px;
   border: 1px solid rgba(128, 128, 128, 0.156);
 }
 
-.courseCard {
-  width: 476px;
-  height: 246px;
-  background-color: white;
-  padding-top: 24px;
+
+/* Course component start  */
+.coursesSection {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 24px;
+  flex: 1;
 }
-.courseImage {
-  background-color: red;
+.courseCard {
+  background-color: white;
+  position: relative;
+  width: 476px;
+  border-radius: 2px;
+  height: 100%;
+}
+.courseCard hr {
+  margin: 16px 24px;
+}
+.courseCard .expired {
+  color: #d80000;
+  font: 400 10px/16px Museo Sans;
+  background-color: #ffe4e6;
+  border-radius: 2px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 2px;
+}
+.courseImage img {
   width: 132px;
   height: 157px;
-  margin: 0 16px 16px 24px;
+}
+.courseDetail {
+  width: 100%;
 }
 .coursesInfo {
   display: flex;
+  gap: 16px;
+  padding: 24px 24px 0 24px;
 }
-
 .courseName {
   display: flex;
   justify-content: space-between;
-  font: 600 16px/20px "Quicksand";
   color: #222222;
+  padding-right: 30px;
 }
-.courseName > i {
-  color: #edc900;
-  font-size: 24px;
+.courseName p {
+  font: 600 16px/20px "Quicksand";
+}
+.courseName > span {
+  position: absolute;
+  top: 24px;
+  right: 16px;
 }
 .courseSub {
   display: flex;
+  flex-wrap: wrap;
   font: 600 12px/16px "Quicksand";
   color: #666666;
   gap: 9px;
@@ -126,10 +240,125 @@ hr {
   font-weight: 500;
   gap: 6px;
   margin-top: 8px;
+  flex-wrap: wrap;
+}
+.courseTeacher {
+  border-bottom: 1px solid #000000;
+  width: 100%;
+  height: 27px;
+  margin-top: 16px;
+}
+.courseTeacher > select {
+  outline: none;
+  border: none;
+  width: 100%;
+  height: 100%;
+  font: 700 16px/20px "Quicksand";
+  color: #222222;
+  margin-left: -5px;
+}
+.courseTeacher option {
+  background-color: white;
 }
 .courseDate {
   display: flex;
+  flex-wrap: wrap;
   font: 600 12px/16px "Quicksand";
   color: #666666;
   gap: 8px;
+  margin-top: 8px;
+}
+.coursesActions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 16px;
+}
+.coursesActions span {
+  font-size: 24px;
+  color: #1f7a54;
+}
+/* Course component end */
+
+
+/* footer component start*/
+.footerSection {
+  margin-top: 32px;
+  width: 100%;
+  height: 74px;
+  bottom: 0;
+}
+.footer1 {
+  height: 34px;
+  font: 700 14px/18px "Quicksand";
+  color: #1f7a54;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+.footer2 {
+  height: 40px;
+  background-color: #e0e1e1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+.footer2 span:nth-child(2) {
+  color: #333333;
+}
+.footer2 > .copyright {
+  display: flex;
+  gap: 11px;
+}
+.footer2 > .copyright > p {
+  font: 600 12px/16px "Quicksand";
+  color: #616161;
+}
+.footer2 > .copyright > p:nth-child(2) {
+  font-weight: 700;
+}
+/* Footer component end*/
+
+
+@media screen and (max-width: 450px) {
+  .courseSub {
+    font: 600 12px / 5px "Quicksand";
+  }
+  .courseLen {
+    line-height: 9px;
+    margin-top: 14px;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .hamburger-menu {
+    display: block;
+  }
+  .navbarOptions {
+    position: relative;
+  }
+  .navOptions .nav {
+    display: none;
+    background-color: #1f2834;
+    flex-direction: column;
+    position: absolute;
+    top: 65px;
+    z-index: 1;
+    width: 200px;
+    right: 20px;
+    padding: 30px;
+  }
+  .navOptions .activetab {
+    border-bottom: 4px solid white;
+    padding: 2px 0;
+    color: white;
+  }
+}
+@media screen and (min-width: 650px) and (max-width: 1000px) {
+  .coursesSection {
+    justify-items: center;
+  }
+  .courseCard {
+    width: 570px;
+  }
 }

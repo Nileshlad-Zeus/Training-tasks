@@ -5,11 +5,14 @@
 }
 body {
   font-family: "Quicksand", sans-serif;
-}
-.loginPage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   background-color: #eeeeee;
-  height: 100vh;
 }
+
+
+/* Navbar component start  */
 .navbarComponent {
   background-color: #1f2834;
   width: 100%;
@@ -21,8 +24,14 @@ body {
   height: 36px;
   margin-left: 24px;
 }
+/* Navbar component End  */
 
+/* Login component start  */
+.main{
+  flex: 1;
+}
 .loginComponent {
+
   background-color: #ffffff;
   width: 488px;
   height: 590px;
@@ -30,7 +39,6 @@ body {
   border-top: 4px solid #3ac7ec;
   padding: 0 32px;
 }
-
 .loginHeading {
   margin-top: 20px;
   display: flex;
@@ -38,15 +46,10 @@ body {
   justify-content: center;
   position: relative;
 }
-.loginHeading > i {
-  font-size: 26px;
-  line-height: 28px;
-  color: #1f7a54;
-  letter-spacing: 0.65px;
+.loginHeading > img {
   position: absolute;
   left: 0;
 }
-
 .loginHeading > h2 {
   color: #222222;
   font-weight: medium;
@@ -55,12 +58,13 @@ body {
   font-family: "Quicksand", sans-serif;
   letter-spacing: 0px;
 }
-
 .radio-options {
   display: flex;
-  gap: 32px;
   margin-top: 32px;
   margin-bottom: 40px;
+  column-gap: 32px;
+  row-gap: 10px;
+  flex-wrap: wrap;
 }
 .radio-options > div {
   display: flex;
@@ -78,7 +82,6 @@ body {
   height: 20px;
   width: 20px;
 }
-
 .inputField {
   width: 100%;
   border-bottom: 2px solid #00000027;
@@ -87,7 +90,7 @@ body {
   align-items: center;
   position: relative;
 }
-.inputField > input {
+.inputField input {
   width: 100%;
   border: none;
   outline: none;
@@ -103,25 +106,23 @@ body {
   color: #222222;
   margin-left: -5px;
 }
-.inputField > label {
+.inputField label {
   position: absolute;
-  bottom: 5px;
+  top: 0;
   left: 0;
   font: 600 16px/20px "Quicksand";
   color: #666666;
+  pointer-events: none;
+  transition: 0.2s;
 }
-.inputField > i {
-  color: #1f7a54;
-  font-size: 18px;
-  float: right;
+.inputField input:focus ~ label {
+  transform: translateY(-20px);
+  font-size: 14px;
 }
-.inputField > .label2 {
-  bottom: 22px;
-  font: 600 12px/16px "Quicksand";
-  transition: 200ms;
-  left: 0;
+.inputField select ~ label {
+  transform: translateY(-20px);
+  font-size: 14px;
 }
-
 .forgot {
   display: flex;
   justify-content: end;
@@ -133,45 +134,41 @@ body {
   text-align: center;
   margin-top: 5px;
 }
-
 .checkboxBtn {
   display: flex;
   align-items: center;
   gap: 5px;
   margin-top: 26px;
 }
-
 .checkboxBtn > input {
   accent-color: #1f7a54;
   width: 18px;
   height: 18px;
 }
-
 .checkboxBtn > label {
   font: 500 16px/20px "Quicksand", sans-serif;
 }
-
 .submitBtn {
   margin-top: 34px;
   text-align: center;
 }
-
 .submitBtn > button {
   width: 216px;
   height: 40px;
   background-color: #3fd28b;
   border: none;
-  font: normal normal medium 14px/18px "Quicksand";
+  font: 500 14px/18px "Quicksand";
   box-shadow: 0px 3px 5px #0000003d;
   cursor: pointer;
 }
+/* Login component end  */
 
+/* Footer component start  */
 .footerSection {
-  position: absolute;
   bottom: 0;
   height: 74px;
-  left: 0;
-  right: 0;
+  width: 100%;
+  margin-top: 32px;
 }
 .footer1 {
   height: 34px;
@@ -189,7 +186,7 @@ body {
   gap: 16px;
   justify-content: center;
 }
-.footer2 span:nth-child(2){
+.footer2 span:nth-child(2) {
   color: #333333;
 }
 .footer2 > .copyright {
@@ -202,4 +199,16 @@ body {
 }
 .footer2 > .copyright > p:nth-child(2) {
   font-weight: 700;
+}
+/* footer component End  */
+
+@media screen and (max-width: 540px) {
+  .loginComponent {
+    width: 90%;
+  }
+}
+@media screen and (max-width: 400px) {
+  .loginComponent {
+    padding: 0 10px;
+  }
 }

@@ -10,24 +10,57 @@
       href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
       rel="stylesheet"
     />
-    <script
-      src="https://kit.fontawesome.com/d98933ff45.js"
-      crossorigin="anonymous"
-    ></script>
     <title>Dashboard</title>
   </head>
   <body>
-    <div class="dashboard">
+    <!-- Navbar Component Start -->
+    <div class="navbarSection">
+      <div class="logo">
+        <img src="./Images/icons/logo used in header.svg" alt="logo" />
+      </div>
+
+      <div class="navOptions">
+        <div class="nav" id="nav">
+          <span class="navEle activetab" onclick="activeTab(event)"
+            >Dashboard</span
+          >
+          <span class="navEle" onclick="activeTab(event)">Content</span>
+          <span class="navEle" onclick="activeTab(event)">Users</span>
+          <span class="navEle" onclick="activeTab(event)">Reports</span>
+          <span class="navEle" onclick="activeTab(event)">Admin</span>
+        </div>
+        <span class="navicon">
+          <img src="./Images/icons/alerts.svg" alt="icon" />
+          <span>1</span>
+        </span>
+        <span class="navicon">
+          <img src="./Images/icons/announcements.svg" alt="icon" />
+          <span>2</span>
+        </span>
+        <span class="navicon accountIcon">
+          <img src="./Images/icons/account_circle.svg" alt="icon" />
+          <span>N</span>
+        </span>
+        <span class="hamburger-menu" onclick="togglenav()">
+          <img src="./Images/icons/hamburger-menu.svg" alt="icon" />
+        </span>
+      </div>
+    </div>
+    <!-- Navbar Component End -->
+
+    <!-- headers start-->
+    <div class="headers">
       <div class="header1">
-        <div class="headerTab activeTab">
-          <i class="fa-solid fa-book-bookmark"></i>
+        <div class="headerTab activeTab" id="headertab1">
+          <img src="./Images/icons/courses.svg" alt="" />
           <p><span>4</span> Courses</p>
         </div>
-        <div class="headerTab">
-          <i class="fa-solid fa-user-group"></i>
+        <div class="headerTab" id="headertab2">
+          <img src="./Images/icons/classes.svg" alt="" />
           <p><span>4</span> Classes</p>
         </div>
       </div>
+
       <div class="header2">
         <p>Showing 4 of 4 courses</p>
         <div class="sortFunction">
@@ -38,46 +71,39 @@
               <option value="option2">Option2</option>
             </select>
           </div>
-          <i class="fa-solid fa-arrow-up"></i>
+          <img src="./Images/icons/sort.svg" alt="" />
         </div>
       </div>
-
-      <hr/>
-
-      <div class="coursesSection">
-        <div class="courseCard">
-            <div class="coursesInfo">
-                <div class="courseImage"></div>
-                <div class="courseDetail">
-                    <div class="courseName">
-                        <p>Acceleration</p>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <div class="courseSub">
-                        <p>Physics</p>
-                        <p>|</p>
-                        <p>Grade 7 +2</p>
-                    </div>
-                    <div class="courseLen">
-                        <p> <b>4</b> Units </p>
-                        <p> <b>18</b> Lessons </p>
-                        <p> <b>24</b> Topics </p>
-                    </div>
-                    <div class="courseTeacher">
-
-                    </div>
-                    <div class="courseDate">
-                        <p>50 Students</p>
-                        <p>|</p>
-                        <p>21-jan-2020  -  21-Aug-2020</p>
-                    </div>
-                </div>
-            </div>
-            <hr>
-            <div class="coursesActions"></div>
-        </div>
-      </div>
-
     </div>
+    <!-- headers end-->
+
+    <hr />
+
+    <!-- Course Section start-->
+    <div class="coursesSection" id="coursesSection"></div>
+    <!-- Course Section end-->
+
+    <!-- Footer section start -->
+    <div class="footerSection" id="footer">
+      <div class="footer1">
+        <span>About</span>
+        |
+        <span>Contact Us</span>
+      </div>
+      <div class="footer2">
+        <span class="footerlogo">
+          <img src="./Images/icons/logo used in footer.svg" alt="" />
+        </span>
+        <span> | </span>
+        <div class="copyright">
+          <p>Copyright © 2020-2021</p>
+          <p>Zeus Systems Pvt. Ltd.</p>
+          <p>All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Footer section end -->
+
+    <script src="./Js/dashboard.js"></script>
   </body>
 </html>
