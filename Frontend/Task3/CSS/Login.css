@@ -14,7 +14,9 @@ body {
 
 /* Navbar component start  */
 .navbarComponent {
-  background-color: #1f2834;
+  background: rgba(37, 49, 63, 1) url("../Images/header-image.png");
+  background-blend-mode: overlay;
+  opacity: 1;
   width: 100%;
   height: 60px;
   padding-top: 10.5px;
@@ -52,7 +54,7 @@ body {
 }
 .loginHeading > h2 {
   color: #222222;
-  font-weight: medium;
+  font-weight: 500;
   font-size: 24px;
   line-height: 28px;
   font-family: "Quicksand", sans-serif;

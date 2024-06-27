@@ -1,0 +1,314 @@
+/* footer component start*/
+.footerSection {
+  margin-top: 32px;
+  width: 100%;
+  height: 74px;
+  bottom: 0;
+}
+.footerSection .footer1 {
+  height: 34px;
+  font: 700 14px/18px "Quicksand";
+  color: #1f7a54;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+
+.footer2 {
+  height: 40px;
+  background-color: #e0e1e1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+.footer2 span:nth-child(2) {
+  color: #333333;
+}
+
+.footer2 > .copyright {
+  display: flex;
+  gap: 11px;
+}
+.footer2 > .copyright p {
+  font: 600 12px/16px "Quicksand";
+  color: #616161;
+}
+.footer2 > .copyright p:nth-child(2) {
+  font-weight: 700;
+}
+
+/* Footer component end*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand", sans-serif;
+}
+
+body {
+  font-family: "Quicksand", sans-serif;
+  background-color: #eeeeee;
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  flex-direction: column;
+}
+
+/* Navbar component start  */
+.navbarSection {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgb(37, 49, 63) url("../Images/header-image.png");
+  background-blend-mode: overlay;
+  opacity: 1;
+  padding: 0 24px;
+}
+.navbarSection .logo > img {
+  width: 134px;
+  height: 36px;
+}
+.navbarSection .navOptions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-weight: 500;
+  font-size: default;
+  line-height: default;
+  color: #3fd28b;
+  gap: 32px;
+}
+.navbarSection .navOptions .nav {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 14.5px;
+  gap: 32px;
+  text-transform: uppercase;
+}
+.navbarSection .navOptions .nav .activetab {
+  border-bottom: 5px solid white;
+  padding: 20px 0;
+  color: white;
+}
+.navbarSection .navOptions .navicon {
+  position: relative;
+}
+.navbarSection .navOptions .navicon span {
+  font-weight: normal;
+  font-size: 12px;
+  line-height: default;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -8px;
+  right: -13px;
+  background-color: #2a7ff3;
+  color: white;
+  width: 7px;
+  height: 15px;
+  border-radius: 50%;
+  padding: 10px;
+}
+.navbarSection .navOptions .accountIcon img {
+  width: 32px;
+  height: 32px;
+}
+.navbarSection .navOptions .accountIcon span {
+  font-weight: normal;
+  font-size: 8px;
+  line-height: default;
+  width: 16px;
+  height: 16px;
+  top: -3px;
+  right: -8px;
+  background-color: #ffffff;
+  color: #222222;
+}
+.navbarSection .navOptions span {
+  cursor: pointer;
+}
+
+.hamburger-menu {
+  display: none;
+}
+.hamburger-menu img {
+  width: 40px;
+  height: auto;
+}
+
+/* Navbar component end  */
+/* Login component start  */
+.main {
+  flex: 1;
+}
+
+.loginComponent {
+  width: 488px;
+  height: 590px;
+  background-color: #ffffff;
+  margin: 50px auto;
+  border-top: 4px solid #3ac7ec;
+  padding: 0 32px;
+}
+.loginComponent .loginHeading {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.loginComponent .loginHeading img {
+  position: absolute;
+  left: 0;
+}
+.loginComponent .loginHeading h2 {
+  color: #222222;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 28px;
+}
+
+.radio-options {
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  flex-wrap: wrap;
+  margin: 32px 0 40px 0;
+  -moz-column-gap: 32px;
+       column-gap: 32px;
+  row-gap: 10px;
+}
+.radio-options div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+.radio-options div label {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  color: #333333;
+}
+.radio-options div input {
+  width: 20px;
+  height: 20px;
+  accent-color: #1f7a54;
+}
+
+.inputField {
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1529411765);
+  margin-top: 33px;
+  position: relative;
+}
+.inputField input,
+.inputField select {
+  width: 100%;
+  height: auto;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  border: none;
+  outline: none;
+  color: #222222;
+}
+.inputField input {
+  padding-bottom: 5px;
+}
+.inputField input:focus ~ label {
+  transform: translateY(-20px);
+  font-size: 14px;
+}
+.inputField select {
+  margin-left: -5px;
+}
+.inputField label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #666666;
+  pointer-events: none;
+  transition: 0.2s;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+}
+.inputField select ~ label {
+  transform: translateY(-20px);
+  font-size: 14px;
+}
+
+.forgot {
+  display: flex;
+  justify-content: end;
+  align-items: normal;
+}
+.forgot a {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 18px;
+  color: #1f7a54;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.checkboxBtn {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+  margin-top: 26px;
+}
+.checkboxBtn input {
+  accent-color: #1f7a54;
+  width: 18px;
+  height: 18px;
+}
+.checkboxBtn label {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.submitBtn {
+  margin-top: 34px;
+  text-align: center;
+}
+.submitBtn button {
+  width: 216px;
+  height: 40px;
+  background-color: #3fd28b;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2392156863);
+  cursor: pointer;
+}
+
+/* Login component end  */
+@media screen and (max-width: 540px) {
+  .loginComponent {
+    width: 90%;
+    height: auto;
+  }
+}
+@media screen and (max-width: 400px) {
+  .loginComponent {
+    padding: 0 10px;
+  }
+}/*# sourceMappingURL=LoginPage.css.map */

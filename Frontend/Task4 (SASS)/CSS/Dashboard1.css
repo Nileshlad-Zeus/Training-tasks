@@ -1,0 +1,423 @@
+/* footer component start*/
+.footerSection {
+  margin-top: 32px;
+  width: 100%;
+  height: 74px;
+  bottom: 0;
+}
+.footerSection .footer1 {
+  height: 34px;
+  font: 700 14px/18px "Quicksand";
+  color: #1f7a54;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+
+.footer2 {
+  height: 40px;
+  background-color: #e0e1e1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+.footer2 span:nth-child(2) {
+  color: #333333;
+}
+
+.footer2 > .copyright {
+  display: flex;
+  gap: 11px;
+}
+.footer2 > .copyright p {
+  font: 600 12px/16px "Quicksand";
+  color: #616161;
+}
+.footer2 > .copyright p:nth-child(2) {
+  font-weight: 700;
+}
+
+/* Footer component end*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand", sans-serif;
+}
+
+body {
+  font-family: "Quicksand", sans-serif;
+  background-color: #eeeeee;
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  flex-direction: column;
+}
+
+/* Navbar component start  */
+.navbarSection {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgb(37, 49, 63) url("../Images/header-image.png");
+  background-blend-mode: overlay;
+  opacity: 1;
+  padding: 0 24px;
+}
+.navbarSection .logo > img {
+  width: 134px;
+  height: 36px;
+}
+.navbarSection .navOptions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-weight: 500;
+  font-size: default;
+  line-height: default;
+  color: #3fd28b;
+  gap: 32px;
+}
+.navbarSection .navOptions .nav {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 14.5px;
+  gap: 32px;
+  text-transform: uppercase;
+}
+.navbarSection .navOptions .nav .activetab {
+  border-bottom: 5px solid white;
+  padding: 20px 0;
+  color: white;
+}
+.navbarSection .navOptions .navicon {
+  position: relative;
+}
+.navbarSection .navOptions .navicon span {
+  font-weight: normal;
+  font-size: 12px;
+  line-height: default;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -8px;
+  right: -13px;
+  background-color: #2a7ff3;
+  color: white;
+  width: 7px;
+  height: 15px;
+  border-radius: 50%;
+  padding: 10px;
+}
+.navbarSection .navOptions .accountIcon img {
+  width: 32px;
+  height: 32px;
+}
+.navbarSection .navOptions .accountIcon span {
+  font-weight: normal;
+  font-size: 8px;
+  line-height: default;
+  width: 16px;
+  height: 16px;
+  top: -3px;
+  right: -8px;
+  background-color: #ffffff;
+  color: #222222;
+}
+.navbarSection .navOptions span {
+  cursor: pointer;
+}
+
+.hamburger-menu {
+  display: none;
+}
+.hamburger-menu img {
+  width: 40px;
+  height: auto;
+}
+
+/* Navbar component end  */
+/* header component start  */
+.headers {
+  margin: 24px 24px 0 24px;
+}
+.headers .header1 {
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  width: auto;
+  height: 64px;
+  background-color: #8ddc97;
+  border-radius: 2px;
+}
+.headers .header1 .headerTab {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: auto;
+  color: #222222;
+  cursor: pointer;
+}
+.headers .header1 .headerTab p {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.headers .header1 .headerTab p span {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 28px;
+  padding: 0 8px;
+}
+.headers .header1 .activeTab {
+  border-bottom: 3px solid #222222;
+  transition: 5ms;
+}
+.headers .header2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: normal;
+  width: auto;
+  height: 45px;
+  margin-top: 24px;
+}
+.headers .header2 p {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 14px;
+  align-self: end;
+  color: #686868;
+}
+.headers .header2 .sortFunction {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-self: center;
+}
+.headers .header2 .sortFunction label {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: #686868;
+  padding-right: 6px;
+}
+.headers .header2 .sortFunction .inputField {
+  width: 160px;
+  height: auto;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1529411765);
+  background: transparent;
+  margin-right: 24px;
+}
+.headers .header2 .sortFunction .inputField select {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  width: 100%;
+  height: auto;
+  border: none;
+  outline: none;
+  margin-left: -5px;
+  background-color: transparent;
+  color: #333333;
+}
+
+/* Header component end  */
+hr {
+  margin: 17px 24px;
+  border: 1px solid rgba(128, 128, 128, 0.156);
+}
+
+/* Course component start  */
+.dashboard1 {
+  flex: 1;
+}
+
+.coursesSection {
+  display: flex;
+  justify-content: center;
+  align-items: normal;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 0 24px;
+}
+.coursesSection .courseCard {
+  background-color: white;
+  position: relative;
+  width: 476px;
+  height: 100%;
+  border-radius: 2px;
+}
+.coursesSection .courseCard hr {
+  margin: 16px 24px;
+}
+.coursesSection .courseCard .expired {
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 16px;
+  color: #d80000;
+  background-color: #ffe4e6;
+  border-radius: 2px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 2px;
+}
+.coursesSection .courseCard .coursesActions {
+  display: flex;
+  justify-content: space-around;
+  align-items: normal;
+  margin-top: 16px;
+}
+.coursesSection .courseCard .coursesActions span {
+  font-weight: normal;
+  font-size: 24px;
+  line-height: default;
+  color: #1f7a54;
+}
+
+.coursesInfo {
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  gap: 16px;
+  padding: 24px 24px 0 24px;
+}
+.coursesInfo .courseImage img {
+  width: 132px;
+  height: 157px;
+}
+.coursesInfo .courseDetail {
+  width: 100%;
+  height: auto;
+}
+.coursesInfo .courseDetail .courseName {
+  display: flex;
+  justify-content: space-between;
+  align-items: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  color: #222222;
+  padding-right: 30px;
+}
+.coursesInfo .courseDetail .courseName span {
+  position: absolute;
+  top: 24px;
+  right: 16px;
+}
+.coursesInfo .courseDetail .courseSub {
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  flex-wrap: wrap;
+  color: #666666;
+  gap: 9px;
+  margin: 7px 0;
+}
+.coursesInfo .courseDetail .courseLen {
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.coursesInfo .courseDetail .courseTeacher {
+  border-bottom: 1px solid #000000;
+  width: 100%;
+  height: 27px;
+  margin-top: 16px;
+}
+.coursesInfo .courseDetail .courseTeacher select {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 20px;
+  outline: none;
+  border: none;
+  width: 100%;
+  height: 100%;
+  color: #222222;
+  margin-left: -5px;
+}
+.coursesInfo .courseDetail .courseTeacher option {
+  background-color: white;
+}
+.coursesInfo .courseDetail .courseDate {
+  display: flex;
+  justify-content: flex-start;
+  align-items: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  color: #666666;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+/* Course component end */
+@media screen and (max-width: 450px) {
+  .courseSub {
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 5px;
+  }
+  .courseLen {
+    line-height: 9px;
+    margin-top: 14px;
+  }
+}
+@media screen and (max-width: 800px) {
+  .hamburger-menu {
+    display: block;
+  }
+  .navbarOptions {
+    position: relative;
+  }
+  .navOptions .nav {
+    width: 200px;
+    height: auto;
+    display: none;
+    background-color: #1f2834;
+    flex-direction: column;
+    position: absolute;
+    top: 65px;
+    z-index: 1;
+    right: 20px;
+    padding: 30px;
+  }
+  .navOptions .activetab {
+    border-bottom: 4px solid white;
+    padding: 2px 0;
+    color: white;
+  }
+}
+@media screen and (min-width: 650px) and (max-width: 1000px) {
+  .coursesSection {
+    display: flex;
+    justify-content: center;
+    align-items: normal;
+  }
+  .courseCard {
+    width: 570px;
+    height: auto;
+  }
+}/*# sourceMappingURL=Dashboard1.css.map */
