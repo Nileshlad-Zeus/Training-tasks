@@ -1,0 +1,150 @@
+@import "./footer";
+@import "./varFunctions";
+@import "./navbar";
+
+/* Login component start  */
+.main {
+  flex: 1;
+}
+.loginComponent {
+  @include widthHeight(488px, 590px);
+  background-color: #ffffff;
+  margin: 50px auto;
+  border-top: 4px solid #3ac7ec;
+  padding: 0 32px;
+
+  .loginHeading {
+    margin-top: 20px;
+    @include flex(center, center);
+    position: relative;
+
+    img {
+      position: absolute;
+      left: 0;
+    }
+
+    h2 {
+      color: $textColor;
+      @include font(600, 24px, 28px);
+    }
+  }
+}
+
+.radio-options {
+  @include flex();
+  flex-wrap: wrap;
+  margin: 32px 0 40px 0;
+  column-gap: 32px;
+  row-gap: 10px;
+
+  div {
+    @include flex(flex-start, center);
+    gap: 8px;
+
+    label {
+      @include font(600, 16px, 20px);
+      color: #333333;
+    }
+
+    input {
+      @include widthHeight(20px, 20px);
+      accent-color: $Color1;
+    }
+  }
+}
+
+.inputField {
+  @include widthHeight(100%);
+  @include flex(flex-start, center);
+  border-bottom: 2px solid #00000027;
+  margin-top: 33px;
+  position: relative;
+
+  input,
+  select {
+    @include widthHeight(100%);
+    @include font(600, 16px, 20px);
+    border: none;
+    outline: none;
+    color: $textColor;
+  }
+
+  input {
+    padding-bottom: 5px;
+    &:focus ~ label {
+      transform: translateY(-20px);
+      font-size: 14px;
+    }
+  }
+
+  select {
+    margin-left: -5px;
+  }
+
+  label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #666666;
+    pointer-events: none;
+    transition: 0.2s;
+    @include font(600, 16px, 20px);
+  }
+
+  select ~ label {
+    transform: translateY(-20px);
+    font-size: 14px;
+  }
+}
+
+.forgot {
+  @include flex(end);
+  a {
+    @include font(600, 14px, 18px);
+    color: $Color1;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 5px;
+  }
+}
+
+.checkboxBtn {
+  @include flex(flex-start, center);
+  gap: 5px;
+  margin-top: 26px;
+
+  input {
+    accent-color: $Color1;
+    @include widthHeight(18px, 18px);
+  }
+
+  label {
+    @include font(600, 16px, 20px);
+  }
+}
+
+.submitBtn {
+  margin-top: 34px;
+  text-align: center;
+
+  button {
+    @include widthHeight(216px, 40px);
+    background-color: #3fd28b;
+    border: none;
+    @include font(500, 14px, 18px);
+    box-shadow: 0px 3px 5px #0000003d;
+    cursor: pointer;
+  }
+}
+/* Login component end  */
+
+@media screen and (max-width: 540px) {
+  .loginComponent {
+    @include widthHeight(90%);
+  }
+}
+@media screen and (max-width: 400px) {
+  .loginComponent {
+    padding: 0 10px;
+  }
+}

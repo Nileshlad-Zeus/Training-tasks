@@ -1,0 +1,44 @@
+/* footer component start*/
+.footerSection {
+    margin-top: 32px;
+    width: 100%;
+    height: 74px;
+    bottom: 0;
+  
+    .footer1 {
+      height: 34px;
+      font: 700 14px/18px "Quicksand";
+      color: #1f7a54;
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+    }
+  }
+  
+  .footer2 {
+    height: 40px;
+    background-color: #e0e1e1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+  
+    span:nth-child(2) {
+      color: #333333;
+    }
+  }
+  
+  .footer2 > .copyright {
+    display: flex;
+    gap: 11px;
+  
+    p {
+      font: 600 12px/16px "Quicksand";
+      color: #616161;
+  
+      &:nth-child(2) {
+        font-weight: 700;
+      }
+    }
+  }
+  /* Footer component end*/

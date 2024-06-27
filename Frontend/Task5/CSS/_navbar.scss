@@ -1,0 +1,84 @@
+/* Navbar component start  */
+
+.navbarSection {
+  @include widthHeight(100%, 56px);
+  @include flex(space-between, center);
+
+  background: rgba(37, 49, 63, 1) url("../Images/header-image.png");
+  background-blend-mode: overlay;
+  opacity: 1;
+
+  // background-size: contain;
+  padding: 0 24px;
+
+  .logo > img {
+    @include widthHeight(134px, 36px);
+  }
+  .navOptions {
+    @include flex(flex-start, center);
+    @include font(500);
+    color: #3fd28b;
+    gap: 32px;
+
+    .nav {
+      @include flex(flex-start, center);
+      @include font(500, 14px, 14.5px);
+      gap: 32px;
+      text-transform: uppercase;
+      .navEle {
+        cursor: pointer;
+      }
+      .activetab {
+        border-bottom: 5px solid white;
+        padding: 20px 0;
+        color: white;
+      }
+    }
+    .navicon {
+      position: relative;
+
+      span {
+        @include font(normal, 12px);
+        @include flex(center, center);
+        position: absolute;
+        top: -8px;
+        right: -13px;
+        background-color: #2a7ff3;
+        color: white;
+        @include widthHeight(7px, 15px);
+        border-radius: 50%;
+        padding: 10px;
+      }
+    }
+    .accountIcon {
+      img {
+        @include widthHeight(32px, 32px);
+      }
+      span {
+        @include font(normal, 8px);
+        @include widthHeight(16px, 16px);
+        top: -3px;
+        right: -8px;
+        background-color: #ffffff;
+        color: $textColor;
+      }
+    }
+    .sidebar {
+      display: none;
+      text-transform: uppercase;
+    }
+  }
+}
+.hamburger-menu {
+  display: none;
+  img {
+    @include widthHeight(40px);
+  }
+}
+.navEle-Options {
+  padding-left: 16px;
+  padding-top: 25px;
+  display: none;
+}
+
+/* Navbar component end  */
