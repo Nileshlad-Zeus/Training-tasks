@@ -10,6 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
       rel="stylesheet"
     />
+    
     <title>Dashboard</title>
   </head>
   <body>
@@ -29,34 +30,61 @@
           <span class="navEle" onclick="activeTab(event)">Reports</span>
           <span class="navEle" onclick="activeTab(event)">Admin</span>
         </div>
-        <span class="navicon">
+        <span class="navicon notificationIcon">
           <img src="./Images/icons/alerts.svg" alt="icon" />
-          <span>1</span>
+          <span class="number">1</span>
+          <div class="modal" id="notificationModal">
+            <div class="modalcardSection" id="notificationSection">
+            </div>
+            <div class="modelFooter">
+              <span>Show All</span>
+            </div>
+          </div>
         </span>
-        <span class="navicon">
+        <span class="navicon announcementsIcon" id="announcementsIcon">
           <img src="./Images/icons/announcements.svg" alt="icon" />
-          <span>2</span>
+          <span class="number">2</span>
+          <div class="modal" id="announcementModal">
+            <div class="modalcardSection" id="announcementSection">
+             
+            </div>
+            <div class="modelFooter">
+              <span>Show All</span>
+              <hr />
+              <span>Create new</span>
+            </div>
+          </div>
         </span>
         <span class="navicon accountIcon">
           <img src="./Images/icons/account_circle.svg" alt="icon" />
-          <span>N</span>
+          <span class="accountInit">N</span>
         </span>
         <span class="hamburger-menu" onclick="togglenav()">
           <img src="./Images/icons/hamburger-menu.svg" alt="icon" />
         </span>
 
         <div class="sidebar" id="sidebar">
-          <span class="sideEle" onclick="activeSide(event)">Dashboard</span>
-          <span class="sideEle activetab1" onclick="activeSide(event)">
+          <span class="sideEle activetab1" onclick="activeSide(event)"
+            >Dashboard</span
+          >
+          <span class="sideEle" onclick="activeSide(event)">
             <span class="sideEle-text">
               Content
               <img src="./Images/icons/arrow-down.svg" alt="" srcset="" />
             </span>
             <div class="sideEle-Options">
-              <span>course Catalog</span>
+              <span>course Catalog </span>
             </div>
           </span>
-          <span class="sideEle" onclick="activeSide(event)">Users</span>
+          <span class="sideEle" onclick="activeSide(event)">
+            <span class="sideEle-text">
+              Users
+              <img src="./Images/icons/arrow-down.svg" alt="" srcset="" />
+            </span>
+            <div class="sideEle-Options">
+              <span>course Catalog </span>
+            </div>
+          </span>
           <span class="sideEle" onclick="activeSide(event)">Reports</span>
           <span class="sideEle" onclick="activeSide(event)">Admin</span>
         </div>
@@ -123,5 +151,8 @@
     <!-- Footer section end -->
 
     <script type="text/javascript" src="./Js/dashboard.js"></script>
+    <script type="module" src="./Js/courseCards.js"></script>
+    <script type="module" src="./Js/announcement.js"></script>
+    <script type="module" src="./Js/notification.js"></script>
   </body>
 </html>

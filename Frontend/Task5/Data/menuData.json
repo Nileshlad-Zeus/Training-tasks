@@ -1,0 +1,63 @@
+[
+  { 
+    "id": 1, 
+    "name": "DASHBOARD", 
+    "type": "item" 
+  },
+  {
+    "id": 2,
+    "name": "CONTENT",
+    "type": "submenu",
+    "items": [
+      { 
+        "name": "COURSE CATALOG", 
+        "type": "item" 
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "USERS",
+    "type": "submenu",
+    "items": [
+      { 
+        "name": "USERS 1", 
+        "type": "item" 
+      },
+      { 
+        "name": "USERS 2", 
+        "type": "item" 
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "REPORTS",
+    "type": "submenu",
+    "items": [
+      { 
+        "name": "REPORTS 1", 
+        "type": "item" 
+      },
+      { 
+        "name": "REPORTS 2", 
+        "type": "item" 
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "ADMIN",
+    "type": "submenu",
+    "items": [
+      { 
+        "name": "ADMIN 1", 
+        "type": "item" 
+      },
+      { 
+        "name": "ADMIN 2", 
+        "type": "item" 
+      }
+    ]
+  }
+]

@@ -1,7 +1,7 @@
 $textColor: #222222;
 $Color1: #1f7a54;
 
-@mixin font($weight, $size:default, $lineHeight:default) {
+@mixin font($weight, $size:default, $lineHeight:normal) {
   font-weight: $weight;
   font-size: $size;
   line-height: $lineHeight;

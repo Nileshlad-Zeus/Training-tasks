@@ -1,0 +1,122 @@
+[
+    {
+        "id": 1,
+        "PA": "Wilson Kumar",
+        "Description": "No classes will be held on 21st Nov",
+        "readStatus": true,
+        "class": "",
+        "Course": "",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    },
+    {
+        "id": 2,
+        "PA": "Samson White",
+        "Description": "Guest lecture on Geometry on 20th September",
+        "readStatus": false,
+        "class": "",
+        "Course": "",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    },
+    {
+        "id": 3,
+        "PA": "Wilson Kumar",
+        "Description": "Additional course materials available on request",
+        "readStatus": true,
+        "class": "",
+        "Course": "Mathematics 101",
+        "files_atteched": "",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    },
+    {
+        "id": 4,
+        "PA": "Wilson Kumar",
+        "Description": "No classes will be held on 25th Dec",
+        "readStatus": false,
+        "class": "",
+        "Course": "",
+        "files_atteched": "",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    },
+    {
+        "id": 5,
+        "PA": "Wilson Kumar",
+        "Description": "Additional course materials available on request",
+        "readStatus": false,
+        "class": "",
+        "Course": "Mathematics 101",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 04:21 pm"
+    },
+    {
+        "id": 6,
+        "PA": "Wilson Kumar",
+        "Description": "Lesson 3 Practice Worksheet overdue for Sam Diego",
+        "readStatus": true,
+        "class": "",
+        "Course": "Advanced Mathematics",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    },
+    {
+        "id": 7,
+        "PA": "Wilson Kumar",
+        "Description": "License for Introduction to Algebra has been assigned to your school",
+        "readStatus": false,
+        "class": "",
+        "Course": "",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    },
+    {
+        "id": 8,
+        "PA": "Wilson Kumar",
+        "Description": "Lesson 3 Practice Worksheet overdue for Amy Santiago",
+        "readStatus": true,
+        "class": "",
+        "Course": "Advanced Mathematics",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 05:21 pm"
+    },
+    {
+        "id": 9,
+        "PA": "Wilson Kumar",
+        "Description": "23 new students created",
+        "readStatus": false,
+        "class": "",
+        "Course": "",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "14-Sep-2018 at 01:21 pm"
+    },
+    {
+        "id": 10,
+        "PA": "Wilson Kumar",
+        "Description": "15 submissions ready for evaluation",
+        "readStatus": false,
+        "class": "Basics of Algebra",
+        "Course": "",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "13-Sep-2018 at 01:15 pm"
+    },
+    {
+        "id": 11,
+        "PA": "Wilson Kumar",
+        "Description": "License for Basic Concepts in Geometry has been assigned to your... school",
+        "readStatus": false,
+        "class": "",
+        "Course": "",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    },
+    {
+        "id": 12,
+        "PA": "Wilson Kumar",
+        "Description": "Lesson 3 Practice Worksheet overdue for Sam Diego",
+        "readStatus": true,
+        "class": "",
+        "Course": "Advanced Mathematics",
+        "files_atteched": "2 files are attached",
+        "Date_Time": "15-Sep-2018 at 07:21 pm"
+    }
+]

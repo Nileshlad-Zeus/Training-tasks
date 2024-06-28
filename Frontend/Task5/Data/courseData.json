@@ -1,0 +1,114 @@
+[
+    {
+      "coursename": "Acceleration",
+      "subject": "Physics",
+      "grade": 7,
+      "grade2": 2,
+      "courseLen": {
+        "units": 4,
+        "lessons": 18,
+        "topics": 24
+      },
+      "classStatus": "",
+      "teachers": [
+        { "value": "frank", "label": "Mr. Frank's Class B" },
+        { "value": "all", "label": "All Classes" }
+      ],
+      "noOfStudents": 50,
+      "startdate": "21-Jan-2020",
+      "enddate": "21-Aug-2020",
+      "image": "imageMask",
+      "fav": "favourite",
+      "actionsOpacity": {
+        "preview": 1,
+        "manageCourse": 1,
+        "gradeSubmissions": 1,
+        "reports": 1
+      },
+      "expired": false
+    },
+    {
+        "coursename": "Displacement, Velocity and Speed",
+        "subject": "Physics 2",
+        "grade": 6,
+        "grade2": 3,
+        "courseLen": {
+          "units": 2,
+          "lessons": 15,
+         "topics": 20
+        },
+        "classStatus": "disabled",
+        "teachers": [{ "value": "noclass", "label": "No Classes" }],
+        "noOfStudents": "",
+        "startdate": "",
+        "enddate": "",
+        "image": "imageMask-1",
+        "fav": "favourite",
+        "actionsOpacity": {
+          "preview": 1,
+          "manageCourse": 0.6,
+          "gradeSubmissions": 0.6,
+          "reports": 1
+        },
+        "expired": false
+      },
+      {
+        "coursename":
+          "Introduction to Biology: Micro organisms and how they affec...",
+        "subject": "Biology",
+        "grade": 4,
+        "grade2": 1,
+        "courseLen": {
+          "units": 5,
+          "lessons": 16,
+         "topics": 22
+        },
+        "classStatus": "",
+        "teachers": [{ "value": "all", "label": "All Classes" }],
+        "noOfStudents": "300",
+        "startdate": "",
+        "enddate": "",
+        "image": "imageMask-3",
+        "fav": "favourite",
+        "actionsOpacity": {
+          "preview": 1,
+          "manageCourse": 0.6,
+          "gradeSubmissions": 0.6,
+          "reports": 1
+        },
+        "expired": false
+      },
+
+
+    
+      
+ 
+   {
+  "coursename": "Introduction to High School Mathematics",
+      "subject": "Mathematics",
+      "grade": 8,
+      "grade2": 3,
+      "courseLen": {
+        "units": 4,
+        "lessons": 18,
+        "topics": 24
+      },
+      "classStatus": "",
+      "teachers": [
+        { "value": "frank", "label": "Mr. Frank's Class B" },
+        { "value": "all", "label": "All Classes" }
+      ],
+      "noOfStudents": "44",
+      "startdate": "14-Oct-2019",
+      "enddate": "20-Oct-2020",
+      "image": "imageMask-2",
+      "fav": "favourite",
+      "actionsOpacity": {
+        "preview": 1,
+        "manageCourse": 1,
+        "gradeSubmissions": 1,
+        "reports": 1
+      },
+      "expired": true   
+    }
+]
