@@ -8,16 +8,13 @@ function activeTab(evt) {
   evt.currentTarget.className += " activetab";
 }
 
-
 //hamburger menu open close for mobile devices
 const navoptions = document.getElementById("sidebar");
 function togglenav() {
-  if (navoptions.style.display == "none") {
-    navoptions.style.display = "flex";
-  } else {
-    navoptions.style.display = "none";
-  }
+  navoptions.classList.toggle("activeSidebar");
 }
+
+
 
 
 function activeSide(evt) {
@@ -59,40 +56,41 @@ headertab2.addEventListener("click", () => {
   }
 });
 
-
 //nav modal
-const notificationIcon = document.querySelector('.notificationIcon');
-const notificationIconimg = document.querySelector('.notificationIcon img');
-const notificationModal = document.querySelector('#notificationModal');
+const notificationIcon = document.querySelector(".notificationIcon");
+const notificationIconimg = document.querySelector(".notificationIcon img");
+const notificationModal = document.querySelector("#notificationModal");
 
-notificationIcon.addEventListener("mouseover",()=>{
-  notificationModal.style.display = "block";
+notificationIcon.addEventListener("mouseover", () => {
+  notificationModal.classList.add("displayBlock");
   notificationIconimg.classList.add("hover");
-})
-notificationIcon.addEventListener("mouseout",()=>{
-  notificationModal.style.display = "none";
+  navoptions.classList.remove("activeSidebar");
+});
+notificationIcon.addEventListener("mouseout", () => {
+  notificationModal.classList.remove("displayBlock");
+  navoptions.classList.add("activeSidebar");
   notificationIconimg.classList.remove("hover");
-})
+});
 
-const announcementsIcon = document.querySelector('.announcementsIcon');
-const announcementsIconimg = document.querySelector('.announcementsIcon img');
-const announcementModal = document.querySelector('#announcementModal');
+const announcementsIcon = document.querySelector(".announcementsIcon");
+const announcementsIconimg = document.querySelector(".announcementsIcon img");
+const announcementModal = document.querySelector("#announcementModal");
 
-announcementsIcon.addEventListener("mouseover",()=>{
-  announcementModal.style.display = "block";
+announcementsIcon.addEventListener("mouseover", () => {
+  announcementModal.classList.add("displayBlock");
   announcementsIconimg.classList.add("hover");
-})
-announcementsIcon.addEventListener("mouseout",()=>{
-  announcementModal.style.display = "none";
+  navoptions.classList.remove("activeSidebar");
+});
+announcementsIcon.addEventListener("mouseout", () => {
+  announcementModal.classList.remove("displayBlock");
   announcementsIconimg.classList.remove("hover");
-})
+  navoptions.classList.add("activeSidebar");
+});
 
+let notificationCount = localStorage.getItem("notification");
+const notificationNumber = document.querySelector(".notificationIcon .number");
+notificationNumber.innerHTML = notificationCount;
 
-
-
-
-
-
-
-
-
+let announcementCount = localStorage.getItem("announcement");
+const announcementNumber = document.querySelector(".announcementsIcon .number");
+announcementNumber.innerHTML = announcementCount;

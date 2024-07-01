@@ -1,5 +1,6 @@
 import data from '../Data/announcementData.json' with {type: "json"};
 
+    let count = 0;
   //card rendering
   data.forEach((d) => {
     const announcementSection = document.getElementById("announcementSection");
@@ -7,6 +8,7 @@ import data from '../Data/announcementData.json' with {type: "json"};
     z.classList.add("modalCard");
     if(d.readStatus==false){
         z.classList.add("inactive")
+        count++;
     }
     z.innerHTML = `
         ${d.readStatus == true? 
@@ -42,3 +44,4 @@ import data from '../Data/announcementData.json' with {type: "json"};
     announcementSection.appendChild(z);
   });
   
+  localStorage.setItem('announcement',count);

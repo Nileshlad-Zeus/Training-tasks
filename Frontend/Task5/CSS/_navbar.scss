@@ -50,9 +50,9 @@
         border-radius: 50%;
         padding: 8px;
       }
-      img.hover{
-          filter: brightness(0) invert(1);
-      }  
+      img.hover {
+        filter: brightness(0) invert(1);
+      }
     }
 
     .accountIcon {
@@ -74,12 +74,28 @@
     .notificationIcon:hover .number,
     .announcementsIcon:hover .number {
       display: none;
-      
     }
-    
+
     .sidebar {
-      display: none;
       text-transform: uppercase;
+      max-width: 0px;
+      overflow: hidden;
+      transition: max-width 0.5s;
+      background-color: white;
+      flex-direction: column;
+      position: absolute;
+      top: 56px;
+      z-index: 1;
+      right: 16px;
+      box-shadow: 0px 13px 20px #0000003d;
+      border-radius: 2px;
+      color: #1f7a54;
+      gap: 0px;
+      display: flex;
+    }
+    .activeSidebar {
+      width: 280px;
+      max-width: 280px !important;
     }
   }
 }
@@ -96,8 +112,11 @@
 }
 
 // .announcementModal
+
 .modal {
-  display: none;
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 0.5s;
   @include widthHeight(315px);
   background-color: #ffffff;
   position: absolute;
@@ -116,21 +135,21 @@
       width: 4px;
       opacity: 0.38;
     }
-    
+
     /* Track */
     &::-webkit-scrollbar-track {
-      background: #ffffff; 
+      background: #ffffff;
     }
-    
+
     /* Handle */
     &::-webkit-scrollbar-thumb {
-      background: rgba(128, 128, 128, 0.699); 
+      background: rgba(128, 128, 128, 0.699);
       border-radius: 6px;
     }
-    
+
     /* Handle on hover */
     &::-webkit-scrollbar-thumb:hover {
-      background: #555; 
+      background: #555;
     }
 
     .modalCard {
@@ -145,10 +164,10 @@
         font-size: 18px;
         color: #1f7a54;
       }
-      .dndIcon{ 
-        font-variation-settings:'FILL' 0,
+      .dndIcon {
+        font-variation-settings: "FILL" 0;
       }
-      .from{
+      .from {
         padding-bottom: 8px;
       }
       b {
@@ -156,7 +175,7 @@
       }
 
       .message {
-        padding:0 0 8px 0;
+        padding: 0 0 8px 0;
         @include font(600, 14px, 18px);
         color: #222222;
         padding-right: 22px;
@@ -170,10 +189,10 @@
         .fileattach {
           @include flex(flex-start, center);
           img {
-            @include widthHeight(13px)
+            @include widthHeight(13px);
           }
         }
-        .timestamp{
+        .timestamp {
           margin-left: auto;
         }
       }
@@ -209,7 +228,23 @@
   }
 }
 
+.displayBlock {
+  max-height: 550px;
+}
+
 /* Navbar component end  */
+@media screen and (max-width: 500px) {
+  .navbarSection .navOptions {
+    gap: 16px;
+  }
+  .modal {
+    right: -100px;
+    width: 280px;
+    .modalCard .footer {
+      flex-wrap: wrap;
+    }
+  }
+}
 
 @media screen and (max-width: 800px) {
   .hamburger-menu {
@@ -221,20 +256,7 @@
   .navbarSection .navOptions .nav {
     display: none;
   }
-  .navbarSection .navOptions .sidebar {
-    @include widthHeight(280px);
-    display: none;
-    background-color: white;
-    flex-direction: column;
-    position: absolute;
-    top: 56px;
-    z-index: 1;
-    right: 16px;
-    box-shadow: 0px 13px 20px #0000003d;
-    border-radius: 2px;
-    color: #1f7a54;
-    gap: 0px;
-  }
+
   .navbarSection .navOptions .activetab1 {
     border: none;
     padding: 0;

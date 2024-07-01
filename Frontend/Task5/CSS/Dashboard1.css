@@ -150,8 +150,25 @@ body {
   display: none;
 }
 .navbarSection .navOptions .sidebar {
-  display: none;
   text-transform: uppercase;
+  max-width: 0px;
+  overflow: hidden;
+  transition: max-width 0.5s;
+  background-color: white;
+  flex-direction: column;
+  position: absolute;
+  top: 56px;
+  z-index: 1;
+  right: 16px;
+  box-shadow: 0px 13px 20px rgba(0, 0, 0, 0.2392156863);
+  border-radius: 2px;
+  color: #1f7a54;
+  gap: 0px;
+  display: flex;
+}
+.navbarSection .navOptions .activeSidebar {
+  width: 280px;
+  max-width: 280px !important;
 }
 
 .hamburger-menu {
@@ -169,7 +186,9 @@ body {
 }
 
 .modal {
-  display: none;
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 0.5s;
   width: 315px;
   height: auto;
   background-color: #ffffff;
@@ -292,7 +311,23 @@ body {
   background-color: #ffffee;
 }
 
+.displayBlock {
+  max-height: 550px;
+}
+
 /* Navbar component end  */
+@media screen and (max-width: 500px) {
+  .navbarSection .navOptions {
+    gap: 16px;
+  }
+  .modal {
+    right: -100px;
+    width: 280px;
+  }
+  .modal .modalCard .footer {
+    flex-wrap: wrap;
+  }
+}
 @media screen and (max-width: 800px) {
   .hamburger-menu {
     display: block;
@@ -302,21 +337,6 @@ body {
   }
   .navbarSection .navOptions .nav {
     display: none;
-  }
-  .navbarSection .navOptions .sidebar {
-    width: 280px;
-    height: auto;
-    display: none;
-    background-color: white;
-    flex-direction: column;
-    position: absolute;
-    top: 56px;
-    z-index: 1;
-    right: 16px;
-    box-shadow: 0px 13px 20px rgba(0, 0, 0, 0.2392156863);
-    border-radius: 2px;
-    color: #1f7a54;
-    gap: 0px;
   }
   .navbarSection .navOptions .activetab1 {
     border: none;
@@ -391,6 +411,7 @@ body {
   width: auto;
   height: 45px;
   margin-top: 24px;
+  flex-wrap: wrap;
 }
 .headers .header2 p {
   font-weight: 500;
@@ -510,6 +531,11 @@ hr {
   line-height: 20px;
   color: #222222;
   padding-right: 30px;
+  max-height: 44px;
+}
+.coursesInfo .courseDetail .courseName p {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .coursesInfo .courseDetail .courseName span {
   position: absolute;
@@ -527,6 +553,7 @@ hr {
   color: #666666;
   gap: 9px;
   margin: 7px 0;
+  row-gap: 0px;
 }
 .coursesInfo .courseDetail .courseLen {
   display: flex;
@@ -538,6 +565,7 @@ hr {
   gap: 6px;
   margin-top: 8px;
   flex-wrap: wrap;
+  row-gap: 0;
 }
 .coursesInfo .courseDetail .courseTeacher {
   border-bottom: 1px solid #000000;
@@ -570,18 +598,21 @@ hr {
   gap: 8px;
   margin-top: 8px;
   flex-wrap: wrap;
+  row-gap: 0px;
 }
 
 /* Course component end */
 @media screen and (max-width: 450px) {
-  .courseSub {
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 5px;
+  .coursesInfo .courseDetail .courseTeacher {
+    margin-top: 0;
   }
-  .courseLen {
-    line-height: 9px;
-    margin-top: 14px;
+  .coursesInfo .courseImage img {
+    width: 90px;
+    height: 110px;
+  }
+  .coursesInfo .courseDetail .courseTeacher select {
+    font-size: 12px;
+    line-height: 13px;
   }
 }
 @media screen and (min-width: 650px) and (max-width: 1000px) {

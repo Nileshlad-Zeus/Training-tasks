@@ -150,8 +150,25 @@ body {
   display: none;
 }
 .navbarSection .navOptions .sidebar {
-  display: none;
   text-transform: uppercase;
+  max-width: 0px;
+  overflow: hidden;
+  transition: max-width 0.5s;
+  background-color: white;
+  flex-direction: column;
+  position: absolute;
+  top: 56px;
+  z-index: 1;
+  right: 16px;
+  box-shadow: 0px 13px 20px rgba(0, 0, 0, 0.2392156863);
+  border-radius: 2px;
+  color: #1f7a54;
+  gap: 0px;
+  display: flex;
+}
+.navbarSection .navOptions .activeSidebar {
+  width: 280px;
+  max-width: 280px !important;
 }
 
 .hamburger-menu {
@@ -169,7 +186,9 @@ body {
 }
 
 .modal {
-  display: none;
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 0.5s;
   width: 315px;
   height: auto;
   background-color: #ffffff;
@@ -292,7 +311,23 @@ body {
   background-color: #ffffee;
 }
 
+.displayBlock {
+  max-height: 550px;
+}
+
 /* Navbar component end  */
+@media screen and (max-width: 500px) {
+  .navbarSection .navOptions {
+    gap: 16px;
+  }
+  .modal {
+    right: -100px;
+    width: 280px;
+  }
+  .modal .modalCard .footer {
+    flex-wrap: wrap;
+  }
+}
 @media screen and (max-width: 800px) {
   .hamburger-menu {
     display: block;
@@ -302,21 +337,6 @@ body {
   }
   .navbarSection .navOptions .nav {
     display: none;
-  }
-  .navbarSection .navOptions .sidebar {
-    width: 280px;
-    height: auto;
-    display: none;
-    background-color: white;
-    flex-direction: column;
-    position: absolute;
-    top: 56px;
-    z-index: 1;
-    right: 16px;
-    box-shadow: 0px 13px 20px rgba(0, 0, 0, 0.2392156863);
-    border-radius: 2px;
-    color: #1f7a54;
-    gap: 0px;
   }
   .navbarSection .navOptions .activetab1 {
     border: none;

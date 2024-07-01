@@ -39,6 +39,7 @@
     @include flex(space-between);
     @include widthHeight(auto, 45px);
     margin-top: 24px;
+    flex-wrap: wrap;
 
     p {
       @include font(500, 12px, 14px);
@@ -142,6 +143,11 @@ hr {
       @include font(600, 16px, 20px);
       color: $textColor;
       padding-right: 30px;
+      max-height: 44px;
+      p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
       span {
         position: absolute;
@@ -157,6 +163,7 @@ hr {
       color: #666666;
       gap: 9px;
       margin: 7px 0;
+      row-gap: 0px;
     }
     .courseLen {
       @include flex();
@@ -164,6 +171,7 @@ hr {
       gap: 6px;
       margin-top: 8px;
       flex-wrap: wrap;
+      row-gap: 0;
     }
     .courseTeacher {
       border-bottom: 1px solid #000000;
@@ -190,21 +198,25 @@ hr {
       gap: 8px;
       margin-top: 8px;
       flex-wrap: wrap;
+      row-gap: 0px;
     }
   }
 }
 /* Course component end */
 
 @media screen and (max-width: 450px) {
-  .courseSub {
-    @include font(600, 12px, 5px);
+  .coursesInfo .courseDetail .courseTeacher {
+    margin-top: 0;
   }
-  .courseLen {
-    line-height: 9px;
-    margin-top: 14px;
+  .coursesInfo .courseImage img {
+    width: 90px;
+    height: 110px;
+  }
+  .coursesInfo .courseDetail .courseTeacher select {
+    font-size: 12px;
+    line-height: 13px;
   }
 }
-
 
 @media screen and (min-width: 650px) and (max-width: 1000px) {
   .coursesSection {
@@ -220,3 +232,4 @@ hr {
     display: none !important;
   }
 }
+
