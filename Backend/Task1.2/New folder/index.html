@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="fileUploadModal" class="closeFileUploadModal">
+      <div class="modal">
+        <img src="./ModalImg.png" alt="Img" />
+        <input type="file" name="" id="" />
+        <h3>Upload CSV File</h3>
+        <i class="fa-solid fa-xmark"></i>
+        <button id="fileSubmitBtn" class="btn1">Upload</button>
+      </div>
+    </div>
+    <div class="toolBar">
+      <button id="uplaodFile" class="uplaodFile btn1"> Upload File</button>
+    </div>
+    <div class="dashBoard">
+      <canvas id="myCanvas" class="myCanvas"></canvas>
+    </div>
+    <div class="footer">
+      <button id="prev" class="btn1">Prev</button>
+      <span id="currentPage" class="currentPage">1</span>
+      <button id="next" class="btn1">Next</button>
+    </div>
+
+    <script src="./app.js"></script>
+    <script src="./pagination.js"></script>
+    <script
+      src="https://kit.fontawesome.com/d98933ff45.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
