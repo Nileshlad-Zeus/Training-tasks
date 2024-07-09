@@ -44,12 +44,23 @@ await connection.OpenAsync();
 
 app.MapGet("/getalldata/{offset}", async (int offset) =>
 {
-    var offset2 = (offset-1)*100;
+    var offset2 = (offset - 1) * 100;
     var query = $"SELECT * FROM employee_info LIMIT 100 OFFSET {offset2}";
     var employees = await connection.QueryAsync<Employee>(query);
     return employees.ToArray();
 })
 .WithName("getalldata")
+.WithOpenApi();
+
+app.MapGet("/sortdata/{field}/{offset}", async (string field, int offset) =>
+{
+    var offset2 = (offset - 1) * 100;
+    // Console.WriteLine(field, offset);
+    var query = $"SELECT * FROM employee_info ORDER BY {field} ASC LIMIT 100 OFFSET {offset2}";
+    var employees = await connection.QueryAsync<Employee>(query);
+    return employees.ToArray();
+})
+.WithName("sortdata")
 .WithOpenApi();
 
 string csvFilePath = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv";

@@ -7,6 +7,14 @@
 body{
     position: relative;
 }
+.toolBar{
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    border-bottom: 2px solid black;
+}
 button{
     cursor: pointer;
 }
@@ -19,12 +27,19 @@ button{
     padding: 10px 40px;
     border-radius: 10px;
 }
-.toolBar{
-    height: 80px;
-    display: flex;
-    align-items: center;
-    padding: 0 30px;
-    border-bottom: 2px solid black;
+.searchBar{
+    width: 300px;
+    height: 40px;
+    border: 1px solid gray;
+}
+.searchBar input{
+    height: 100%;
+    width: 100%;
+    padding-left: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    outline: none;
+    border: none;
 }
 .fileUploadModal{
     position: absolute;
@@ -105,4 +120,14 @@ button{
     font-weight: 500;
 }
 
-
+.inputBox{
+    display: none;
+}
+.inputBox input{
+    width: 220px;
+    height: 40px;
+    outline: 2px solid black;
+    font-size: 14px;
+    text-align: center;
+    font-weight: 600;
+}

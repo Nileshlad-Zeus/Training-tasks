@@ -20,7 +20,8 @@ next.addEventListener("click", () => {
 });
 
 const fetchUserData = async (pageNo) => {
-  console.log(pageNo);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   const response = await fetch(`http://localhost:5186/getalldata/${pageNo}`, {
     method: "GET",
     headers: {
@@ -29,14 +30,22 @@ const fetchUserData = async (pageNo) => {
   });
   const json = await response.json();
   renderTable(json);
-  if (json.length < 100) {
-    next.disabled = true;
-    return;
-  } else {
-    next.disabled = false;
-    prev.disabled = false;
-  }
+  next.disabled = data.length < 100;
+  prev.disabled = currPage.innerHTML === 1
   currPage.innerHTML = pageNo;
+};
+
+const sortData = async (field) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  console.log(field);
+  const response = await fetch(`http://localhost:5186/sortdata/${field}/100`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const json = await response.json();
+  renderTable(json);
 };
 
 fetchUserData(pageNo);
@@ -83,20 +92,110 @@ const renderTable = (data) => {
   ctx.fillText("2022-23", (25 * cellWidth) / 2, cellHeight / 2);
   ctx.fillText("2023-24", (27 * cellWidth) / 2, cellHeight / 2);
 
+  const sortFun = (e) => {
+    const x = cellWidth;
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    switch (true) {
+      case clickX >= 20 &&
+        clickX <= 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("email_id");
+        break;
+      case clickX >= x + 20 &&
+        clickX <= x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("name");
+        break;
+      case clickX >= 2 * x + 20 &&
+        clickX <= 2 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("country");
+        break;
+      case clickX >= 3 * x + 20 &&
+        clickX <= 3 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("state");
+        break;
+      case clickX >= 4 * x + 20 &&
+        clickX <= 4 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("city");
+        break;
+      case clickX >= 5 * x + 20 &&
+        clickX <= 5 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("telephone_number");
+        break;
+      case clickX >= 6 * x + 20 &&
+        clickX <= 6 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("address_line_1");
+        break;
+      case clickX >= 7 * x + 20 &&
+        clickX <= 7 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("address_line_2");
+        break;
+      case clickX >= 8 * x + 20 &&
+        clickX <= 8 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("date_of_birth");
+        break;
+      case clickX >= 9 * x + 20 &&
+        clickX <= 9 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("gross_salary_2019_20");
+        break;
+      case clickX >= 10 * x + 20 &&
+        clickX <= 10 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("gross_salary_2020_21");
+        break;
+      case clickX >= 11 * x + 20 &&
+        clickX <= 11 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("gross_salary_2021_22");
+        break;
+      case clickX >= 12 * x + 20 &&
+        clickX <= 12 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("gross_salary_2022_23");
+        break;
+      case clickX >= 13 * x + 20 &&
+        clickX <= 13 * x + 20 + cellWidth &&
+        clickY >= 0 &&
+        clickY <= 40:
+        sortData("gross_salary_2023_24");
+        break;
+      default:
+        break;
+    }
+  };
+
+  canvas.addEventListener("click", sortFun);
   ctx.font = "14px Arial";
   ctx.textAlign = "left";
+
   data.forEach((item, index) => {
     const x = cellWidth;
-    const y = (index + 2) * cellHeight - 20; // Start from the third row (first data row)
-
-    // ctx.save();
-    // ctx.beginPath();
-    // ctx.rect(10, 10, cellWidth, cellHeight);
-    // ctx.stroke();
-    // ctx.clip();
+    const y = (index + 1) * cellHeight + 20; // Start from the third row (first data row)
 
     // Render the data fields
-
     ctx.fillText(item.email_id, 20, y);
     ctx.fillText(item.name, x + 20, y);
     ctx.fillText(item.country, 2 * x + 20, y);
@@ -106,52 +205,121 @@ const renderTable = (data) => {
     ctx.fillText(item.address_line_1, 6 * x + 20, y);
     ctx.fillText(item.address_line_2, 7 * x + 20, y);
     ctx.fillText(item.date_of_birth, 8 * x + 20, y);
-
-    // Align the salary data to the right
     ctx.fillText(item.gross_salary_2019_20, 9 * x + 20, y);
     ctx.fillText(item.gross_salary_2020_21, 10 * cellWidth + 20, y);
     ctx.fillText(item.gross_salary_2021_22, 11 * cellWidth + 20, y);
     ctx.fillText(item.gross_salary_2022_23, 12 * cellWidth + 20, y);
     ctx.fillText(item.gross_salary_2023_24, 13 * cellWidth + 20, y);
 
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      switch (true) {
+        case clickX >= 20 &&
+          clickX <= 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= x + 20 &&
+          clickX <= x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.name}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 2 * x + 20 &&
+          clickX <= 2 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.country}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 3 * x + 20 &&
+          clickX <= 3 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.state}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 4 * x + 20 &&
+          clickX <= 4 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.city}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 5 * x + 20 &&
+          clickX <= 5 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.telephone_number}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 6 * x + 20 &&
+          clickX <= 6 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(` ${item.address_line_1}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 7 * x + 20 &&
+          clickX <= 7 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.address_line_2}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 8 * x + 20 &&
+          clickX <= 8 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.date_of_birth}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 9 * x + 20 &&
+          clickX <= 9 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.gross_salary_2019_20}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 10 * x + 20 &&
+          clickX <= 10 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.gross_salary_2020_21}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 11 * x + 20 &&
+          clickX <= 11 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.gross_salary_2021_22}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 12 * x + 20 &&
+          clickX <= 12 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.gross_salary_2022_23}`);
+          console.log(`${item.email_id}`);
+          break;
+        case clickX >= 13 * x + 20 &&
+          clickX <= 13 * x + 20 + cellWidth &&
+          clickY >= y - 14 &&
+          clickY <= y + 14:
+          console.log(`${item.gross_salary_2023_24}`);
+          console.log(`${item.email_id}`);
+          break;
+        default:
+          break;
+      }
+    });
+
     ctx.restore();
   });
 };
 
-// http://localhost:5186/getalldata/0
-
-// modal
-
-const modal = document.querySelector(".modal");
-const fileUploadModal = document.querySelector("#fileUploadModal");
-const file = document.querySelector("input[type='file']");
-const closeModal = document.querySelector(".modal i");
-const uplaodFile = document.querySelector("#uplaodFile");
-const fileSubmitBtn = document.querySelector("#fileSubmitBtn");
-
-const modalHeading = modal.querySelector("h3");
-
-uplaodFile.addEventListener("click", () => {
-  fileUploadModal.classList.add("fileUploadModal");
-  fileUploadModal.classList.remove("closeFileUploadModal");
-});
-modal.addEventListener("click", () => {
-  file.click();
-});
-
-file.addEventListener("change",(e)=>{
-  if(file.files.length){
-    const files = e.target.files;
-    const fileName = files[0].name;
-    modalHeading.innerText = fileName
-  }
-})
-fileSubmitBtn.addEventListener("click",(e)=>{
-  e.stopPropagation();
-})
-
-closeModal.addEventListener("click", (e) => {
-  e.stopPropagation();
-  fileUploadModal.classList.add("closeFileUploadModal");
-  fileUploadModal.classList.remove("fileUploadModal");
-});
