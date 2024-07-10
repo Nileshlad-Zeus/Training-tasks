@@ -5,11 +5,13 @@ const prevButton = document.querySelector("#prev");
 const nextButton = document.querySelector("#next");
 const currPageDisplay = document.querySelector("#currentPage");
 const inputBox = document.getElementById("inputBox");
-const body = document.getElementsByTagName("body")
+const body = document.querySelector("body");
+const contextmenu = document.getElementById("contextmenu");
 
 let currentPage = currPageDisplay.innerText;
 
 prevButton.addEventListener("click", () => {
+  inputBox.style.display = "none";
   if (currentPage > 1) {
     currentPage--;
     PageChange();
@@ -17,6 +19,7 @@ prevButton.addEventListener("click", () => {
 });
 
 nextButton.addEventListener("click", () => {
+  inputBox.style.display = "none";
   currentPage++;
   PageChange();
 });
@@ -136,7 +139,6 @@ const PageChange = () => {
 PageChange();
 
 canvas.addEventListener("click", (e) => {
-  
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
   const clickY = e.clientY - rect.top;
@@ -186,6 +188,22 @@ const updateData = async (email, key, value) => {
   window.alert(res);
 };
 
+const deleteRow = async (email) => {
+  const response = await fetch(`http://localhost:5186/deleterow/${email}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const res = await response.text();
+  contextmenu.style.display = "none";
+  PageChange();
+  window.alert(res);
+};
+
+inputBox.addEventListener("click", (e) => {
+  e.target.value = localStorage.getItem("storeValue");
+});
 inputBox.addEventListener("keydown", (e) => {
   const dataStore = JSON.parse(localStorage.getItem("dataStore"));
 
@@ -193,7 +211,7 @@ inputBox.addEventListener("keydown", (e) => {
     var index = JSON.parse(localStorage.getItem("index"));
     const item = dataStore[index[1]];
 
-    if (index[0] >= 0 && index[0] < 14) {
+    if (index[0] >= 1 && index[0] < 14) {
       const headers = [
         "email_id",
         "name",
@@ -214,66 +232,22 @@ inputBox.addEventListener("keydown", (e) => {
       updateData(item.email_id, field, e.target.value);
       e.target.value = null;
     }
-    // switch (index[0]) {
-    //   case 0:
-    //     updateData(item.email_id, "email_id", e.target.value);
-    //     break;
-    //   case 1:
-    //     updateData(item.email_id, "name", e.target.value);
-    //     break;
-    //   case 2:
-    //     updateData(item.email_id, "country", e.target.value);
-    //     break;
-    //   case 3:
-    //     updateData(item.email_id, "state", e.target.value);
-    //     break;
-    //   case 4:
-    //     updateData(item.email_id, "city", e.target.value);
-    //     break;
-    //   case 5:
-    //     updateData(item.email_id, "telephone_number", e.target.value);
-    //     break;
-    //   case 6:
-    //     updateData(item.email_id, "address_line_1", e.target.value);
-    //     break;
-    //   case 7:
-    //     updateData(item.email_id, "address_line_2", e.target.value);
-    //     break;
-    //   case 8:
-    //     updateData(item.email_id, "date_of_birth", e.target.value);
-    //     break;
-    //   case 9:
-    //     updateData(item.email_id, "gross_salary_2019_20", e.target.value);
-    //     break;
-    //   case 10:
-    //     updateData(item.email_id, "gross_salary_2020_21", e.target.value);
-    //     break;
-    //   case 11:
-    //     updateData(item.email_id, "gross_salary_2021_22", e.target.value);
-    //     break;
-    //   case 12:
-    //     updateData(item.email_id, "gross_salary_2022_23", e.target.value);
-    //     break;
-    //   case 13:
-    //     updateData(item.email_id, "gross_salary_2023_24", e.target.value);
-    //     break;
-    //   default:
-    //     break;
-    // }
   }
 });
 
-const contextmenu = document.getElementById("contextmenu");
 canvas.addEventListener(
   "contextmenu",
   (e) => {
     e.preventDefault();
+    const dataStore = JSON.parse(localStorage.getItem("dataStore"));
     const rect = canvas.getBoundingClientRect();
-    console.log("Click");
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
     const colIndex = Math.floor(clickX / cellWidth);
     const rowIndex = Math.floor(clickY / cellHeight) - 1;
+    localStorage.setItem("index", JSON.stringify([colIndex, rowIndex]));
+    const item = dataStore[rowIndex];
+    console.log(item);
     contextmenu.style.display = "block";
     contextmenu.style.top = `${(rowIndex + 1) * cellHeight}px`;
     contextmenu.style.left = `${colIndex * cellWidth + 200}px`;
@@ -282,8 +256,15 @@ canvas.addEventListener(
   false
 );
 
-canvas.addEventListener("click", (e) => {
-  
+const deleterow = document.getElementById("delete-row");
+deleterow.addEventListener("click", () => {
+  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+  var index = JSON.parse(localStorage.getItem("index"));
+  const item = dataStore[index[1]];
+  deleteRow(item.email_id);
+});
+
+canvas.addEventListener("dblclick", (e) => {
   const dataStore = JSON.parse(localStorage.getItem("dataStore"));
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
@@ -293,30 +274,38 @@ canvas.addEventListener("click", (e) => {
   const rowIndex = Math.floor(clickY / cellHeight) - 1;
   localStorage.setItem("index", JSON.stringify([colIndex, rowIndex]));
 
-  if (rowIndex >= 0 && colIndex >= 0) {
+  if (rowIndex >= 0 && colIndex >= 1) {
     const item = dataStore[rowIndex];
 
     inputBox.style.display = "block";
     inputBox.style.position = "absolute";
     inputBox.style.top = `${(rowIndex + 1) * cellHeight}px`;
     inputBox.style.left = `${colIndex * cellWidth}px`;
+
     switch (colIndex) {
       case 0:
+        localStorage.setItem("storeValue", item.email_id);
         console.log(`${item.email_id}: ${item.email_id}`);
         break;
       case 1:
+        inputValue = item.name;
+        localStorage.setItem("storeValue", item.name);
         console.log(`${item.email_id}: ${item.name}`);
         break;
       case 2:
+        localStorage.setItem("storeValue", item.country);
         console.log(`${item.email_id}: ${item.country}`);
         break;
       case 3:
+        localStorage.setItem("storeValue", item.state);
         console.log(`${item.email_id}: ${item.state}`);
         break;
       case 4:
+        localStorage.setItem("storeValue", item.city);
         console.log(`${item.email_id}: ${item.city}`);
         break;
       case 5:
+        localStorage.setItem("storeValue", item.telephone_number);
         console.log(`${item.email_id}: ${item.telephone_number}`);
         break;
       case 6:
@@ -349,7 +338,65 @@ canvas.addEventListener("click", (e) => {
   }
 });
 
-body.addEventListener("click",()=>{
-  contextmenu.style.display = "none";
-  inputBox.style.display = "none";
-})
+const drawHighlight = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Redraw table
+  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+  renderTable(dataStore);
+
+  // Draw highlight rectangle
+  const [startX, startY, width, height] = selectionDimensions;
+  ctx.fillStyle = "rgba(0, 0, 255, 0.1)";
+  ctx.fillRect(
+    startX * cellWidth,
+    (startY + 1) * cellHeight,
+    width * cellWidth,
+    height * cellHeight
+  );
+};
+
+let startingIndex = [];
+let selectionDimensions = [];
+let selection = false;
+canvas.addEventListener("mousedown", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  selection = true;
+
+  const colIndex = Math.floor(clickX / cellWidth);
+  const rowIndex = Math.floor(clickY / cellHeight) - 1;
+
+  startingIndex = [colIndex, rowIndex];
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (selection) {
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const colIndex = Math.floor(clickX / cellWidth);
+    const rowIndex = Math.floor(clickY / cellHeight) - 1;
+
+    // Determine dimensions of selection
+    const startX = Math.min(startingIndex[0], colIndex);
+    const startY = Math.min(startingIndex[1], rowIndex);
+    const endX = Math.max(startingIndex[0], colIndex);
+    const endY = Math.max(startingIndex[1], rowIndex);
+
+    selectionDimensions = [
+      startX,
+      startY,
+      endX - startX + 1,
+      endY - startY + 1,
+    ];
+
+    drawHighlight();
+  }
+});
+
+canvas.addEventListener("mouseup", (e) => {
+  selection = false;
+});

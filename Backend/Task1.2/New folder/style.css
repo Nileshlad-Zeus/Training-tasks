@@ -1,154 +1,153 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Quicksand", sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand", sans-serif;
 }
-body{
-    position: relative;
+body {
+  position: relative;
 }
-.toolBar{
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 30px;
-    border-bottom: 2px solid black;
+.toolBar {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  border-bottom: 2px solid black;
 }
-button{
-    cursor: pointer;
+button {
+  cursor: pointer;
 }
-.btn1{
-    border: none;
-    background-color: black;
-    color: white;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 10px 40px;
-    border-radius: 10px;
+.btn1 {
+  border: none;
+  background-color: black;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 10px 40px;
+  border-radius: 10px;
 }
-.searchBar{
-    width: 300px;
-    height: 40px;
-    border: 1px solid gray;
+.searchBar {
+  width: 300px;
+  height: 40px;
+  border: 1px solid gray;
 }
-.searchBar input{
-    height: 100%;
-    width: 100%;
-    padding-left: 10px;
-    font-size: 16px;
-    font-weight: 500;
-    outline: none;
-    border: none;
+.searchBar input {
+  height: 100%;
+  width: 100%;
+  padding-left: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  outline: none;
+  border: none;
 }
-.fileUploadModal{
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.612);
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    z-index: 1;
+.fileUploadModal {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.612);
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  z-index: 1;
 }
-.closeFileUploadModal{
-    display: none;
+.closeFileUploadModal {
+  display: none;
 }
-.modal{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    width: 600px;
-    height: 300px;
-    background-color: white;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    border-radius: 10px;
-    margin: 100px auto;
-    position: relative;
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 600px;
+  height: 300px;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+  margin: 100px auto;
+  position: relative;
 }
-.modal input{
-    display: none;
+.modal input {
+  display: none;
 }
-.modal h3{
-    font-size: 24px;
-    margin-top: 20px;
-    color: rgba(0, 0, 0, 0.665);
+.modal h3 {
+  font-size: 24px;
+  margin-top: 20px;
+  color: rgba(0, 0, 0, 0.665);
 }
-.modal i{
-    cursor: pointer;
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 30px;
-    color: rgba(0, 0, 0, 0.665);
+.modal i {
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 30px;
+  color: rgba(0, 0, 0, 0.665);
 }
-.dashBoard{
-    position:relative;
-    height: calc(100vh - 80px - 80px);
-    overflow:auto;
+.dashBoard {
+  position: relative;
+  height: calc(100vh - 80px - 80px);
+  overflow: auto;
 }
 .dashBoard::-webkit-scrollbar {
-    width: 4px;
-    opacity: 0.38;
-  }
-
-  /* Track */
-  .dashBoard::-webkit-scrollbar-track {
-    background: #ffffff;
-  }
-
-  /* Handle */
-  .dashBoard::-webkit-scrollbar-thumb {
-    background: rgba(128, 128, 128, 0.699);
-    border-radius: 6px;
-  }
-
-  /* Handle on hover */
-  .dashBoard::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-
-.footer{
-    display: flex;;
-    justify-content: center;
-    align-items: center;
-    height: 80px;
-    gap: 20px;
-    
-}
-.footer span{
-    font-size: 28px;
-    font-weight: 500;
+  width: 4px;
+  opacity: 0.38;
 }
 
-.inputBox{
-    display: none;
+/* Track */
+.dashBoard::-webkit-scrollbar-track {
+  background: #ffffff;
 }
-.inputBox input{
-    width: 220px;
-    height: 40px;
-    outline: 2px solid black;
-    font-size: 14px;
-    text-align: center;
-    font-weight: 600;
+
+/* Handle */
+.dashBoard::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.699);
+  border-radius: 6px;
 }
-.contextMenu{
-    display: none;
-    width: 300px;
-    background-color: white;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    position: absolute;
-    padding: 10px;
-    border-radius: 10px;
+
+/* Handle on hover */
+.dashBoard::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
-.contextMenu ul{
-    list-style-type: none;
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  gap: 20px;
 }
-.contextMenu li{
-    padding: 3px 0;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
+.footer span {
+  font-size: 28px;
+  font-weight: 500;
 }
-.contextMenu li:hover{
-    color: #555;
+
+.inputBox {
+  display: none;
+}
+.inputBox input {
+  width: 220px;
+  height: 40px;
+  outline: 2px solid black;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 600;
+}
+.contextMenu {
+  display: none;
+  width: 300px;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  position: absolute;
+  padding: 10px;
+  border-radius: 10px;
+}
+.contextMenu ul {
+  list-style-type: none;
+}
+.contextMenu li {
+  padding: 3px 0;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+.contextMenu li:hover {
+  color: #555;
 }

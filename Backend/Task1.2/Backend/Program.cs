@@ -84,6 +84,24 @@ app.MapPut("/updatedata/{email}", async (string email, UpdateRequest requestBody
 .WithOpenApi();
 
 
+app.MapDelete("/deleterow/{email}", async (string email) =>
+{
+    try
+    {
+        var query = $"DELETE FROM employee_info WHERE email_id='{email}'";
+        var employees = await connection.QueryAsync<Employee>(query);
+        return "Row Deleted Successfully";
+    }
+    catch (Exception ex)
+    {
+        return $"Error:- {ex.Message}";
+    }
+
+})
+.WithName("deleterow")
+.WithOpenApi();
+
+
 
 
 
