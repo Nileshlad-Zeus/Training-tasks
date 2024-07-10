@@ -5,6 +5,7 @@ const prevButton = document.querySelector("#prev");
 const nextButton = document.querySelector("#next");
 const currPageDisplay = document.querySelector("#currentPage");
 const inputBox = document.getElementById("inputBox");
+const body = document.getElementsByTagName("body")
 
 let currentPage = currPageDisplay.innerText;
 
@@ -76,7 +77,6 @@ const renderTable = (data) => {
   ctx.font = "bold 16px Arial";
   ctx.textAlign = "center";
 
-  // Draw grid lines
   for (let x = 0; x <= numCols; x++) {
     ctx.beginPath();
     ctx.moveTo(x * cellWidth, 0);
@@ -91,7 +91,6 @@ const renderTable = (data) => {
     ctx.stroke();
   }
 
-  // Render headers
   const headers = [
     "Email Id",
     "Name",
@@ -112,7 +111,6 @@ const renderTable = (data) => {
     ctx.fillText(header, ((2 * index + 1) * cellWidth) / 2, cellHeight / 2);
   });
 
-  // Render data rows
   ctx.font = "14px Arial";
   data.forEach((item, index) => {
     const y = (index + 1) * cellHeight + 20;
@@ -137,11 +135,8 @@ const PageChange = () => {
 };
 PageChange();
 
-const updateData = () =>{
-    
-}
-
 canvas.addEventListener("click", (e) => {
+  
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
   const clickY = e.clientY - rect.top;
@@ -173,25 +168,138 @@ canvas.addEventListener("click", (e) => {
   }
 });
 
+const updateData = async (email, key, value) => {
+  console.log(email, key, value);
+  const response = await fetch(`http://localhost:5186/updatedata/${email}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      key: key,
+      value: value,
+    }),
+  });
+  const res = await response.text();
+  PageChange();
+  inputBox.style.display = "none";
+  window.alert(res);
+};
+
+inputBox.addEventListener("keydown", (e) => {
+  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+
+  if (e.key === "Enter") {
+    var index = JSON.parse(localStorage.getItem("index"));
+    const item = dataStore[index[1]];
+
+    if (index[0] >= 0 && index[0] < 14) {
+      const headers = [
+        "email_id",
+        "name",
+        "country",
+        "state",
+        "city",
+        "telephone_number",
+        "address_line_1",
+        "address_line_2",
+        "date_of_birth",
+        "gross_salary_2019_20",
+        "gross_salary_2020_21",
+        "gross_salary_2021_22",
+        "gross_salary_2022_23",
+        "gross_salary_2023_24",
+      ];
+      const field = headers[index[0]];
+      updateData(item.email_id, field, e.target.value);
+      e.target.value = null;
+    }
+    // switch (index[0]) {
+    //   case 0:
+    //     updateData(item.email_id, "email_id", e.target.value);
+    //     break;
+    //   case 1:
+    //     updateData(item.email_id, "name", e.target.value);
+    //     break;
+    //   case 2:
+    //     updateData(item.email_id, "country", e.target.value);
+    //     break;
+    //   case 3:
+    //     updateData(item.email_id, "state", e.target.value);
+    //     break;
+    //   case 4:
+    //     updateData(item.email_id, "city", e.target.value);
+    //     break;
+    //   case 5:
+    //     updateData(item.email_id, "telephone_number", e.target.value);
+    //     break;
+    //   case 6:
+    //     updateData(item.email_id, "address_line_1", e.target.value);
+    //     break;
+    //   case 7:
+    //     updateData(item.email_id, "address_line_2", e.target.value);
+    //     break;
+    //   case 8:
+    //     updateData(item.email_id, "date_of_birth", e.target.value);
+    //     break;
+    //   case 9:
+    //     updateData(item.email_id, "gross_salary_2019_20", e.target.value);
+    //     break;
+    //   case 10:
+    //     updateData(item.email_id, "gross_salary_2020_21", e.target.value);
+    //     break;
+    //   case 11:
+    //     updateData(item.email_id, "gross_salary_2021_22", e.target.value);
+    //     break;
+    //   case 12:
+    //     updateData(item.email_id, "gross_salary_2022_23", e.target.value);
+    //     break;
+    //   case 13:
+    //     updateData(item.email_id, "gross_salary_2023_24", e.target.value);
+    //     break;
+    //   default:
+    //     break;
+    // }
+  }
+});
+
+const contextmenu = document.getElementById("contextmenu");
+canvas.addEventListener(
+  "contextmenu",
+  (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    console.log("Click");
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const colIndex = Math.floor(clickX / cellWidth);
+    const rowIndex = Math.floor(clickY / cellHeight) - 1;
+    contextmenu.style.display = "block";
+    contextmenu.style.top = `${(rowIndex + 1) * cellHeight}px`;
+    contextmenu.style.left = `${colIndex * cellWidth + 200}px`;
+    return false;
+  },
+  false
+);
+
 canvas.addEventListener("click", (e) => {
+  
   const dataStore = JSON.parse(localStorage.getItem("dataStore"));
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
   const clickY = e.clientY - rect.top;
 
-  // Calculate row and column indices
   const colIndex = Math.floor(clickX / cellWidth);
-  const rowIndex = Math.floor(clickY / cellHeight) - 1; // Subtract 1 to adjust for header row
+  const rowIndex = Math.floor(clickY / cellHeight) - 1;
+  localStorage.setItem("index", JSON.stringify([colIndex, rowIndex]));
 
   if (rowIndex >= 0 && colIndex >= 0) {
-    // Retrieve the data item corresponding to the clicked cell
     const item = dataStore[rowIndex];
 
-    // Determine which field was clicked based on column index
-    inputBox.style.display="block";
-    inputBox.style.position="absolute";
-    inputBox.style.top= `${(rowIndex+1) * cellHeight}px`;
-    inputBox.style.left= `${(colIndex) * cellWidth}px`;
+    inputBox.style.display = "block";
+    inputBox.style.position = "absolute";
+    inputBox.style.top = `${(rowIndex + 1) * cellHeight}px`;
+    inputBox.style.left = `${colIndex * cellWidth}px`;
     switch (colIndex) {
       case 0:
         console.log(`${item.email_id}: ${item.email_id}`);
@@ -240,3 +348,8 @@ canvas.addEventListener("click", (e) => {
     }
   }
 });
+
+body.addEventListener("click",()=>{
+  contextmenu.style.display = "none";
+  inputBox.style.display = "none";
+})

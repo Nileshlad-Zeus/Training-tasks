@@ -26,7 +26,8 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 app.UseCors(MyAllowSpecificOrigins);
-
+app.UseHttpsRedirection();
+// app.UseUrls("http://localhost:5000", "https://localhost:5001");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -63,6 +64,43 @@ app.MapGet("/sortdata/{field}/{offset}", async (string field, int offset) =>
 .WithName("sortdata")
 .WithOpenApi();
 
+app.MapPut("/updatedata/{email}", async (string email, UpdateRequest requestBody) =>
+{
+    try
+    {
+        Console.WriteLine(requestBody.key,requestBody.value);
+        var query = $"UPDATE employee_info SET {requestBody.key}='{requestBody.value}' WHERE email_id='{email}'";
+        var employees = await connection.QueryAsync<Employee>(query);
+
+        return "Data Updated Successfully";
+    }
+    catch (Exception ex)
+    {
+        return $"Error:- {ex.Message}";
+    }
+
+})
+.WithName("updatedata")
+.WithOpenApi();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 string csvFilePath = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv";
 
 app.MapPost("/uploadcsv", async () =>
@@ -97,6 +135,11 @@ app.MapPost("/uploadcsv", async () =>
 .WithOpenApi();
 
 app.Run();
+
+public class UpdateRequest{
+    public string key { get; set; }
+    public string value { get; set; }
+}
 
 public class Employee
 {
