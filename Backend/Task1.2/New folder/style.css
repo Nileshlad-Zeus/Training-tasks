@@ -80,6 +80,7 @@ button {
   right: 20px;
   font-size: 30px;
   color: rgba(0, 0, 0, 0.665);
+  /* color: red; */
 }
 .dashBoard {
   position: relative;
@@ -119,10 +120,8 @@ button {
   font-weight: 500;
 }
 
-.inputBox {
+.inputBox{
   display: none;
-}
-.inputBox input {
   width: 220px;
   height: 40px;
   outline: 2px solid black;
@@ -150,4 +149,54 @@ button {
 }
 .contextMenu li:hover {
   color: #555;
+}
+
+.mathsCalculations {
+  position: absolute;
+  width: 100vw;
+  height: calc(100vh - 80px - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.612);
+  z-index: 1;
+}
+.displayNone {
+  display: none;
+}
+.mathCalTable {
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+}
+.mathCalTable th,
+.mathCalTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+.mathCalTable tr {
+  background-color: #ffffff;
+}
+.mathCalTable tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.mathCalTable tr:hover {
+  background-color: #ddd;
+}
+
+.mathCalTable th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04aa6d;
+  color: white;
+}
+.mathsCalculations i {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: black;
+  font-size: 25px;
+  cursor: pointer;
 }

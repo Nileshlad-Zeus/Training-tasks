@@ -7,11 +7,13 @@ const currPageDisplay = document.querySelector("#currentPage");
 const inputBox = document.getElementById("inputBox");
 const body = document.querySelector("body");
 const contextmenu = document.getElementById("contextmenu");
+const toolBar = document.getElementById("toolBar");
 
 let currentPage = currPageDisplay.innerText;
 
 prevButton.addEventListener("click", () => {
   inputBox.style.display = "none";
+  contextmenu.style.display = "none";
   if (currentPage > 1) {
     currentPage--;
     PageChange();
@@ -20,6 +22,7 @@ prevButton.addEventListener("click", () => {
 
 nextButton.addEventListener("click", () => {
   inputBox.style.display = "none";
+  contextmenu.style.display = "none";
   currentPage++;
   PageChange();
 });
@@ -68,7 +71,22 @@ const sortData = async (field) => {
   const data = await response.json();
   renderTable(data);
 };
-
+const headers = [
+  "email_id",
+  "name",
+  "country",
+  "state",
+  "city",
+  "telephone_number",
+  "address_line_1",
+  "address_line_2",
+  "date_of_birth",
+  "gross_salary_2019_20",
+  "gross_salary_2020_21",
+  "gross_salary_2021_22",
+  "gross_salary_2022_23",
+  "gross_salary_2023_24",
+];
 const renderTable = (data) => {
   localStorage.setItem("dataStore", JSON.stringify(data));
   const numRows = data.length;
@@ -147,23 +165,6 @@ canvas.addEventListener("click", (e) => {
   const rowIndex = Math.floor(clickY / cellHeight) - 1;
 
   if (colIndex >= 0 && colIndex < 14 && rowIndex == -1) {
-    const headers = [
-      "email_id",
-      "name",
-      "country",
-      "state",
-      "city",
-      "telephone_number",
-      "address_line_1",
-      "address_line_2",
-      "date_of_birth",
-      "gross_salary_2019_20",
-      "gross_salary_2020_21",
-      "gross_salary_2021_22",
-      "gross_salary_2022_23",
-      "gross_salary_2023_24",
-    ];
-
     const field = headers[colIndex];
     sortedField = field;
     sortData(field);
@@ -171,7 +172,6 @@ canvas.addEventListener("click", (e) => {
 });
 
 const updateData = async (email, key, value) => {
-  console.log(email, key, value);
   const response = await fetch(`http://localhost:5186/updatedata/${email}`, {
     method: "PUT",
     headers: {
@@ -185,7 +185,7 @@ const updateData = async (email, key, value) => {
   const res = await response.text();
   PageChange();
   inputBox.style.display = "none";
-  window.alert(res);
+  // window.alert(res);
 };
 
 const deleteRow = async (email) => {
@@ -196,44 +196,10 @@ const deleteRow = async (email) => {
     },
   });
   const res = await response.text();
-  contextmenu.style.display = "none";
   PageChange();
   window.alert(res);
+  contextmenu.style.display = "none";
 };
-
-inputBox.addEventListener("click", (e) => {
-  e.target.value = localStorage.getItem("storeValue");
-});
-inputBox.addEventListener("keydown", (e) => {
-  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
-
-  if (e.key === "Enter") {
-    var index = JSON.parse(localStorage.getItem("index"));
-    const item = dataStore[index[1]];
-
-    if (index[0] >= 1 && index[0] < 14) {
-      const headers = [
-        "email_id",
-        "name",
-        "country",
-        "state",
-        "city",
-        "telephone_number",
-        "address_line_1",
-        "address_line_2",
-        "date_of_birth",
-        "gross_salary_2019_20",
-        "gross_salary_2020_21",
-        "gross_salary_2021_22",
-        "gross_salary_2022_23",
-        "gross_salary_2023_24",
-      ];
-      const field = headers[index[0]];
-      updateData(item.email_id, field, e.target.value);
-      e.target.value = null;
-    }
-  }
-});
 
 canvas.addEventListener(
   "contextmenu",
@@ -264,8 +230,26 @@ deleterow.addEventListener("click", () => {
   deleteRow(item.email_id);
 });
 
-canvas.addEventListener("dblclick", (e) => {
+inputBox.addEventListener("keydown", (e) => {
   const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+  inputBox.value = e.target.value;
+  if (e.key === "Enter") {
+    var index = JSON.parse(localStorage.getItem("index"));
+    const item = dataStore[index[1]];
+    if (index[0] >= 1 && index[0] < 14) {
+      const field = headers[index[0]];
+      updateData(item.email_id, field, e.target.value);
+    }
+  }
+});
+canvas.addEventListener("click", (e) => {
+  inputBox.style.display = "none";
+  contextmenu.style.display = "none";
+});
+canvas.addEventListener("dblclick", (e) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+  renderTable(dataStore);
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
   const clickY = e.clientY - rect.top;
@@ -281,6 +265,8 @@ canvas.addEventListener("dblclick", (e) => {
     inputBox.style.position = "absolute";
     inputBox.style.top = `${(rowIndex + 1) * cellHeight}px`;
     inputBox.style.left = `${colIndex * cellWidth}px`;
+    inputBox.focus();
+    inputBox.value = dataStore[rowIndex][headers[colIndex]];
 
     switch (colIndex) {
       case 0:
@@ -337,7 +323,11 @@ canvas.addEventListener("dblclick", (e) => {
     }
   }
 });
-
+toolBar.addEventListener("click", (e) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+  renderTable(dataStore);
+});
 const drawHighlight = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -359,6 +349,7 @@ const drawHighlight = () => {
 let startingIndex = [];
 let selectionDimensions = [];
 let selection = false;
+
 canvas.addEventListener("mousedown", (e) => {
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
@@ -397,6 +388,122 @@ canvas.addEventListener("mousemove", (e) => {
   }
 });
 
+let sum = 0;
+let avg = 0;
+let min = 0;
+let max = 0;
+
+// const tableRows = document.getElementById("tableRows")
+const tableRows = document.querySelector("table");
+const mathsCalculations = document.getElementById("mathsCalculations");
+
+function isNumber(value) {
+  return !isNaN(parseFloat(value)) && isFinite(value);
+}
+
 canvas.addEventListener("mouseup", (e) => {
   selection = false;
 });
+
+const closeCalculator = mathsCalculations.querySelector("i");
+closeCalculator.addEventListener("click", () => {
+  mathsCalculations.classList.remove("mathsCalculations");
+  mathsCalculations.classList.add("displayNone");
+  tableRows.innerHTML = "";
+});
+
+const calculateValue = document.getElementById("calculateValue");
+calculateValue.addEventListener("click", () => {
+  contextmenu.style.display = "none";
+  mathsCalculations.classList.add("mathsCalculations");
+  mathsCalculations.classList.remove("displayNone");
+  calculator();
+});
+
+const copy = document.getElementById("copy");
+
+function transformMatrix(matrix) {
+  if (matrix.length === 0) {
+    return [];
+  }
+
+  const numRows = matrix.length;
+  const numCols = matrix[0].length;
+
+  const transformed = [];
+
+  for (let col = 0; col < numCols; col++) {
+    const pair = [];
+    for (let row = 0; row < numRows; row++) {
+      pair.push(matrix[row][col]);
+    }
+    transformed.push(pair);
+  }
+  return transformed;
+}
+
+copy.addEventListener("click", () => {
+  copyToClipboard();
+});
+
+let copytext = [];
+
+const copyToClipboard = () => {
+  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+  const [startX, startY, width, height] = selectionDimensions;
+  copytext = [];
+  for (let j = startX; j < startX + width; j++) {
+    let rowData = [];
+    for (let i = startY; i < startY + height; i++) {
+      rowData.push(dataStore[i][headers[j]]);
+    }
+    copytext.push(rowData);
+  }
+  copytext = transformMatrix(copytext);
+  const textToCopy = copytext.join("\n");
+  navigator.clipboard.writeText(textToCopy);
+  window.alert("Copied to Clipboard");
+  contextmenu.style.display = "none";
+};
+
+const calculator = () => {
+  const dataStore = JSON.parse(localStorage.getItem("dataStore"));
+  const [startX, startY, width, height] = selectionDimensions;
+  console.log(startX, startY, width, height);
+
+  var z = document.createElement("tr");
+  z.innerHTML = `<tr>
+          <th>Column Name</th>
+          <th>Sum</th>
+          <th>Min</th>
+          <th>Max</th>
+          <th>Avg</th>
+        </tr>`;
+  tableRows.appendChild(z);
+
+  for (let j = startX; j < startX + width; j++) {
+    sum = 0;
+    min = dataStore[startY][headers[j]];
+    max = 0;
+    let isNum = true;
+
+    for (let i = startY; i < startY + height; i++) {
+      sum += Number(dataStore[i][headers[j]]);
+      min = Math.min(min, dataStore[i][headers[j]]);
+      max = Math.max(max, dataStore[i][headers[j]]);
+    }
+    isNum = isNumber(sum);
+
+    var z = document.createElement("tr");
+
+    z.innerHTML = `
+    <td>${headers[j]}</td>
+     <td>${isNum ? sum : "NaN"}</td>
+     <td>${isNum ? min : "NaN"}</td>
+     <td>${isNum ? max : "NaN"}</td>
+     <td>${isNum ? (sum / height).toFixed(2) : "NaN"}</td>
+    `;
+    tableRows.appendChild(z);
+  }
+  console.log(copytext);
+};

@@ -22,21 +22,25 @@
         <button id="fileSubmitBtn" class="btn1">Upload</button>
       </div>
     </div>
-    <div class="toolBar">
+    <div class="toolBar" id="toolBar">
       <button id="uplaodFile" class="uplaodFile btn1">Upload File</button>
       <div class="searchBar">
         <input type="text" id="search" placeholder="Search" />
       </div>
     </div>
+    <div class="displayNone" id="mathsCalculations">
+      <i class="fa-solid fa-xmark"></i>
+      <table class="mathCalTable"></table>
+    </div>
     <div class="dashBoard">
       <canvas id="myCanvas" class="myCanvas"></canvas>
-      <div class="inputBox" id="inputBox">
-        <input type="text"/>
-      </div>
+      <input type="text" id="inputBox" class="inputBox" />
       <div class="contextMenu" id="contextmenu">
         <ul>
           <li id="delete-row">Delete Row</li>
           <li>Delete Selected Field</li>
+          <li id="calculateValue">Calculate</li>
+          <li id="copy">Copy</li>
         </ul>
       </div>
     </div>
