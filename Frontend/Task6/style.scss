@@ -1,0 +1,16 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#main {
+  height: 100vh;  
+  overflow: scroll;  
+  border: 1px solid #ccc;
+}
+canvas {
+  width: 2100px;  
+  height: 1200px;
+  z-index: 2;
+}
