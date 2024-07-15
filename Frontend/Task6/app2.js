@@ -1,15 +1,17 @@
 class newCanvas {
   constructor(sheetName) {
     this.sheetName = sheetName;
-    this.numRows = 1000;
-    this.numCols = 8;
+    this.numRows = 10;
+    this.numCols = 26;
     this.cellHeight = new Map();
     this.cellWidths = new Map();
-
     this.canvas = this.createNew();
+    this.canvas.style.cursor = "default";
     this.ctx = this.canvas.getContext("2d");
     this.drawGrid = new drawGrid(this.ctx, this.cellWidths, this.cellHeight);
     this.resizeGrid = new resizeGrid(this);
+    this.cellWidths.set(0, 50);
+    this.cellHeight.set(0, 21);
 
     this.drawBackground();
     this.drawGrid.drawgrid(this.numRows, this.numCols);
@@ -40,11 +42,17 @@ class newCanvas {
 class resizeGrid {
   constructor(canvasIns) {
     this.canvasIns = canvasIns;
-    this.isDragging = false;
+    this.isDraggingCol = false;
     this.draggingColumn = -1;
     this.startX = 0;
     this.startWidth = 0;
+
+    this.isDraggingRow = false;
+    this.draggingRow = -1;
+    this.startY = 0;
+    this.startHeight = 0;
     this.colResize();
+    this.rowResize();
   }
 
   colResize() {
@@ -61,10 +69,11 @@ class resizeGrid {
 
       if (
         rowIndex == 0 &&
+        columnIndex > 0 &&
         columnIndex !== -1 &&
         this.getCellWidth(columnIndex) + columnLeft - mouseX < 10
       ) {
-        this.isDragging = true;
+        this.isDraggingCol = true;
         this.draggingColumn = columnIndex;
         this.startX = mouseX;
         this.startWidth = this.getCellWidth(columnIndex);
@@ -84,6 +93,8 @@ class resizeGrid {
       }
       if (
         rowIndex == 0 &&
+        columnIndex > 0 &&
+        columnIndex !== -1 &&
         this.getCellWidth(columnIndex) + columnLeft - mouseX < 10
       ) {
         this.canvasIns.canvas.style.cursor = "col-resize";
@@ -91,7 +102,7 @@ class resizeGrid {
         this.canvasIns.canvas.style.cursor = "default";
       }
 
-      if (this.isDragging) {
+      if (this.isDraggingCol) {
         this.canvasIns.canvas.style.cursor = "col-resize";
         const deltaX = mouseX - this.startX;
         const newWidth = Math.max(20, this.startWidth + deltaX);
@@ -106,9 +117,78 @@ class resizeGrid {
     });
 
     this.canvasIns.canvas.addEventListener("mouseup", (e) => {
-      if (this.isDragging) {
-        this.isDragging = false;
+      if (this.isDraggingCol) {
+        this.isDraggingCol = false;
         this.draggingColumn = -1;
+      }
+    });
+  }
+
+  rowResize() {
+    this.canvasIns.canvas.addEventListener("mousedown", (e) => {
+      const rect = this.canvasIns.canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      let columnIndex = this.getColumnIndex(mouseX);
+      let rowIndex = this.getRowIndex(mouseY);
+      let rowTop = 0;
+      for (let i = 0; i < rowIndex; i++) {
+        rowTop += this.getCellHeight(i);
+      }
+
+      if (
+        columnIndex == 0 &&
+        rowIndex > 0 &&
+        rowIndex !== -1 &&
+        this.getCellHeight(rowIndex) + rowTop - mouseY < 10
+        // mouseY - rowTop > 18
+      ) {
+        this.isDraggingRow = true;
+        this.draggingRow = rowIndex;
+        this.startY = mouseY;
+        this.startHeight = this.getCellHeight(rowIndex);
+      }
+    });
+
+    this.canvasIns.canvas.addEventListener("mousemove", (e) => {
+      const rect = this.canvasIns.canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      let columnIndex = this.getColumnIndex(mouseX);
+      let rowIndex = this.getRowIndex(mouseY);
+
+      let rowTop = 0;
+      for (let i = 0; i < rowIndex; i++) {
+        rowTop += this.getCellHeight(i);
+      }
+      if (
+        columnIndex == 0 &&
+        rowIndex > 0 &&
+        this.getCellHeight(rowIndex) + rowTop - mouseY < 10
+      ) {
+        this.canvasIns.canvas.style.cursor = "row-resize";
+      } else {
+        this.canvasIns.canvas.style.cursor = "default";
+      }
+
+      if (this.isDraggingRow) {
+        this.canvasIns.canvas.style.cursor = "row-resize";
+        const deltaY = mouseY - this.startY;
+        const newHeight = Math.max(0, this.startHeight + deltaY);
+        this.canvasIns.cellHeight.set(this.draggingRow, newHeight);
+        this.canvasIns.clearCanvas();
+        this.canvasIns.drawBackground();
+        this.canvasIns.drawGrid.drawgrid(
+          this.canvasIns.numRows,
+          this.canvasIns.numCols
+        );
+      }
+    });
+
+    this.canvasIns.canvas.addEventListener("mouseup", (e) => {
+      if (this.isDraggingRow) {
+        this.isDraggingRow = false;
+        this.draggingRow = -1;
       }
     });
   }
@@ -157,15 +237,16 @@ class drawGrid {
   drawgrid(numRows, numCols) {
     this.drawRows(numRows);
     this.drawColumns(numCols);
+    this.renderHeader(numCols);
   }
 
   drawRows(numRows) {
     let cellPosition = 0;
     for (let y = 0; y <= numRows; y++) {
-      cellPosition = this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
+      cellPosition += this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
       this.ctx.beginPath();
-      this.ctx.moveTo(0, y * cellPosition);
-      this.ctx.lineTo(this.ctx.canvas.width, y * cellPosition);
+      this.ctx.moveTo(0, cellPosition);
+      this.ctx.lineTo(this.ctx.canvas.width, cellPosition);
       this.ctx.lineWidth = 0.3;
       this.ctx.strokeStyle = "#808080";
       this.ctx.stroke();
@@ -182,6 +263,17 @@ class drawGrid {
       this.ctx.lineWidth = 0.3;
       this.ctx.strokeStyle = "#808080";
       this.ctx.stroke();
+    }
+  }
+
+  renderHeader(numCols) {
+    this.ctx.font = "14px Arial";
+    this.ctx.fillStyle = "#000000";
+    this.ctx.strokeStyle = "#5A5A5A";
+    let cellPosition = 0;
+    for (let i = 0; i < numCols; i++) {
+      cellPosition += this.cellWidths.get(i) ? this.cellWidths.get(i) : 100;
+      this.ctx.fillText((i + 10).toString(36).toUpperCase(), cellPosition, 15);
     }
   }
 }
