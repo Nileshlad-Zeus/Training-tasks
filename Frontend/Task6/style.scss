@@ -1,16 +1,55 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  overflow: hidden;
 }
 
 #main {
-  height: 100vh;  
-  overflow: scroll;  
+  height: calc(100vh - 24px); 
+  width: calc(100vw - 41px);
   border: 1px solid #ccc;
+  margin-left: 41px;
+  margin-top: 24px;
+  overflow: auto;
+  position: relative;
 }
-canvas {
-  width: 2100px;  
-  height: 1200px;
-  z-index: 2;
+
+.topHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 24px;
+  margin-left: 41px;
+  border: 1px solid #d5cece;
+  overflow: hidden;
+}
+.leftHeader {
+  position: absolute;
+  left: 0;
+  width: 40px;
+  margin-top: 24px;
+  top: 0;
+  border: 1px solid #d5cece;
+}
+.topleft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 41px;
+  height: 24px;
+  background-color: white;
+  border: 1px solid #d5cece;
+  z-index: 10;
+}
+
+.canvasinput {
+  display: none;
+  position: absolute;
+  border: 2px solid #0B57D0;
+  z-index: 10;
+  outline: none;
+  padding-left: 2px;
 }

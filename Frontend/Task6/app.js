@@ -1,11 +1,9 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
-
 const inputBox = document.getElementById("inputBox");
 const contextmenu = document.getElementById("contextmenu");
 const toolBar = document.getElementById("toolBar");
-
 
 const renderTable = (data) => {
   localStorage.setItem("dataStore", JSON.stringify(data));
