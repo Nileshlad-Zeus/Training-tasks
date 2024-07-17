@@ -1,7 +1,7 @@
 class newCanvas {
   constructor(sheetName) {
     this.sheetName = sheetName;
-    this.numRows = 10;
+    this.numRows = 100;
     this.numCols = 26;
     this.cellHeight = new Map();
     this.cellWidths = new Map();
@@ -18,15 +18,17 @@ class newCanvas {
       this.ctxTopHeader,
       this.ctxLeftHeader,
       this.cellWidths,
-      this.cellHeight
+      this.cellHeight,
+      this
     );
     this.resizeGrid = new resizeGrid(this);
     this.getValues = new getValues(this);
     this.cellInput = new cellInput(this);
 
-    this.scroll();
-    this.drawBackground();
+    // this.clearCanvas();
+    // this.drawBackground();
     this.drawGrid.drawgrid(this.numRows, this.numCols);
+    this.scroll();
   }
 
   createNew() {
@@ -34,7 +36,7 @@ class newCanvas {
     const createCanva = document.createElement("canvas");
     createCanva.setAttribute("id", this.sheetName);
     createCanva.width = 2100;
-    createCanva.height = 1200;
+    createCanva.height = 500;
     main.appendChild(createCanva);
     return createCanva;
   }
@@ -54,31 +56,53 @@ class newCanvas {
     const createCanva = document.createElement("canvas");
     createCanva.setAttribute("id", "leftHeader-canvas");
     createCanva.width = 40;
-    createCanva.height = 1200;
+    createCanva.height = 500;
     leftHeader.appendChild(createCanva);
     return createCanva;
   }
 
   scroll() {
     const main = document.getElementById("main");
+    const scroller = document.getElementById("scroller");
     const topHeader = document.getElementById("topHeader");
     const leftHeader = document.getElementById("leftHeader");
+
     main.addEventListener("scroll", () => {
+      let scrollTop = main.scrollTop;
+      let scrollHeight = main.scrollHeight;
+      let clientHeight = main.clientHeight;
+
+      if (scrollTop + clientHeight + 5 >= scrollHeight) {
+        console.log("lock");
+        scroller.style.height = `${scroller.offsetHeight + 200}px`;
+        this.numRows += 20;
+        this.clearCanvas();
+        this.drawBackground();
+        this.drawGrid.drawgrid(this.numRows, this.numCols);
+        // this.drawGrid.drawgrid();
+      }
+
       topHeader.style.left = `-${main.scrollLeft}px`;
-      leftHeader.style.top = `-${main.scrollTop}px`;
+      // leftHeader.style.top = `-${main.scrollTop}px`;
+
+      this.clearCanvas();
+      this.drawBackground();
+      this.drawGrid.drawgrid(this.numRows, this.numCols);
+      // this.drawGrid.drawgrid();
     });
   }
 
   drawBackground() {
     this.ctx.fillStyle = "#ffffff";
-    this.ctxTopHeader.fillStyle = "#ffffff";
-    this.ctxLeftHeader.fillStyle = "#ffffff";
+    this.ctxTopHeader.fillStyle = "#F5F5F5";
+    this.ctxLeftHeader.fillStyle = "#F5F5F5";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctxTopHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctxLeftHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   clearCanvas() {
+    this.ctx.transform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctxTopHeader.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctxLeftHeader.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -127,7 +151,6 @@ class resizeGrid {
   }
 
   mouseDown(e, header) {
-    console.log(header);
     let rect = null;
     if (header == "rowheader") {
       rect = this.canvasIns.topHeader.getBoundingClientRect();
@@ -293,25 +316,100 @@ class getValues {
 }
 
 class drawGrid {
-  constructor(ctx, ctxHeader, ctxColHeader, cellWidths, cellHeight) {
+  constructor(ctx, ctxHeader, ctxColHeader, cellWidths, cellHeight, canvasIns) {
     this.ctx = ctx;
     this.ctxTopHeader = ctxHeader;
     this.ctxLeftHeader = ctxColHeader;
     this.cellWidths = cellWidths;
     this.cellHeight = cellHeight;
+    this.selection = false;
+    this.startingIndex = null;
+    this.canvasIns = canvasIns;
+
+    this.getValueInstance = new getValues(canvasIns);
+
+    // this.ctx.canvas.addEventListener("mousedown", (e) => {
+    //   const rect = this.ctx.canvas.getBoundingClientRect();
+    //   this.selection = true;
+    //   const clickX = e.clientX - rect.left;
+    //   const clickY = e.clientY - rect.top;
+    //   this.startingIndex = [
+    //     this.getValueInstance.getColumnIndex(clickX),
+    //     this.getValueInstance.getRowIndex(clickY),
+    //   ];
+    // });
+
+    // this.ctx.canvas.addEventListener("mousemove", (e) => {
+    //   if (this.selection) {
+    //     const rect = this.ctx.canvas.getBoundingClientRect();
+    //     const clickX = e.clientX - rect.left;
+    //     const clickY = e.clientY - rect.top;
+
+    //     const colIndex = this.getValueInstance.getColumnIndex(clickX);
+    //     const rowIndex = this.getValueInstance.getRowIndex(clickY);
+
+    //     // Determine dimensions of selection
+    //     const startX = Math.min(this.startingIndex[0], colIndex);
+    //     const startY = Math.min(this.startingIndex[1], rowIndex);
+    //     const endX = Math.max(this.startingIndex[0], colIndex);
+    //     const endY = Math.max(this.startingIndex[1], rowIndex);
+
+    //     this.selectionDimensions = [
+    //       colIndex,
+    //       rowIndex,
+    //       startX,
+    //       startY,
+    //       endX - startX + 1,
+    //       endY - startY + 1,
+    //     ];
+
+    //     this.drawHighlight();
+    //   }
+    //   this.drawgrid(
+    //     this.getValueInstance.numRows,
+    //     this.getValueInstance.numCols
+    //   );
+    // });
+  }
+
+  drawHighlight() {
+    this.canvasIns.clearCanvas();
+    this.canvasIns.drawBackground();
+
+    this.drawgrid(this.canvasIns.numRows, this.canvasIns.numCols);
+
+    const [colIndex, rowIndex, startX, startY, width, height] =
+      this.selectionDimensions;
+    this.canvasIns.ctx.fillStyle = "rgba(0, 0, 255, 0.1)";
+    this.canvasIns.ctx.fillRect(
+      startX * this.getValueInstance.getCellWidth(colIndex),
+      startY * this.getValueInstance.getCellHeight(rowIndex),
+      width * this.getValueInstance.getCellWidth(colIndex),
+      height * this.getValueInstance.getCellHeight(rowIndex)
+    );
   }
 
   drawgrid(numRows, numCols) {
+    const main = document.getElementById("main");
+    this.ctx.transform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.ctx.translate(-main.scrollLeft, -main.scrollTop);
+    // this.ctx.transform(1, 0, 0, 1, -main.scrollLeft, -main.scrollTop);
     this.drawRows(numRows);
     this.drawColumns(numCols);
-    this.renderHeader(numCols);
-    this.renderColHeader(numRows);
+    this.renderTopHeader(numCols);
+    this.renderLeftHeader(numRows);
   }
 
   drawRows(numRows) {
     let cellPosition = 0;
-    for (let y = 0; y <= numRows; y++) {
+    console.log("Draw new");
+    const main = document.getElementById("main");
+    console.log(main.scrollTop + main.offsetHeight / 21);
+    for (let y = main.scrollTop / 21; y <= numRows; y++) {
       cellPosition += this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
+
+      // console.log(cellPosition);
       this.ctx.beginPath();
       this.ctx.moveTo(0, cellPosition);
       this.ctx.lineTo(this.ctx.canvas.width, cellPosition);
@@ -334,8 +432,25 @@ class drawGrid {
     }
   }
 
-  renderHeader(numCols) {
+  convertToTitle(columnNumber) {
+    let res = "";
+    while (columnNumber > 0) {
+      let r = columnNumber % 26;
+      let q = parseInt(columnNumber / 26);
+      if (r === 0) {
+        r = 26;
+        q--;
+      }
+
+      res = String.fromCharCode(64 + r) + res;
+      columnNumber = q;
+    }
+    return res;
+  }
+
+  renderTopHeader(numCols) {
     let cellPosition = 0;
+    this.ctxTopHeader.fillStyle = "#F5F5F5";
     for (let x = 0; x <= numCols; x++) {
       cellPosition += this.cellWidths.get(x) ? this.cellWidths.get(x) : 100;
       this.ctxTopHeader.beginPath();
@@ -350,7 +465,7 @@ class drawGrid {
 
     cellPosition = 0;
     for (let i = 0; i < numCols; i++) {
-      let text = (i + 10).toString(36).toUpperCase();
+      let text = this.convertToTitle(i + 1);
       cellPosition += this.cellWidths.get(i) ? this.cellWidths.get(i) : 100;
       let xPosition = cellPosition - (this.cellWidths.get(i) || 100) / 2;
       let yPosition = 15;
@@ -358,8 +473,9 @@ class drawGrid {
     }
   }
 
-  renderColHeader(numRows) {
+  renderLeftHeader(numRows) {
     let cellPosition = 0;
+    this.ctxLeftHeader.fillStyle = "#F5F5F5";
     for (let y = 0; y <= numRows; y++) {
       cellPosition += this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
       this.ctxLeftHeader.beginPath();
@@ -376,9 +492,9 @@ class drawGrid {
       cellPosition += this.cellHeight.get(i) || 21;
       let text = (i + 1).toString();
       let textWidth = this.ctxLeftHeader.measureText(text).width;
+
       let xPosition = this.ctxLeftHeader.canvas.width - textWidth - 10;
       let yPosition = cellPosition - (this.cellHeight.get(i) || 21) / 2;
-
       this.ctxLeftHeader.fillText(text, xPosition, yPosition + 4);
     }
   }
@@ -390,22 +506,19 @@ class cellInput {
     this.getValueInstance = new getValues(canvasIns);
     const inputBox = document.getElementById("canvasinput");
     let rowTop = 0;
-
+    let columnLeft = 0;
 
     this.canvasIns.canvas.addEventListener("click", (e) => {
       rowTop = 0;
+      columnLeft = 0;
       let rect = this.canvasIns.canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
       this.columnIndex = this.getValueInstance.getColumnIndex(mouseX);
       this.rowIndex = this.getValueInstance.getRowIndex(mouseY);
-
       let cellWidth = this.getValueInstance.getCellWidth(this.columnIndex);
       let cellHeight = this.getValueInstance.getCellHeight(this.rowIndex);
 
-      
-      let columnLeft = 0;
-       
       for (let i = 0; i < this.rowIndex; i++) {
         rowTop += this.getValueInstance.getCellHeight(i);
       }
@@ -415,49 +528,55 @@ class cellInput {
 
       inputBox.style.display = "block";
       inputBox.style.top = `${rowTop}px`;
+      0;
       inputBox.style.left = `${columnLeft}px`;
       inputBox.style.height = `${cellHeight}px`;
       inputBox.style.width = `${cellWidth}px`;
-
     });
 
-   
-    
-
+    let focus = 0;
     document.addEventListener("keydown", (e) => {
-      e.preventDefault()
+      let cellHeight = 0;
+      let cellWidth = 0;
+
       if (
-        (e.key >= "a" && e.key <= "z") || 
-        (e.key >= "0" && e.key <= "9") 
+        (e.key == "Enter" && focus == 1) ||
+        (e.key == "ArrowDown" && focus == 0)
       ) {
-        inputBox.focus();
-      }
-      console.log(e.key);
-      if(e.key == "Enter" || e.key == "ArrowDown"){
+        e.preventDefault();
+        inputBox.blur();
+        focus = 0;
         rowTop += this.getValueInstance.getCellHeight(this.rowIndex);
         this.rowIndex = this.rowIndex + 1;
-        console.log(this.rowIndex);
-        let cellWidth = this.getValueInstance.getCellWidth(this.columnIndex);
-        let cellHeight = this.getValueInstance.getCellHeight(this.rowIndex);
-        console.log(cellWidth, cellHeight);
-
-
-        inputBox.style.top = `${rowTop}px`;
-
-        inputBox.style.height = `${cellHeight}px`;
-        inputBox.style.width = `${cellWidth}px`;
+      } else if (e.key == "ArrowUp" && focus == 0 && this.rowIndex >= 1) {
+        e.preventDefault();
+        rowTop -= this.getValueInstance.getCellHeight(this.rowIndex - 1);
+        this.rowIndex = this.rowIndex - 1;
+      } else if (e.key == "Tab" || (e.key == "ArrowRight" && focus == 0)) {
+        e.preventDefault();
+        inputBox.blur();
+        columnLeft += this.getValueInstance.getCellWidth(this.columnIndex);
+        this.columnIndex = this.columnIndex + 1;
+      } else if (e.key == "ArrowLeft" && focus == 0 && this.columnIndex >= 1) {
+        e.preventDefault();
+        columnLeft -= this.getValueInstance.getCellWidth(this.columnIndex - 1);
+        this.columnIndex = this.columnIndex - 1;
+      } else if (
+        (e.key == "Enter" && focus == 0) ||
+        (e.key >= "a" && e.key <= "z") ||
+        (e.key >= "0" && e.key <= "9")
+      ) {
+        inputBox.focus();
+        focus = 1;
       }
+
+      cellWidth = this.getValueInstance.getCellWidth(this.columnIndex);
+      cellHeight = this.getValueInstance.getCellHeight(this.rowIndex);
+      inputBox.style.top = `${rowTop}px`;
+      inputBox.style.left = `${columnLeft}px`;
+      inputBox.style.height = `${cellHeight}px`;
+      inputBox.style.width = `${cellWidth}px`;
     });
-
-    
-
-
-
-
-
-
-
-
   }
 }
 
