@@ -287,6 +287,7 @@ class getValues {
       ? this.canvasIns.cellWidths.get(i)
       : 100;
   }
+
   getCellHeight(i) {
     return this.canvasIns.cellHeight.get(i)
       ? this.canvasIns.cellHeight.get(i)
@@ -304,10 +305,18 @@ class drawGrid {
     this.selection = false;
     this.startingIndex = null;
     this.canvasIns = canvasIns;
+    this.copy = false;
 
     this.getValueInstance = new getValues(canvasIns);
-
+    const inputBox = document.getElementById("canvasinput");
     this.ctx.canvas.addEventListener("mousedown", (e) => {
+      if (this.copy) {
+        this.selectionDimensions = null;
+        this.copy = false;
+      }
+      this.canvasIns.clearCanvas();
+      this.drawgrid(this.canvasIns.numRows, this.canvasIns.numCols);
+      inputBox.style.display = "none";
       const rect = this.ctx.canvas.getBoundingClientRect();
       this.selection = true;
       const clickX = e.clientX - rect.left;
@@ -343,8 +352,65 @@ class drawGrid {
     });
 
     this.ctx.canvas.addEventListener("mouseup", (e) => {
+      inputBox.style.display = "none";
       this.selection = false;
     });
+
+    document.addEventListener("click", () => {
+      if (this.copy) {
+        this.selectionDimensions = null;
+        this.copy = false;
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "c" && event.ctrlKey) {
+        const [startX, startY, endX, endY] = this.selectionDimensions;
+        this.copy = true;
+        let width1 = 0;
+        let height1 = 0;
+        let width2 = 0;
+        let height2 = 0;
+
+        for (let i = 0; i < startX; i++) {
+          width1 += this.getValueInstance.getCellWidth(i);
+        }
+        for (let i = 0; i < startY; i++) {
+          height1 += this.getValueInstance.getCellHeight(i);
+        }
+        for (let i = startX; i <= endX; i++) {
+          width2 += this.getValueInstance.getCellWidth(i);
+        }
+        for (let i = startY; i <= endY; i++) {
+          height2 += this.getValueInstance.getCellHeight(i);
+        }
+
+        this.canvasIns.ctx.lineWidth = 2;
+        this.canvasIns.ctx.strokeStyle = "red";
+        this.canvasIns.ctx.strokeRect(width1, height1, width2, height2);
+
+        this.startMarchingAntsAnimation(width1, height1, width2, height2);
+      }
+    });
+
+    this.o_speed = 50;
+    this.offset = 3;
+    this.line = 5;
+    this.gap = 5;
+  }
+
+  startMarchingAntsAnimation(x, y, width, height) {
+    this.canvasIns.clearCanvas();
+    this.canvasIns.drawBackground();
+    this.canvasIns.ctx.save();
+    this.canvasIns.ctx.beginPath();
+
+    this.canvasIns.ctx.setLineDash([5, 3]);
+    this.canvasIns.ctx.lineDashOffset = 9;
+    this.canvasIns.ctx.rect(x, y, width, height);
+    this.canvasIns.ctx.strokeStyle = "red";
+    this.canvasIns.ctx.stroke();
+    this.canvasIns.ctx.restore();
+    this.drawgrid(this.canvasIns.numRows, this.canvasIns.numCols);
   }
 
   drawHighlight() {
@@ -372,13 +438,14 @@ class drawGrid {
     for (let i = startY; i <= endY; i++) {
       height2 += this.getValueInstance.getCellHeight(i);
     }
-
     this.canvasIns.ctx.fillRect(width1, height1, width2, height2);
+
+    this.canvasIns.ctx.lineWidth = 2;
+    this.canvasIns.ctx.strokeStyle = "#0b57d0";
+    this.canvasIns.ctx.strokeRect(width1, height1, width2, height2);
   }
 
   drawgrid(numRows, numCols) {
-    const main = document.getElementById("main");
-
     this.drawRows(numRows);
     this.drawColumns(numCols);
     this.renderTopHeader(numCols);
@@ -387,7 +454,6 @@ class drawGrid {
 
   drawRows(numRows) {
     let cellPosition = 0;
-    const main = document.getElementById("main");
     for (let y = 0; y <= numRows; y++) {
       cellPosition += this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
       this.ctx.beginPath();
