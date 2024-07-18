@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://kit.fontawesome.com/d98933ff45.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="./style.css" />
     <title>Document</title>
   </head>
@@ -10,11 +11,28 @@
     <div class="topleft"></div>
     <div class="topHeader" id="topHeader"></div>
     <div class="leftHeader" id="leftHeader"></div>
-    
+
     <div id="main">
       <div class="scroller" id="scroller"></div>
 
-      <input type="text" id="canvasinput" autocomplete="off" class="canvasinput">
+      <input
+        type="text"
+        id="canvasinput"
+        autocomplete="off"
+        class="canvasinput"
+      />
+    </div>
+
+    <div class="footer">
+      <div class="sheets" id="sheets">
+        <button>Sheet1</button>
+        <button>Sheet2</button>
+      </div>
+      <div>
+        <button id="addNewSheet" class="addNewSheet">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
     </div>
     <script src="./app2.js"></script>
   </body>
