@@ -7,12 +7,13 @@ class newCanvas {
     this.cellWidths = new Map();
 
     this.canvas = this.createNew();
+    this.canvas.style.cursor = "cell";
     this.topHeader = this.createTopHeader();
     this.leftHeader = this.createLeftHeader();
     this.ctx = this.canvas.getContext("2d");
     this.ctxTopHeader = this.topHeader.getContext("2d");
     this.ctxLeftHeader = this.leftHeader.getContext("2d");
-
+    this.selection = false;
     this.drawGrid = new drawGrid(
       this.ctx,
       this.ctxTopHeader,
@@ -21,12 +22,17 @@ class newCanvas {
       this.cellHeight,
       this
     );
-    this.resizeGrid = new resizeGrid(this);
+    this.resizeGrid = new resizeGrid(
+      this,
+      this.ctxTopHeader,
+      this.ctxLeftHeader
+    );
     this.getValues = new getValues(this);
     this.cellInput = new cellInput(this);
 
-    // this.clearCanvas();
-    // this.drawBackground();
+    this.selectedCol = null;
+    this.selectedRow = null;
+
     this.drawGrid.drawgrid(this.numRows, this.numCols);
     this.scroll();
   }
@@ -71,14 +77,14 @@ class newCanvas {
     });
   }
 
-  drawBackground() {
-    this.ctx.fillStyle = "#ffffff";
-    this.ctxTopHeader.fillStyle = "#F5F5F5";
-    this.ctxLeftHeader.fillStyle = "#F5F5F5";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctxTopHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctxLeftHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  }
+  // drawBackground() {
+  //   this.ctx.fillStyle = "#ffffff";
+  //   this.ctxTopHeader.fillStyle = "#F5F5F5";
+  //   this.ctxLeftHeader.fillStyle = "#F5F5F5";
+  //   this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  //   this.ctxTopHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  //   this.ctxLeftHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  // }
 
   clearCanvas() {
     this.ctx.transform(1, 0, 0, 1, 0, 0);
@@ -89,8 +95,10 @@ class newCanvas {
 }
 
 class resizeGrid {
-  constructor(canvasIns) {
+  constructor(canvasIns, ctxTopHeader, ctxLeftHeader) {
     this.canvasIns = canvasIns;
+    this.ctxTopHeader = ctxTopHeader;
+    this.ctxLeftHeader = ctxLeftHeader;
     this.isDraggingTop = false;
     this.draggingTop = -1;
     this.startX = 0;
@@ -103,14 +111,15 @@ class resizeGrid {
 
     this.getValueInstance = new getValues(canvasIns);
     this.Resize();
+  
   }
 
   Resize() {
     this.canvasIns.topHeader.addEventListener("mousedown", (e) =>
-      this.mouseDown(e, "rowheader")
+      this.mouseDown(e, "topheader")
     );
     this.canvasIns.topHeader.addEventListener("mousemove", (e) =>
-      this.mouseMove(e, "rowheader")
+      this.mouseMove(e, "topheader")
     );
     this.canvasIns.topHeader.addEventListener("mouseup", () => this.mouseUp());
     this.canvasIns.topHeader.addEventListener("mouseleave", (e) =>
@@ -118,10 +127,10 @@ class resizeGrid {
     );
 
     this.canvasIns.leftHeader.addEventListener("mousedown", (e) =>
-      this.mouseDown(e, "colheader")
+      this.mouseDown(e, "leftheader")
     );
     this.canvasIns.leftHeader.addEventListener("mousemove", (e) =>
-      this.mouseMove(e, "colheader")
+      this.mouseMove(e, "leftheader")
     );
     this.canvasIns.leftHeader.addEventListener("mouseup", () => this.mouseUp());
     this.canvasIns.leftHeader.addEventListener("mouseleave", () =>
@@ -130,8 +139,9 @@ class resizeGrid {
   }
 
   mouseDown(e, header) {
+    this.canvasIns.clearCanvas();
     let rect = null;
-    if (header == "rowheader") {
+    if (header == "topheader") {
       rect = this.canvasIns.topHeader.getBoundingClientRect();
     } else {
       rect = this.canvasIns.leftHeader.getBoundingClientRect();
@@ -143,12 +153,106 @@ class resizeGrid {
 
     let columnLeft = 0;
     let rowTop = 0;
-
     for (let i = 0; i < columnIndex; i++) {
       columnLeft += this.getValueInstance.getCellWidth(i);
     }
     for (let i = 0; i < rowIndex; i++) {
       rowTop += this.getValueInstance.getCellHeight(i);
+    }
+
+    if (header == "topheader") {
+      this.canvasIns.selectedCol = columnIndex;
+      this.canvasIns.selectedRow = "all";
+      this.canvasIns.ctx.save();
+      this.canvasIns.ctx.beginPath();
+      this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
+      this.canvasIns.ctx.fillRect(
+        columnLeft,
+        0,
+        this.getValueInstance.getCellWidth(columnIndex),
+        this.canvasIns.ctx.canvas.height
+      );
+      this.canvasIns.ctx.lineWidth = 2;
+      this.canvasIns.ctx.rect(
+        columnLeft,
+        -1,
+        this.getValueInstance.getCellWidth(columnIndex),
+        this.canvasIns.ctx.canvas.height + 1
+      );
+      this.canvasIns.ctx.strokeStyle = "rgb(16,124,65)";
+      this.canvasIns.ctx.stroke();
+      this.canvasIns.ctx.restore();
+
+      //Top Header
+      this.ctxTopHeader.save();
+      this.ctxTopHeader.beginPath();
+      this.ctxTopHeader.fillStyle = "rgb(16,124,65)";
+      this.ctxTopHeader.fillRect(
+        columnLeft,
+        0,
+        this.getValueInstance.getCellWidth(columnIndex),
+        this.ctxTopHeader.canvas.height
+      );
+      this.ctxTopHeader.restore();
+
+      //left Header
+      this.ctxLeftHeader.save();
+      this.ctxLeftHeader.beginPath();
+      this.ctxLeftHeader.moveTo(40, 0);
+      this.ctxLeftHeader.lineTo(40, this.ctxLeftHeader.canvas.height);
+      this.ctxLeftHeader.fillStyle = "rgb(202,234,216)";
+      this.ctxLeftHeader.fillRect(0, 0, 44, this.ctxLeftHeader.canvas.height);
+      this.ctxLeftHeader.lineWidth = 5;
+      this.ctxLeftHeader.strokeStyle = "rgb(16,124,65)";
+      this.ctxLeftHeader.stroke();
+      this.ctxLeftHeader.restore();
+    } else {
+      this.canvasIns.selectedCol = "all";
+      this.canvasIns.selectedRow = rowIndex;
+      this.canvasIns.ctx.save();
+      this.canvasIns.ctx.beginPath();
+      this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
+      this.canvasIns.ctx.fillRect(
+        0,
+        rowTop,
+        this.canvasIns.ctx.canvas.width,
+        this.getValueInstance.getCellHeight(rowIndex)
+      );
+      this.canvasIns.ctx.lineWidth = 2;
+      this.canvasIns.ctx.rect(
+        -1,
+        rowTop,
+        this.canvasIns.ctx.canvas.width + 1,
+        this.getValueInstance.getCellHeight(rowIndex)
+      );
+      this.canvasIns.ctx.strokeStyle = "rgb(16,124,65)";
+      this.canvasIns.ctx.stroke();
+      this.canvasIns.ctx.restore();
+
+      //Left Header
+      this.ctxLeftHeader.save();
+      this.ctxLeftHeader.beginPath();
+      this.ctxLeftHeader.fillStyle = "rgb(16,124,65)";
+      this.ctxLeftHeader.fillRect(
+        0,
+        rowTop,
+        this.ctxLeftHeader.canvas.width,
+        this.getValueInstance.getCellHeight(rowIndex)
+      );
+      this.ctxLeftHeader.restore();
+
+      //Top Header
+      this.ctxTopHeader.save();
+      this.ctxTopHeader.beginPath();
+
+      this.ctxTopHeader.moveTo(0, 24);
+      this.ctxTopHeader.lineTo(this.ctxTopHeader.canvas.width, 24);
+      this.ctxTopHeader.fillStyle = "rgb(202,234,216)";
+      this.ctxTopHeader.fillRect(0, 0, this.ctxTopHeader.canvas.width, 26);
+      this.ctxTopHeader.lineWidth = 5;
+      this.ctxTopHeader.strokeStyle = "rgb(16,124,65)";
+      this.ctxTopHeader.stroke();
+      this.ctxTopHeader.restore();
     }
 
     if (
@@ -161,7 +265,6 @@ class resizeGrid {
       this.startY = mouseY;
       this.startHeight = this.getValueInstance.getCellHeight(rowIndex);
     }
-
     if (
       rowIndex == 0 &&
       columnIndex !== -1 &&
@@ -172,11 +275,32 @@ class resizeGrid {
       this.startX = mouseX;
       this.startWidth = this.getValueInstance.getCellWidth(columnIndex);
     }
+
+    this.canvasIns.drawGrid.drawgrid(
+      this.canvasIns.numRows,
+      this.canvasIns.numCols
+    );
+  }
+
+  convertToTitle(columnNumber) {
+    let res = "";
+    while (columnNumber > 0) {
+      let r = columnNumber % 26;
+      let q = parseInt(columnNumber / 26);
+      if (r === 0) {
+        r = 26;
+        q--;
+      }
+
+      res = String.fromCharCode(64 + r) + res;
+      columnNumber = q;
+    }
+    return res;
   }
 
   mouseMove(e, header) {
     let rect = null;
-    if (header == "rowheader") {
+    if (header == "topheader") {
       rect = this.canvasIns.topHeader.getBoundingClientRect();
     } else {
       rect = this.canvasIns.leftHeader.getBoundingClientRect();
@@ -222,7 +346,6 @@ class resizeGrid {
       const newWidth = Math.max(20, this.startWidth + deltaX);
       this.canvasIns.cellWidths.set(this.draggingTop, newWidth);
       this.canvasIns.clearCanvas();
-      this.canvasIns.drawBackground();
       this.canvasIns.drawGrid.drawgrid(
         this.canvasIns.numRows,
         this.canvasIns.numCols
@@ -235,7 +358,6 @@ class resizeGrid {
       const newHeight = Math.max(0, this.startHeight + deltaY);
       this.canvasIns.cellHeight.set(this.draggingLeft, newHeight);
       this.canvasIns.clearCanvas();
-      this.canvasIns.drawBackground();
       this.canvasIns.drawGrid.drawgrid(
         this.canvasIns.numRows,
         this.canvasIns.numCols
@@ -302,23 +424,26 @@ class drawGrid {
     this.ctxLeftHeader = ctxColHeader;
     this.cellWidths = cellWidths;
     this.cellHeight = cellHeight;
-    this.selection = false;
     this.startingIndex = null;
     this.canvasIns = canvasIns;
     this.copy = false;
 
+    this.coordinate = null;
+
     this.getValueInstance = new getValues(canvasIns);
     const inputBox = document.getElementById("canvasinput");
-    this.ctx.canvas.addEventListener("mousedown", (e) => {
+    this.ctx.canvas.addEventListener("pointerdown", (e) => {
       if (this.copy) {
         this.selectionDimensions = null;
         this.copy = false;
       }
+
+      inputBox.style.display = "none";
       this.canvasIns.clearCanvas();
       this.drawgrid(this.canvasIns.numRows, this.canvasIns.numCols);
-      inputBox.style.display = "none";
+
       const rect = this.ctx.canvas.getBoundingClientRect();
-      this.selection = true;
+      this.canvasIns.selection = true;
       const clickX = e.clientX - rect.left;
       const clickY = e.clientY - rect.top;
       this.startingIndex = [
@@ -327,8 +452,8 @@ class drawGrid {
       ];
     });
 
-    this.ctx.canvas.addEventListener("mousemove", (e) => {
-      if (this.selection) {
+    this.ctx.canvas.addEventListener("pointermove", (e) => {
+      if (this.canvasIns.selection) {
         const rect = this.ctx.canvas.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
@@ -351,10 +476,25 @@ class drawGrid {
       );
     });
 
-    this.ctx.canvas.addEventListener("mouseup", (e) => {
+    this.ctx.canvas.addEventListener("pointerup", (e) => {
       inputBox.style.display = "none";
-      this.selection = false;
+      this.canvasIns.selection = false;
     });
+    this.ctx.canvas.addEventListener("pointerleave", (e) => {
+      inputBox.style.display = "none";
+      this.canvasIns.selection = false;
+    });
+
+    // const topleft = document.getElementById("topleft");
+    // topleft.addEventListener("click",()=>{
+    //     this.selectionDimensions = [0,0, this.ctx.canvas.width,this.ctx.canvas.height];
+    //     this.canvasIns.clearCanvas()
+    //     this.drawHighlight()
+    //     this.canvasIns.drawGrid.drawgrid(
+    //       this.canvasIns.numRows,
+    //       this.canvasIns.numCols
+    //     );
+    // })
 
     document.addEventListener("click", () => {
       if (this.copy) {
@@ -364,49 +504,24 @@ class drawGrid {
     });
     document.addEventListener("keydown", (event) => {
       if (event.key === "c" && event.ctrlKey) {
-        const [startX, startY, endX, endY] = this.selectionDimensions;
+        const [x, y, width, height] = this.coordinate;
         this.copy = true;
-        let width1 = 0;
-        let height1 = 0;
-        let width2 = 0;
-        let height2 = 0;
-
-        for (let i = 0; i < startX; i++) {
-          width1 += this.getValueInstance.getCellWidth(i);
-        }
-        for (let i = 0; i < startY; i++) {
-          height1 += this.getValueInstance.getCellHeight(i);
-        }
-        for (let i = startX; i <= endX; i++) {
-          width2 += this.getValueInstance.getCellWidth(i);
-        }
-        for (let i = startY; i <= endY; i++) {
-          height2 += this.getValueInstance.getCellHeight(i);
-        }
-
-        this.canvasIns.ctx.lineWidth = 2;
-        this.canvasIns.ctx.strokeStyle = "red";
-        this.canvasIns.ctx.strokeRect(width1, height1, width2, height2);
-
-        this.startMarchingAntsAnimation(width1, height1, width2, height2);
+        this.startMarchingAntsAnimation(x, y, width, height);
+      } else {
+        this.drawHighlight();
       }
     });
-
-    this.o_speed = 50;
-    this.offset = 3;
-    this.line = 5;
-    this.gap = 5;
   }
 
   startMarchingAntsAnimation(x, y, width, height) {
     this.canvasIns.clearCanvas();
-    this.canvasIns.drawBackground();
     this.canvasIns.ctx.save();
     this.canvasIns.ctx.beginPath();
-
     this.canvasIns.ctx.setLineDash([5, 3]);
     this.canvasIns.ctx.lineDashOffset = 9;
-    this.canvasIns.ctx.rect(x, y, width, height);
+    this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
+    this.canvasIns.ctx.fillRect(x, y, width, height);
+    this.canvasIns.ctx.rect(x - 1, y - 1, width + 3, height + 3);
     this.canvasIns.ctx.strokeStyle = "red";
     this.canvasIns.ctx.stroke();
     this.canvasIns.ctx.restore();
@@ -415,34 +530,57 @@ class drawGrid {
 
   drawHighlight() {
     this.canvasIns.clearCanvas();
-    this.canvasIns.drawBackground();
-
-    this.drawgrid(this.canvasIns.numRows, this.canvasIns.numCols);
-
     const [startX, startY, endX, endY] = this.selectionDimensions;
-    this.canvasIns.ctx.fillStyle = "rgba(0, 0, 255, 0.1)";
 
-    let width1 = 0;
-    let height1 = 0;
-    let width2 = 0;
-    let height2 = 0;
+    this.canvasIns.selectedCol = [startX, endX];
+
+    let x = 0;
+    let y = 0;
+    let width = 0;
+    let height = 0;
     for (let i = 0; i < startX; i++) {
-      width1 += this.getValueInstance.getCellWidth(i);
+      x += this.getValueInstance.getCellWidth(i);
     }
     for (let i = 0; i < startY; i++) {
-      height1 += this.getValueInstance.getCellHeight(i);
+      y += this.getValueInstance.getCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
-      width2 += this.getValueInstance.getCellWidth(i);
+      width += this.getValueInstance.getCellWidth(i);
     }
     for (let i = startY; i <= endY; i++) {
-      height2 += this.getValueInstance.getCellHeight(i);
+      height += this.getValueInstance.getCellHeight(i);
     }
-    this.canvasIns.ctx.fillRect(width1, height1, width2, height2);
 
+    this.canvasIns.ctx.fillRect(x, y, width, height);
+    this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
     this.canvasIns.ctx.lineWidth = 2;
-    this.canvasIns.ctx.strokeStyle = "#0b57d0";
-    this.canvasIns.ctx.strokeRect(width1, height1, width2, height2);
+    this.canvasIns.ctx.strokeStyle = "rgb(16,124,65)";
+    this.canvasIns.ctx.strokeRect(x - 1, y - 1, width + 2, height + 2);
+
+    this.ctxTopHeader.save();
+    this.ctxTopHeader.beginPath();
+    this.ctxTopHeader.moveTo(x, 24);
+    this.ctxTopHeader.lineTo(x + width, 24);
+    this.ctxTopHeader.fillStyle = "rgb(231,241,236)";
+    this.ctxTopHeader.fillRect(x, 0, width, 24);
+    this.ctxTopHeader.lineWidth = 5;
+    this.ctxTopHeader.strokeStyle = "rgb(16,124,65)";
+    this.ctxTopHeader.stroke();
+    this.ctxTopHeader.restore();
+
+    this.ctxLeftHeader.save();
+    this.ctxLeftHeader.beginPath();
+    this.ctxLeftHeader.moveTo(40, y);
+    this.ctxLeftHeader.lineTo(40, y + height);
+    this.ctxLeftHeader.fillStyle = "rgb(231,241,236)";
+    this.ctxLeftHeader.fillRect(0, y, 40, height);
+    this.ctxLeftHeader.lineWidth = 5;
+    this.ctxLeftHeader.strokeStyle = "rgb(16,124,65)";
+    this.ctxLeftHeader.stroke();
+    this.ctxLeftHeader.restore();
+    this.coordinate = [x, y, width, height];
+
+    this.drawgrid(this.canvasIns.numRows, this.canvasIns.numCols);
   }
 
   drawgrid(numRows, numCols) {
@@ -495,54 +633,129 @@ class drawGrid {
   }
 
   renderTopHeader(numCols) {
+    if (Array.isArray(this.canvasIns.selectedCol)) {
+      console.log(this.canvasIns.selectedCol[0]);
+      console.log(this.canvasIns.selectedCol[1]);
+    }
     let cellPosition = 0;
-    this.ctxTopHeader.fillStyle = "#F5F5F5";
     for (let x = 0; x <= numCols; x++) {
       cellPosition += this.cellWidths.get(x) ? this.cellWidths.get(x) : 100;
+      this.ctxTopHeader.save();
       this.ctxTopHeader.beginPath();
       this.ctxTopHeader.moveTo(cellPosition, 0);
       this.ctxTopHeader.lineTo(cellPosition, this.ctxTopHeader.canvas.height);
-      this.ctxTopHeader.strokeStyle = "#d5cece";
+      this.ctxTopHeader.lineWidth = 0.2;
+      this.ctxTopHeader.strokeStyle = "#808080";
       this.ctxTopHeader.stroke();
+      this.ctxTopHeader.restore();
     }
+
+    this.ctxTopHeader.save();
+    this.ctxTopHeader.beginPath();
+    this.ctxTopHeader.moveTo(0, 24);
+    this.ctxTopHeader.lineWidth = 2;
+
+    this.ctxTopHeader.strokeStyle = "#d5cece";
+    this.ctxTopHeader.lineTo(this.ctxTopHeader.canvas.width, 24);
+    this.ctxTopHeader.stroke();
+    this.ctxTopHeader.restore();
+
     this.ctxTopHeader.font = "16px Arial";
-    this.ctxTopHeader.fillStyle = "#000000";
+    this.ctxTopHeader.fillStyle = "black";
     this.ctxTopHeader.textAlign = "center";
 
     cellPosition = 0;
     for (let i = 0; i < numCols; i++) {
-      let text = this.convertToTitle(i + 1);
-      cellPosition += this.cellWidths.get(i) ? this.cellWidths.get(i) : 100;
-      let xPosition = cellPosition - (this.cellWidths.get(i) || 100) / 2;
-      let yPosition = 15;
-      this.ctxTopHeader.fillText(text, xPosition, yPosition + 1);
+      if (this.canvasIns.selectedCol == i) {
+        this.ctxTopHeader.save();
+        this.ctxTopHeader.fillStyle = "white";
+        let text = this.convertToTitle(i + 1);
+        cellPosition += this.cellWidths.get(i) ? this.cellWidths.get(i) : 100;
+        let xPosition = cellPosition - (this.cellWidths.get(i) || 100) / 2;
+        let yPosition = 15;
+        this.ctxTopHeader.font = "bold 16px Arial";
+        this.ctxTopHeader.fillText(text, xPosition, yPosition + 1);
+        this.ctxTopHeader.restore();
+      } else if (this.canvasIns.selectedCol == "all") {
+        this.ctxTopHeader.save();
+        this.ctxTopHeader.fillStyle = "rgb(16,124,65)";
+        let text = this.convertToTitle(i + 1);
+        cellPosition += this.cellWidths.get(i) ? this.cellWidths.get(i) : 100;
+        let xPosition = cellPosition - (this.cellWidths.get(i) || 100) / 2;
+        let yPosition = 15;
+        this.ctxTopHeader.fillText(text, xPosition, yPosition + 1);
+        this.ctxTopHeader.restore();
+      } else {
+        this.ctxTopHeader.save();
+        let text = this.convertToTitle(i + 1);
+        cellPosition += this.cellWidths.get(i) ? this.cellWidths.get(i) : 100;
+        let xPosition = cellPosition - (this.cellWidths.get(i) || 100) / 2;
+        let yPosition = 15;
+        this.ctxTopHeader.fillText(text, xPosition, yPosition + 1);
+        this.ctxTopHeader.restore();
+      }
     }
+    this.canvasIns.selectedCol = null;
   }
 
   renderLeftHeader(numRows) {
     let cellPosition = 0;
-    this.ctxLeftHeader.fillStyle = "#F5F5F5";
     for (let y = 0; y <= numRows; y++) {
       cellPosition += this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
+      this.ctxLeftHeader.save();
       this.ctxLeftHeader.beginPath();
       this.ctxLeftHeader.moveTo(0, cellPosition);
       this.ctxLeftHeader.lineTo(this.ctxLeftHeader.canvas.width, cellPosition);
-      this.ctxLeftHeader.strokeStyle = "#d5cece";
+      this.ctxLeftHeader.lineWidth = 0.2;
+      this.ctxLeftHeader.strokeStyle = "#808080";
       this.ctxLeftHeader.stroke();
+      this.ctxLeftHeader.restore();
     }
+
+    this.ctxLeftHeader.save();
+    this.ctxLeftHeader.beginPath();
+    this.ctxLeftHeader.moveTo(40, 0);
+    this.ctxLeftHeader.lineTo(40, this.ctxLeftHeader.canvas.height);
+    this.ctxLeftHeader.strokeStyle = "#d5cece";
+    this.ctxLeftHeader.stroke();
+    this.ctxLeftHeader.restore();
 
     cellPosition = 0;
     this.ctxLeftHeader.font = "14px Arial";
     this.ctxLeftHeader.fillStyle = "#000000";
     for (let i = 0; i <= numRows; i++) {
-      cellPosition += this.cellHeight.get(i) || 21;
-      let text = (i + 1).toString();
-      let textWidth = this.ctxLeftHeader.measureText(text).width;
+      if (this.canvasIns.selectedRow == i) {
+        this.ctxLeftHeader.save();
+        cellPosition += this.cellHeight.get(i) || 21;
+        let text = (i + 1).toString();
+        let textWidth = this.ctxLeftHeader.measureText(text).width;
+        this.ctxLeftHeader.font = "bold 14px Arial";
+        let xPosition = this.ctxLeftHeader.canvas.width - textWidth - 10;
+        let yPosition = cellPosition - (this.cellHeight.get(i) || 21) / 2;
+        this.ctxLeftHeader.fillStyle = "white";
+        this.ctxLeftHeader.fillText(text, xPosition, yPosition + 4);
+        this.ctxLeftHeader.restore();
+      } else if (this.canvasIns.selectedRow == "all") {
+        this.ctxLeftHeader.save();
+        cellPosition += this.cellHeight.get(i) || 21;
+        let text = (i + 1).toString();
+        let textWidth = this.ctxLeftHeader.measureText(text).width;
+        let xPosition = this.ctxLeftHeader.canvas.width - textWidth - 10;
+        let yPosition = cellPosition - (this.cellHeight.get(i) || 21) / 2;
+        this.ctxLeftHeader.fillStyle = "rgb(16,124,65)";
+        this.ctxLeftHeader.fillText(text, xPosition, yPosition + 4);
+        this.ctxLeftHeader.restore();
+      } else {
+        cellPosition += this.cellHeight.get(i) || 21;
+        let text = (i + 1).toString();
+        let textWidth = this.ctxLeftHeader.measureText(text).width;
 
-      let xPosition = this.ctxLeftHeader.canvas.width - textWidth - 10;
-      let yPosition = cellPosition - (this.cellHeight.get(i) || 21) / 2;
-      this.ctxLeftHeader.fillText(text, xPosition, yPosition + 4);
+        let xPosition = this.ctxLeftHeader.canvas.width - textWidth - 10;
+        let yPosition = cellPosition - (this.cellHeight.get(i) || 21) / 2;
+        this.ctxLeftHeader.fillText(text, xPosition, yPosition + 4);
+      }
     }
+    this.canvasIns.selectedRow = null;
   }
 }
 
@@ -557,6 +770,7 @@ class cellInput {
     this.canvasIns.canvas.addEventListener("click", (e) => {
       rowTop = 0;
       columnLeft = 0;
+      inputBox.focus();
       let rect = this.canvasIns.canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
@@ -584,8 +798,9 @@ class cellInput {
     document.addEventListener("keydown", (e) => {
       let cellHeight = 0;
       let cellWidth = 0;
-
-      if (
+      if (e.key === "c" && e.ctrlKey) {
+        return;
+      } else if (
         (e.key == "Enter" && focus == 1) ||
         (e.key == "ArrowDown" && focus == 0)
       ) {
