@@ -438,6 +438,9 @@ class drawGrid {
 
     this.x1 = 0;
     this.y1 = 0;
+    this.currentX;
+    this.currentY;
+
     this.ctx.canvas.addEventListener("mousedown", (e) => {
       this.isAnimationRunning = false;
       this.inputBox.style.display = "none";
@@ -460,8 +463,9 @@ class drawGrid {
       this.y1 = 0;
       this.x1Index = this.getValueInstance.getColumnIndex(clickX);
       this.y1Index = this.getValueInstance.getRowIndex(clickY);
-      this.x2Index = this.x1Index;
-      this.y2Index = this.y1Index;
+      this.x2Index = this.getValueInstance.getColumnIndex(clickX);
+      this.y2Index = this.getValueInstance.getRowIndex(clickY);
+
       for (let i = 0; i < this.x1Index; i++) {
         this.x1 += this.getValueInstance.getCellWidth(i);
       }
@@ -531,123 +535,58 @@ class drawGrid {
   }
 
   inputBoxFun(e) {
+    let flag = false;
+    let lowX, lowY, highX, highY;
     if (e.ctrlKey && e.key === "c") {
       const [x, y, width, height] = this.coordinate;
       this.isAnimationRunning = true;
       this.startMarchingAntsAnimation(x, y, width, height);
-    } else if (e.shiftKey && e.key === "ArrowDown") {
-      this.y2Index = this.y2Index + 1;
-      if (this.y1Index >= this.y2Index) {
-        this.selectionDimensions = [
-          this.x1Index,
-          this.y2Index,
-          this.x2Index,
-          this.y1Index,
-        ];
+    } else if (e.shiftKey) {
+      if (e.key === "ArrowDown") {
+        this.y2Index = Math.max(0, this.y2Index + 1);
+      } else if (e.key === "ArrowRight") {
+        this.x2Index = Math.max(0, this.x2Index + 1);
+      } else if (e.key === "ArrowUp") {
+        this.y2Index = Math.max(0, this.y2Index - 1);
+      } else if (e.key === "ArrowLeft") {
+        this.x2Index = Math.max(0, this.x2Index - 1);
       } else {
-        this.selectionDimensions = [
-          this.x1Index,
-          this.y1Index,
-          this.x2Index,
-          this.y2Index,
-        ];
+        this.x2Index = this.x1Index;
+        this.y2Index = this.y1Index;
+        return;
       }
-      this.drawHighlight();
-    } else if (e.shiftKey && e.key === "ArrowUp") {
-      this.y2Index = this.y2Index - 1;
-      if (this.y1Index >= this.y2Index) {
-        this.selectionDimensions = [
-          this.x1Index,
-          this.y2Index,
-          this.x2Index,
-          this.y1Index,
-        ];
-      } else {
-        this.selectionDimensions = [
-          this.x1Index,
-          this.y1Index,
-          this.x2Index,
-          this.y2Index,
-        ];
-      }
-      this.drawHighlight();
-    } else if (e.shiftKey && e.key === "ArrowRight") {
-      this.x2Index = this.x2Index + 1;
-      if (this.x1Index >= this.x2Index) {
-        this.selectionDimensions = [
-          this.x2Index,
-          this.y1Index,
-          this.x1Index,
-          this.y2Index,
-        ];
-      } else {
-        this.selectionDimensions = [
-          this.x1Index,
-          this.y1Index,
-          this.x2Index,
-          this.y2Index,
-        ];
-      }
-      this.drawHighlight();
-    } else if (e.shiftKey && e.key === "ArrowLeft") {
-      this.x2Index = this.x2Index - 1;
-      if (this.x1Index >= this.x2Index) {
-        this.selectionDimensions = [
-          this.x2Index,
-          this.y1Index,
-          this.x1Index,
-          this.y2Index,
-        ];
-      } else {
-        this.selectionDimensions = [
-          this.x1Index,
-          this.y1Index,
-          this.x2Index,
-          this.y2Index,
-        ];
-      }
+      flag = true;
+      lowX = Math.min(this.x1Index, this.x2Index);
+      highX = Math.max(this.x1Index, this.x2Index);
+      lowY = Math.min(this.y1Index, this.y2Index);
+      highY = Math.max(this.y1Index, this.y2Index);
+      this.selectionDimensions = [lowX, lowY, highX, highY];
       this.drawHighlight();
     } else if (e.key == "Enter" || e.key == "ArrowDown") {
-      e.preventDefault();
-      this.inputBox.blur();
       this.y1 += this.getValueInstance.getCellHeight(this.y1Index);
       this.y1Index = this.y1Index + 1;
-      this.selectionDimensions = [
-        this.x1Index,
-        this.y1Index,
-        this.x1Index,
-        this.y1Index,
-      ];
-      this.drawHighlight();
     } else if (e.key == "ArrowUp" && this.y1Index >= 1) {
-      e.preventDefault();
-      this.inputBox.blur();
       this.y1 -= this.getValueInstance.getCellHeight(this.y1Index - 1);
       this.y1Index = this.y1Index - 1;
-      this.selectionDimensions = [
-        this.x1Index,
-        this.y1Index,
-        this.x1Index,
-        this.y1Index,
-      ];
-      this.drawHighlight();
     } else if (e.key == "Tab" || e.key == "ArrowRight") {
-      e.preventDefault();
-      this.inputBox.blur();
       this.x1 += this.getValueInstance.getCellWidth(this.x1Index);
       this.x1Index = this.x1Index + 1;
-      this.selectionDimensions = [
-        this.x1Index,
-        this.y1Index,
-        this.x1Index,
-        this.y1Index,
-      ];
-      this.drawHighlight();
     } else if (e.key == "ArrowLeft" && this.x1Index >= 1) {
-      e.preventDefault();
-      this.inputBox.blur();
       this.x1 -= this.getValueInstance.getCellWidth(this.x1Index - 1);
       this.x1Index = this.x1Index - 1;
+    } else if (
+      (e.key >= "a" && e.key <= "z") ||
+      (e.key >= "0" && e.key <= "9") ||
+      e.key == "Backspace"
+    ) {
+      flag = true;
+      this.isAnimationRunning = false;
+      this.inputBox.focus();
+    }
+
+    if (!e.ctrlKey && flag == false) {
+      e.preventDefault();
+      this.inputBox.blur();
       this.selectionDimensions = [
         this.x1Index,
         this.y1Index,
@@ -655,20 +594,9 @@ class drawGrid {
         this.y1Index,
       ];
       this.drawHighlight();
-    } else if (
-      (e.key >= "a" && e.key <= "z") ||
-      (e.key >= "0" && e.key <= "9")
-    ) {
-      this.inputBox.focus();
-      this.drawHighlight();
-    } else {
-      this.y2Index = this.y1Index;
-      this.x2Index = this.x1Index;
     }
-
     this.inputBox.style.display = "block";
     this.inputBox.style.top = `${this.y1}px`;
-    0;
     this.inputBox.style.left = `${this.x1}px`;
     this.inputBox.style.height = `${this.getValueInstance.getCellHeight(
       this.y1Index
@@ -706,6 +634,7 @@ class drawGrid {
 
     this.canvasIns.ctx.lineWidth = 2;
     this.canvasIns.ctx.strokeStyle = "green";
+
     this.canvasIns.ctx.rect(x, y, width, height);
 
     this.canvasIns.ctx.stroke();
@@ -719,7 +648,6 @@ class drawGrid {
   drawHighlight() {
     this.canvasIns.clearCanvas();
     const [startX, startY, endX, endY] = this.selectionDimensions;
-
     this.canvasIns.selectedCol = [startX, endX];
     this.canvasIns.selectedRow = [startY, endY];
 
@@ -754,6 +682,8 @@ class drawGrid {
     this.canvasIns.ctx.lineWidth = 2;
     this.canvasIns.ctx.strokeStyle = "rgb(16,124,65)";
     this.canvasIns.ctx.strokeRect(x, y, width, height);
+    this.coordinate = [x, y, width, height];
+    console.log(this.coordinate);
     this.highlightHeaders(x, y, width, height);
   }
 
@@ -779,7 +709,7 @@ class drawGrid {
     this.ctxLeftHeader.strokeStyle = "rgb(16,124,65)";
     this.ctxLeftHeader.stroke();
     this.ctxLeftHeader.restore();
-    this.coordinate = [x, y, width, height];
+
     this.drawgrid(this.canvasIns.numRows, this.canvasIns.numCols);
   }
 
