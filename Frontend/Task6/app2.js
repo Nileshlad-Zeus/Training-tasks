@@ -25,7 +25,8 @@ class newCanvas {
     this.resizeGrid = new resizeGrid(
       this,
       this.ctxTopHeader,
-      this.ctxLeftHeader
+      this.ctxLeftHeader,
+      this.ctx
     );
     this.getValues = new getValues(this);
 
@@ -76,15 +77,6 @@ class newCanvas {
     });
   }
 
-  // drawBackground() {
-  //   this.ctx.fillStyle = "#ffffff";
-  //   this.ctxTopHeader.fillStyle = "#F5F5F5";
-  //   this.ctxLeftHeader.fillStyle = "#F5F5F5";
-  //   this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  //   this.ctxTopHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  //   this.ctxLeftHeader.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  // }
-
   clearCanvas() {
     this.ctx.transform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -94,10 +86,12 @@ class newCanvas {
 }
 
 class resizeGrid {
-  constructor(canvasIns, ctxTopHeader, ctxLeftHeader) {
+  constructor(canvasIns, ctxTopHeader, ctxLeftHeader, ctx) {
     this.canvasIns = canvasIns;
     this.ctxTopHeader = ctxTopHeader;
     this.ctxLeftHeader = ctxLeftHeader;
+    this.ctx = ctx;
+
     this.isDraggingTop = false;
     this.draggingTop = -1;
     this.startX = 0;
@@ -158,28 +152,33 @@ class resizeGrid {
       rowTop += this.getValueInstance.getCellHeight(i);
     }
 
-    if (header == "topheader") {
+    if (
+      header == "topheader" &&
+      rowIndex == 0 &&
+      columnIndex !== -1 &&
+      this.getValueInstance.getCellWidth(columnIndex) + columnLeft - mouseX > 10
+    ) {
       this.canvasIns.selectedCol = columnIndex;
       this.canvasIns.selectedRow = "all";
-      this.canvasIns.ctx.save();
-      this.canvasIns.ctx.beginPath();
-      this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
-      this.canvasIns.ctx.fillRect(
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "rgb(231,241,236)";
+      this.ctx.fillRect(
         columnLeft,
         0,
         this.getValueInstance.getCellWidth(columnIndex),
-        this.canvasIns.ctx.canvas.height
+        this.ctx.canvas.height
       );
-      this.canvasIns.ctx.lineWidth = 2;
-      this.canvasIns.ctx.rect(
+      this.ctx.lineWidth = 2;
+      this.ctx.rect(
         columnLeft,
         -1,
         this.getValueInstance.getCellWidth(columnIndex),
-        this.canvasIns.ctx.canvas.height + 1
+        this.ctx.canvas.height + 1
       );
-      this.canvasIns.ctx.strokeStyle = "rgb(16,124,65)";
-      this.canvasIns.ctx.stroke();
-      this.canvasIns.ctx.restore();
+      this.ctx.strokeStyle = "rgb(16,124,65)";
+      this.ctx.stroke();
+      this.ctx.restore();
 
       //Top Header
       this.ctxTopHeader.save();
@@ -204,28 +203,32 @@ class resizeGrid {
       this.ctxLeftHeader.strokeStyle = "rgb(16,124,65)";
       this.ctxLeftHeader.stroke();
       this.ctxLeftHeader.restore();
-    } else {
+    } else if (
+      columnIndex == 0 &&
+      rowIndex !== -1 &&
+      this.getValueInstance.getCellHeight(rowIndex) + rowTop - mouseY > 10
+    ) {
       this.canvasIns.selectedCol = "all";
       this.canvasIns.selectedRow = rowIndex;
-      this.canvasIns.ctx.save();
-      this.canvasIns.ctx.beginPath();
-      this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
-      this.canvasIns.ctx.fillRect(
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "rgb(231,241,236)";
+      this.ctx.fillRect(
         0,
         rowTop,
-        this.canvasIns.ctx.canvas.width,
+        this.ctx.canvas.width,
         this.getValueInstance.getCellHeight(rowIndex)
       );
-      this.canvasIns.ctx.lineWidth = 2;
-      this.canvasIns.ctx.rect(
+      this.ctx.lineWidth = 2;
+      this.ctx.rect(
         -1,
         rowTop,
-        this.canvasIns.ctx.canvas.width + 1,
+        this.ctx.canvas.width + 1,
         this.getValueInstance.getCellHeight(rowIndex)
       );
-      this.canvasIns.ctx.strokeStyle = "rgb(16,124,65)";
-      this.canvasIns.ctx.stroke();
-      this.canvasIns.ctx.restore();
+      this.ctx.strokeStyle = "rgb(16,124,65)";
+      this.ctx.stroke();
+      this.ctx.restore();
 
       //Left Header
       this.ctxLeftHeader.save();
@@ -280,22 +283,6 @@ class resizeGrid {
     );
   }
 
-  convertToTitle(columnNumber) {
-    let res = "";
-    while (columnNumber > 0) {
-      let r = columnNumber % 26;
-      let q = parseInt(columnNumber / 26);
-      if (r === 0) {
-        r = 26;
-        q--;
-      }
-
-      res = String.fromCharCode(64 + r) + res;
-      columnNumber = q;
-    }
-    return res;
-  }
-
   mouseMove(e, header) {
     let rect = null;
     if (header == "topheader") {
@@ -317,7 +304,7 @@ class resizeGrid {
     for (let i = 0; i < rowIndex; i++) {
       rowTop += this.getValueInstance.getCellHeight(i);
     }
-
+    
     if (
       rowIndex == 0 &&
       columnIndex !== -1 &&
@@ -372,6 +359,22 @@ class resizeGrid {
       this.isDraggingLeft = false;
       this.draggingLeft = -1;
     }
+  }
+
+  convertToTitle(columnNumber) {
+    let res = "";
+    while (columnNumber > 0) {
+      let r = columnNumber % 26;
+      let q = parseInt(columnNumber / 26);
+      if (r === 0) {
+        r = 26;
+        q--;
+      }
+
+      res = String.fromCharCode(64 + r) + res;
+      columnNumber = q;
+    }
+    return res;
   }
 }
 
@@ -473,7 +476,6 @@ class drawGrid {
         this.y1 += this.getValueInstance.getCellHeight(i);
       }
 
-      // Determine dimensions of selection
       const startX = Math.min(this.startingIndex[0], colIndex);
       const startY = Math.min(this.startingIndex[1], rowIndex);
       const endX = Math.max(this.startingIndex[0], colIndex);
@@ -501,10 +503,6 @@ class drawGrid {
         this.selectionDimensions = [startX, startY, endX, endY];
         this.drawHighlight();
       }
-      this.drawgrid(
-        this.getValueInstance.numRows,
-        this.getValueInstance.numCols
-      );
     });
 
     this.ctx.canvas.addEventListener("mouseup", (e) => {
@@ -530,11 +528,11 @@ class drawGrid {
     });
 
     document.addEventListener("keydown", (event) => {
-      this.inputBoxFun(event);
+      this.KeyEvents(event);
     });
   }
 
-  inputBoxFun(e) {
+  KeyEvents(e) {
     let flag = false;
     let lowX, lowY, highX, highY;
     if (e.ctrlKey && e.key === "c") {
@@ -617,28 +615,28 @@ class drawGrid {
     }
 
     this.canvasIns.clearCanvas();
-    this.canvasIns.ctx.save();
-    this.canvasIns.ctx.beginPath();
-    this.canvasIns.ctx.setLineDash([5, 3]);
-    this.canvasIns.ctx.lineDashOffset = this.lineDashOffset;
-    this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
-    this.canvasIns.ctx.fillRect(x, y, width, height);
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.setLineDash([5, 3]);
+    this.ctx.lineDashOffset = this.lineDashOffset;
+    this.ctx.fillStyle = "rgb(231,241,236)";
+    this.ctx.fillRect(x, y, width, height);
 
-    this.canvasIns.ctx.fillStyle = "#ffffff";
-    this.canvasIns.ctx.fillRect(
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillRect(
       this.x1,
       this.y1,
       this.getValueInstance.getCellWidth(this.x1),
       this.getValueInstance.getCellHeight(this.y1)
     );
 
-    this.canvasIns.ctx.lineWidth = 2;
-    this.canvasIns.ctx.strokeStyle = "green";
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = "green";
 
-    this.canvasIns.ctx.rect(x, y, width, height);
+    this.ctx.rect(x, y, width, height);
 
-    this.canvasIns.ctx.stroke();
-    this.canvasIns.ctx.restore();
+    this.ctx.stroke();
+    this.ctx.restore();
     requestAnimationFrame(() =>
       this.startMarchingAntsAnimation(x, y, width, height)
     );
@@ -668,22 +666,21 @@ class drawGrid {
       height += this.getValueInstance.getCellHeight(i);
     }
 
-    this.canvasIns.ctx.fillStyle = "rgb(231,241,236)";
-    this.canvasIns.ctx.fillRect(x, y, width, height);
+    this.ctx.fillStyle = "rgb(231,241,236)";
+    this.ctx.fillRect(x, y, width, height);
 
-    this.canvasIns.ctx.fillStyle = "#ffffff";
-    this.canvasIns.ctx.fillRect(
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillRect(
       this.x1,
       this.y1,
-      this.getValueInstance.getCellWidth(this.x1),
-      this.getValueInstance.getCellHeight(this.y1)
+      this.getValueInstance.getCellWidth(this.x1Index),
+      this.getValueInstance.getCellHeight(this.y1Index)
     );
 
-    this.canvasIns.ctx.lineWidth = 2;
-    this.canvasIns.ctx.strokeStyle = "rgb(16,124,65)";
-    this.canvasIns.ctx.strokeRect(x, y, width, height);
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = "rgb(16,124,65)";
+    this.ctx.strokeRect(x, y, width, height);
     this.coordinate = [x, y, width, height];
-    console.log(this.coordinate);
     this.highlightHeaders(x, y, width, height);
   }
 
@@ -744,22 +741,6 @@ class drawGrid {
       this.ctx.strokeStyle = "#808080";
       this.ctx.stroke();
     }
-  }
-
-  convertToTitle(columnNumber) {
-    let res = "";
-    while (columnNumber > 0) {
-      let r = columnNumber % 26;
-      let q = parseInt(columnNumber / 26);
-      if (r === 0) {
-        r = 26;
-        q--;
-      }
-
-      res = String.fromCharCode(64 + r) + res;
-      columnNumber = q;
-    }
-    return res;
   }
 
   renderTopHeader(numCols) {
@@ -926,6 +907,22 @@ class drawGrid {
       }
     }
     this.canvasIns.selectedRow = null;
+  }
+
+  convertToTitle(columnNumber) {
+    let res = "";
+    while (columnNumber > 0) {
+      let r = columnNumber % 26;
+      let q = parseInt(columnNumber / 26);
+      if (r === 0) {
+        r = 26;
+        q--;
+      }
+
+      res = String.fromCharCode(64 + r) + res;
+      columnNumber = q;
+    }
+    return res;
   }
 }
 

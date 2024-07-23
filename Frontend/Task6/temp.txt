@@ -1,0 +1,245 @@
+ Resize() {
+    this.canvasIns.topHeader.addEventListener("mousedown", (e) =>
+      this.mouseDown(e, "topheader")
+    );
+    this.canvasIns.topHeader.addEventListener("mousemove", (e) =>
+      this.mouseMove(e, "topheader")
+    );
+    this.canvasIns.topHeader.addEventListener("mouseup", () => this.mouseUp());
+    this.canvasIns.topHeader.addEventListener("mouseleave", (e) =>
+      this.mouseUp()
+    );
+
+    this.canvasIns.leftHeader.addEventListener("mousedown", (e) =>
+      this.mouseDown(e, "leftheader")
+    );
+    this.canvasIns.leftHeader.addEventListener("mousemove", (e) =>
+      this.mouseMove(e, "leftheader")
+    );
+    this.canvasIns.leftHeader.addEventListener("mouseup", () => this.mouseUp());
+    this.canvasIns.leftHeader.addEventListener("mouseleave", () =>
+      this.mouseUp()
+    );
+  }
+
+  mouseDown(e, header) {
+    this.canvasIns.clearCanvas();
+    let rect = null;
+    if (header == "topheader") {
+      rect = this.canvasIns.topHeader.getBoundingClientRect();
+    } else {
+      rect = this.canvasIns.leftHeader.getBoundingClientRect();
+    }
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    let columnIndex = this.getValueInstance.getColumnIndex(mouseX);
+    let rowIndex = this.getValueInstance.getRowIndex(mouseY);
+
+    let columnLeft = 0;
+    let rowTop = 0;
+    for (let i = 0; i < columnIndex; i++) {
+      columnLeft += this.getValueInstance.getCellWidth(i);
+    }
+    for (let i = 0; i < rowIndex; i++) {
+      rowTop += this.getValueInstance.getCellHeight(i);
+    }
+
+    if (header == "topheader") {
+      this.canvasIns.selectedCol = columnIndex;
+      this.canvasIns.selectedRow = "all";
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "rgb(231,241,236)";
+      this.ctx.fillRect(
+        columnLeft,
+        0,
+        this.getValueInstance.getCellWidth(columnIndex),
+        this.ctx.canvas.height
+      );
+      this.ctx.lineWidth = 2;
+      this.ctx.rect(
+        columnLeft,
+        -1,
+        this.getValueInstance.getCellWidth(columnIndex),
+        this.ctx.canvas.height + 1
+      );
+      this.ctx.strokeStyle = "rgb(16,124,65)";
+      this.ctx.stroke();
+      this.ctx.restore();
+
+      //Top Header
+      this.ctxTopHeader.save();
+      this.ctxTopHeader.beginPath();
+      this.ctxTopHeader.fillStyle = "rgb(16,124,65)";
+      this.ctxTopHeader.fillRect(
+        columnLeft,
+        0,
+        this.getValueInstance.getCellWidth(columnIndex),
+        this.ctxTopHeader.canvas.height
+      );
+      this.ctxTopHeader.restore();
+
+      //left Header
+      this.ctxLeftHeader.save();
+      this.ctxLeftHeader.beginPath();
+      this.ctxLeftHeader.moveTo(40, 0);
+      this.ctxLeftHeader.lineTo(40, this.ctxLeftHeader.canvas.height);
+      this.ctxLeftHeader.fillStyle = "rgb(202,234,216)";
+      this.ctxLeftHeader.fillRect(0, 0, 44, this.ctxLeftHeader.canvas.height);
+      this.ctxLeftHeader.lineWidth = 5;
+      this.ctxLeftHeader.strokeStyle = "rgb(16,124,65)";
+      this.ctxLeftHeader.stroke();
+      this.ctxLeftHeader.restore();
+    } else {
+      this.canvasIns.selectedCol = "all";
+      this.canvasIns.selectedRow = rowIndex;
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "rgb(231,241,236)";
+      this.ctx.fillRect(
+        0,
+        rowTop,
+        this.ctx.canvas.width,
+        this.getValueInstance.getCellHeight(rowIndex)
+      );
+      this.ctx.lineWidth = 2;
+      this.ctx.rect(
+        -1,
+        rowTop,
+        this.ctx.canvas.width + 1,
+        this.getValueInstance.getCellHeight(rowIndex)
+      );
+      this.ctx.strokeStyle = "rgb(16,124,65)";
+      this.ctx.stroke();
+      this.ctx.restore();
+
+      //Left Header
+      this.ctxLeftHeader.save();
+      this.ctxLeftHeader.beginPath();
+      this.ctxLeftHeader.fillStyle = "rgb(16,124,65)";
+      this.ctxLeftHeader.fillRect(
+        0,
+        rowTop,
+        this.ctxLeftHeader.canvas.width,
+        this.getValueInstance.getCellHeight(rowIndex)
+      );
+      this.ctxLeftHeader.restore();
+
+      //Top Header
+      this.ctxTopHeader.save();
+      this.ctxTopHeader.beginPath();
+
+      this.ctxTopHeader.moveTo(0, 24);
+      this.ctxTopHeader.lineTo(this.ctxTopHeader.canvas.width, 24);
+      this.ctxTopHeader.fillStyle = "rgb(202,234,216)";
+      this.ctxTopHeader.fillRect(0, 0, this.ctxTopHeader.canvas.width, 26);
+      this.ctxTopHeader.lineWidth = 5;
+      this.ctxTopHeader.strokeStyle = "rgb(16,124,65)";
+      this.ctxTopHeader.stroke();
+      this.ctxTopHeader.restore();
+    }
+
+    if (
+      columnIndex == 0 &&
+      rowIndex !== -1 &&
+      this.getValueInstance.getCellHeight(rowIndex) + rowTop - mouseY < 10
+    ) {
+      this.isDraggingLeft = true;
+      this.draggingLeft = rowIndex;
+      this.startY = mouseY;
+      this.startHeight = this.getValueInstance.getCellHeight(rowIndex);
+    }
+    if (
+      rowIndex == 0 &&
+      columnIndex !== -1 &&
+      this.getValueInstance.getCellWidth(columnIndex) + columnLeft - mouseX < 10
+    ) {
+      this.isDraggingTop = true;
+      this.draggingTop = columnIndex;
+      this.startX = mouseX;
+      this.startWidth = this.getValueInstance.getCellWidth(columnIndex);
+    }
+
+    this.canvasIns.drawGrid.drawgrid(
+      this.canvasIns.numRows,
+      this.canvasIns.numCols
+    );
+  }
+
+  mouseMove(e, header) {
+    let rect = null;
+    if (header == "topheader") {
+      rect = this.canvasIns.topHeader.getBoundingClientRect();
+    } else {
+      rect = this.canvasIns.leftHeader.getBoundingClientRect();
+    }
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    let columnIndex = this.getValueInstance.getColumnIndex(mouseX);
+    let rowIndex = this.getValueInstance.getRowIndex(mouseY);
+
+    let columnLeft = 0;
+    let rowTop = 0;
+
+    for (let i = 0; i < columnIndex; i++) {
+      columnLeft += this.getValueInstance.getCellWidth(i);
+    }
+    for (let i = 0; i < rowIndex; i++) {
+      rowTop += this.getValueInstance.getCellHeight(i);
+    }
+    this.canvasIns.selectedCol = [this.canvasIns.selectedCol, columnIndex];
+    if (
+      rowIndex == 0 &&
+      columnIndex !== -1 &&
+      this.getValueInstance.getCellWidth(columnIndex) + columnLeft - mouseX < 10
+    ) {
+      this.canvasIns.topHeader.style.cursor = "col-resize";
+    } else {
+      this.canvasIns.topHeader.style.cursor = "default";
+    }
+
+    if (
+      columnIndex == 0 &&
+      rowIndex !== -1 &&
+      this.getValueInstance.getCellHeight(rowIndex) + rowTop - mouseY < 5
+    ) {
+      this.canvasIns.leftHeader.style.cursor = "row-resize";
+    } else {
+      this.canvasIns.leftHeader.style.cursor = "default";
+    }
+
+    if (this.isDraggingTop) {
+      this.canvasIns.topHeader.style.cursor = "col-resize";
+      const deltaX = mouseX - this.startX;
+      const newWidth = Math.max(20, this.startWidth + deltaX);
+      this.canvasIns.cellWidths.set(this.draggingTop, newWidth);
+      this.canvasIns.clearCanvas();
+      this.canvasIns.drawGrid.drawgrid(
+        this.canvasIns.numRows,
+        this.canvasIns.numCols
+      );
+    }
+
+    if (this.isDraggingLeft) {
+      this.canvasIns.leftHeader.style.cursor = "row-resize";
+      const deltaY = mouseY - this.startY;
+      const newHeight = Math.max(0, this.startHeight + deltaY);
+      this.canvasIns.cellHeight.set(this.draggingLeft, newHeight);
+      this.canvasIns.clearCanvas();
+      this.canvasIns.drawGrid.drawgrid(
+        this.canvasIns.numRows,
+        this.canvasIns.numCols
+      );
+    }
+  }
+
+  mouseUp() {
+    if (this.isDraggingTop) {
+      this.isDraggingTop = false;
+      this.draggingTop = -1;
+    }
+    if (this.isDraggingLeft) {
+      this.isDraggingLeft = false;
+      this.draggingLeft = -1;
+    }
+  }
