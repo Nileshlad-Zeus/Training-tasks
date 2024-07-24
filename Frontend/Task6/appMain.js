@@ -22,8 +22,12 @@ class newCanvas {
     this.isRowSelected = false;
 
     this.copy = false;
+
+    //copy animation
     this.lineDashOffset = 0;
     this.isAnimationRunning = false;
+    this.alreadyCopy = 0; //0:animation not running ctrl+c 1:animation running ctrl+c
+
     this.coordinate = null;
 
     this.inputBox = document.getElementById("canvasinput");
@@ -38,11 +42,11 @@ class newCanvas {
 
     this.ctx.canvas.addEventListener("dblclick", (e) => {
       this.inputBox.style.display = "block";
-      this.inputBox.style.top = `${this.y1}px`;
+      this.inputBox.style.top = `${this.y1 - 1}px`;
       0;
-      this.inputBox.style.left = `${this.x1}px`;
-      this.inputBox.style.height = `${this.getCellHeight(this.y1Index)}px`;
-      this.inputBox.style.width = `${this.getCellWidth(this.x1Index)}px`;
+      this.inputBox.style.left = `${this.x1 - 1}px`;
+      this.inputBox.style.height = `${this.getCellHeight(this.y1Index) + 3}px`;
+      this.inputBox.style.width = `${this.getCellWidth(this.x1Index) + 3}px`;
       this.inputBox.focus();
     });
 
@@ -59,7 +63,6 @@ class newCanvas {
     this.draggingLeft = -1;
     this.startY = 0;
     this.startHeight = 0;
-    this.drawgrid(this.numRows, this.numCols);
     this.highLightEvent();
     this.scroll();
     this.Resize();
@@ -72,20 +75,24 @@ class newCanvas {
     this.startingIndexTop = null;
     this.startingIndexLeft = null;
 
+    //headersHighlight
+    this.headersHighlightCoordinate = null;
+
     this.drawHighlight();
     this.inputBox.style.display = "block";
     this.inputBox.style.display = "block";
-    this.inputBox.style.top = `${this.y1}px`;
+    this.inputBox.style.top = `${this.y1 - 1}px`;
     0;
-    this.inputBox.style.left = `${this.x1}px`;
-    this.inputBox.style.height = `${this.getCellHeight(this.y1Index)}px`;
-    this.inputBox.style.width = `${this.getCellWidth(this.x1Index)}px`;
+    this.inputBox.style.left = `${this.x1 - 1}px`;
+    this.inputBox.style.height = `${this.getCellHeight(this.y1Index) + 3}px`;
+    this.inputBox.style.width = `${this.getCellWidth(this.x1Index) + 3}px`;
   }
 
   createNew() {
     const main = document.getElementById("main");
     const createCanva = document.createElement("canvas");
     createCanva.setAttribute("id", this.sheetName);
+
     createCanva.width = 2100;
     createCanva.height = 1200;
     main.appendChild(createCanva);
@@ -96,6 +103,7 @@ class newCanvas {
     const topHeader = document.getElementById("topHeader");
     const createCanva = document.createElement("canvas");
     createCanva.setAttribute("id", "topHeader-canvas");
+
     createCanva.width = 2100;
     createCanva.height = 24;
     topHeader.appendChild(createCanva);
@@ -106,6 +114,7 @@ class newCanvas {
     const leftHeader = document.getElementById("leftHeader");
     const createCanva = document.createElement("canvas");
     createCanva.setAttribute("id", "leftHeader-canvas");
+
     createCanva.width = 40;
     createCanva.height = 1200;
     leftHeader.appendChild(createCanva);
@@ -129,14 +138,19 @@ class newCanvas {
     this.ctxLeftHeader.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  //draw grid
   KeyEvents(e) {
     let flag = false;
+    this.alreadyCopy = 0;
     let lowX, lowY, highX, highY;
     if (e.ctrlKey && e.key === "c") {
+      if (this.isAnimationRunning) {
+        this.alreadyCopy = 1;
+      }
+      cancelAnimationFrame(this.animationFrameId);
       this.isAnimationRunning = true;
       this.startMarchingAntsAnimation();
     } else if (e.shiftKey) {
+      this.inputBox.style.display = "none";
       if (e.key === "ArrowDown") {
         this.y2Index = Math.max(0, this.y2Index + 1);
       } else if (e.key === "ArrowRight") {
@@ -157,7 +171,6 @@ class newCanvas {
       highY = Math.max(this.y1Index, this.y2Index);
       this.selectionDimensions = [lowX, lowY, highX, highY];
       this.drawHighlight();
-      this.drawHighlight();
     } else if (e.key == "Enter" || e.key == "ArrowDown") {
       this.y1 += this.getCellHeight(this.y1Index);
       this.y1Index = this.y1Index + 1;
@@ -173,10 +186,12 @@ class newCanvas {
     } else if (
       (e.key >= "a" && e.key <= "z") ||
       (e.key >= "0" && e.key <= "9") ||
-      e.key == "Backspace"
+      e.key == "Backspace" ||
+      e.key == " "
     ) {
       flag = true;
       this.isAnimationRunning = false;
+      this.drawHighlight();
       this.inputBox.focus();
     }
 
@@ -191,58 +206,26 @@ class newCanvas {
       ];
       this.drawHighlight();
     }
-    if (!e.ctrlKey) {
+    if (!e.shiftKey && !e.ctrlKey) {
       this.inputBox.style.display = "block";
-      this.inputBox.style.top = `${this.y1}px`;
-      this.inputBox.style.left = `${this.x1}px`;
-      this.inputBox.style.height = `${this.getCellHeight(this.y1Index)}px`;
-      this.inputBox.style.width = `${this.getCellWidth(this.x1Index)}px`;
+      this.inputBox.style.top = `${this.y1 - 1}px`;
+      this.inputBox.style.left = `${this.x1 - 1}px`;
+      this.inputBox.style.height = `${this.getCellHeight(this.y1Index) + 3}px`;
+      this.inputBox.style.width = `${this.getCellWidth(this.x1Index) + 3}px`;
+      this.drawHighlight();
     }
-  }
-
-  startMarchingAntsAnimation() {
-    const [x, y, width, height, selectedCol, selectedRow] = this.coordinate;
-    this.selectedCol = selectedCol;
-    this.selectedRow = selectedRow;
-    if (this.isAnimationRunning == false) {
-      return;
-    }
-    this.lineDashOffset = this.lineDashOffset - 0.5;
-    if (this.lineDashOffset < 0) {
-      this.lineDashOffset = 10;
-    }
-
-    this.clearCanvas();
-    this.ctx.save();
-    this.ctx.beginPath();
-    this.ctx.setLineDash([5, 3]);
-    this.ctx.lineDashOffset = this.lineDashOffset;
-    this.ctx.fillStyle = "rgb(231,241,236)";
-    this.ctx.fillRect(x, y, width, height);
-
-    this.ctx.fillStyle = "#ffffff";
-    this.ctx.fillRect(
-      this.x1,
-      this.y1,
-      this.getCellWidth(this.x1Index),
-      this.getCellHeight(this.y1Index)
-    );
-
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeStyle = "green";
-
-    this.ctx.rect(x, y, width, height);
-
-    this.ctx.stroke();
-    this.ctx.restore();
-    requestAnimationFrame(() => this.startMarchingAntsAnimation());
-    this.highlightHeaders();
   }
 
   highLightEvent() {
-    this.ctx.canvas.addEventListener("pointerdown", (e) => {
+    this.ctx.canvas.addEventListener("dblclick", (e) => {
       this.isAnimationRunning = false;
+      this.clearCanvas();
+      this.drawgrid(this.numRows, this.numCols);
+      this.drawHighlight();
+    });
+    this.ctx.canvas.addEventListener("pointerdown", (e) => {
       this.inputBox.style.display = "none";
+      this.alreadyCopy = 0;
       this.clearCanvas();
       this.drawgrid(this.numRows, this.numCols);
 
@@ -310,6 +293,36 @@ class newCanvas {
     });
   }
 
+  startMarchingAntsAnimation() {
+    const [x, y, width, height, selectedCol, selectedRow] = this.coordinate;
+    this.selectedCol = selectedCol;
+    this.selectedRow = selectedRow;
+    if (this.isAnimationRunning == false) {
+      return;
+    }
+    this.lineDashOffset = this.lineDashOffset - 0.2;
+
+    if (this.lineDashOffset < 0) {
+      this.lineDashOffset = 8;
+    }
+
+    this.clearCanvas();
+    this.ctx.save();
+    this.drawHighlight();
+    this.ctx.beginPath();
+    this.ctx.setLineDash([5, 3]);
+    this.ctx.lineDashOffset = this.lineDashOffset;
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = "rgb(16,124,65)";
+    this.ctx.rect(x + 1, y + 1, width - 1, height - 1);
+    this.ctx.stroke();
+    this.ctx.restore();
+
+    this.animationFrameId = requestAnimationFrame(() =>
+      this.startMarchingAntsAnimation()
+    );
+  }
+
   drawHighlight() {
     this.clearCanvas();
     this.isColSelected = false;
@@ -345,20 +358,42 @@ class newCanvas {
       this.getCellWidth(this.x1Index),
       this.getCellHeight(this.y1Index)
     );
-
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = "rgb(16,124,65)";
-    this.ctx.strokeRect(x, y, width, height);
-    this.coordinate = [x, y, width, height, this.selectedCol, this.selectedRow];
+    this.ctx.strokeRect(x - 1, y - 1, width + 3, height + 3);
+
+    this.headersHighlightCoordinate = [x, y, width, height];
+    if (!this.isAnimationRunning) {
+      this.coordinate = [
+        x,
+        y,
+        width,
+        height,
+        this.selectedCol,
+        this.selectedRow,
+      ];
+    }
+
+    if (this.isAnimationRunning && this.alreadyCopy == 1) {
+      this.coordinate = [
+        x,
+        y,
+        width,
+        height,
+        this.selectedCol,
+        this.selectedRow,
+      ];
+    }
+
     this.highlightHeaders();
   }
 
   highlightHeaders() {
-    const [x, y, width, height] = this.coordinate;
+    const [x, y, width, height] = this.headersHighlightCoordinate;
     this.ctxTopHeader.save();
     this.ctxTopHeader.beginPath();
-    this.ctxTopHeader.moveTo(x, 24);
-    this.ctxTopHeader.lineTo(x + width, 24);
+    this.ctxTopHeader.moveTo(x - 2, 24);
+    this.ctxTopHeader.lineTo(x + width + 2.5, 24);
     this.ctxTopHeader.fillStyle = "rgb(202,234,216)";
     this.ctxTopHeader.fillRect(x, 0, width, 24);
     this.ctxTopHeader.lineWidth = 5;
@@ -368,8 +403,8 @@ class newCanvas {
 
     this.ctxLeftHeader.save();
     this.ctxLeftHeader.beginPath();
-    this.ctxLeftHeader.moveTo(40, y);
-    this.ctxLeftHeader.lineTo(40, y + height);
+    this.ctxLeftHeader.moveTo(40, y - 2);
+    this.ctxLeftHeader.lineTo(40, y + height + 3);
     this.ctxLeftHeader.fillStyle = "rgb(202,234,216)";
     this.ctxLeftHeader.fillRect(0, y, 40, height);
     this.ctxLeftHeader.lineWidth = 5;
@@ -392,8 +427,8 @@ class newCanvas {
     for (let y = 0; y <= numRows; y++) {
       cellPosition += this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
       this.ctx.beginPath();
-      this.ctx.moveTo(0, cellPosition);
-      this.ctx.lineTo(this.ctx.canvas.width, cellPosition);
+      this.ctx.moveTo(0, cellPosition + 0.5);
+      this.ctx.lineTo(this.ctx.canvas.width, cellPosition + 0.5);
       this.ctx.lineWidth = 0.2;
       this.ctx.strokeStyle = "#808080";
       this.ctx.stroke();
@@ -405,8 +440,8 @@ class newCanvas {
     for (let x = 0; x <= numCols; x++) {
       cellPosition += this.cellWidths.get(x) ? this.cellWidths.get(x) : 100;
       this.ctx.beginPath();
-      this.ctx.moveTo(cellPosition, 0);
-      this.ctx.lineTo(cellPosition, this.ctx.canvas.height);
+      this.ctx.moveTo(cellPosition + 0.5, 0);
+      this.ctx.lineTo(cellPosition + 0.5, this.ctx.canvas.height);
       this.ctx.lineWidth = 0.2;
       this.ctx.strokeStyle = "#808080";
       this.ctx.stroke();
@@ -419,8 +454,11 @@ class newCanvas {
       cellPosition += this.cellWidths.get(x) ? this.cellWidths.get(x) : 100;
       this.ctxTopHeader.save();
       this.ctxTopHeader.beginPath();
-      this.ctxTopHeader.moveTo(cellPosition, 0);
-      this.ctxTopHeader.lineTo(cellPosition, this.ctxTopHeader.canvas.height);
+      this.ctxTopHeader.moveTo(cellPosition + 0.5, 0);
+      this.ctxTopHeader.lineTo(
+        cellPosition + 0.5,
+        this.ctxTopHeader.canvas.height
+      );
       this.ctxTopHeader.lineWidth = 0.2;
       this.ctxTopHeader.strokeStyle = "#808080";
       this.ctxTopHeader.stroke();
@@ -430,7 +468,6 @@ class newCanvas {
     this.ctxTopHeader.save();
     this.ctxTopHeader.beginPath();
     this.ctxTopHeader.moveTo(0, 24);
-    this.ctxTopHeader.lineWidth = 2;
     this.ctxTopHeader.strokeStyle = "#d5cece";
     this.ctxTopHeader.lineTo(this.ctxTopHeader.canvas.width, 24);
     this.ctxTopHeader.stroke();
@@ -472,8 +509,11 @@ class newCanvas {
       cellPosition += this.cellHeight.get(y) ? this.cellHeight.get(y) : 21;
       this.ctxLeftHeader.save();
       this.ctxLeftHeader.beginPath();
-      this.ctxLeftHeader.moveTo(0, cellPosition);
-      this.ctxLeftHeader.lineTo(this.ctxLeftHeader.canvas.width, cellPosition);
+      this.ctxLeftHeader.moveTo(2, cellPosition + 0.5);
+      this.ctxLeftHeader.lineTo(
+        this.ctxLeftHeader.canvas.width,
+        cellPosition + 0.5
+      );
       this.ctxLeftHeader.lineWidth = 0.2;
       this.ctxLeftHeader.strokeStyle = "#808080";
       this.ctxLeftHeader.stroke();
@@ -523,11 +563,11 @@ class newCanvas {
     this.topHeader.addEventListener("pointerdown", (e) =>
       this.mouseDown(e, "topheader")
     );
-    this.topHeader.addEventListener("pointermove", (e) =>
+    window.addEventListener("pointermove", (e) =>
       this.mouseMove(e, "topheader")
     );
-    this.topHeader.addEventListener("pointerup", () => this.mouseUp());
-    this.topHeader.addEventListener("pointerleave", (e) => this.mouseUp());
+    window.addEventListener("pointerup", () => this.mouseUp());
+    window.addEventListener("pointerleave", (e) => this.mouseUp());
 
     this.leftHeader.addEventListener("pointerdown", (e) =>
       this.mouseDown(e, "leftheader")
@@ -559,20 +599,25 @@ class newCanvas {
       height += this.getCellHeight(i);
     }
 
-    // this.ctx.save();
-    // this.ctx.beginPath();
+    this.ctx.save();
+    this.ctx.beginPath();
     this.ctx.fillStyle = "rgb(231,241,236)";
     this.ctx.fillRect(x, 0, width, this.ctx.canvas.height);
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = "rgb(16,124,65)";
-    this.ctx.strokeRect(x, 0, width, this.ctx.canvas.height);
-    // this.ctx.restore();
+    this.ctx.strokeRect(x - 1, -1, width + 2, this.ctx.canvas.height);
+    this.ctx.restore();
 
     //Top Header
     this.ctxTopHeader.save();
     this.ctxTopHeader.beginPath();
     this.ctxTopHeader.fillStyle = "rgb(16,124,65)";
-    this.ctxTopHeader.fillRect(x, 0, width, this.ctxTopHeader.canvas.height);
+    this.ctxTopHeader.fillRect(
+      x - 2,
+      0,
+      width + 4,
+      this.ctxTopHeader.canvas.height
+    );
     this.ctxTopHeader.restore();
 
     //left Header
@@ -588,6 +633,7 @@ class newCanvas {
     this.ctxLeftHeader.restore();
     this.drawgrid(this.numRows, this.numCols);
   }
+
   rowHighlight() {
     this.clearCanvas();
     const [startX, startY, endX, endY] = this.selectionDimensionsLeft;
@@ -612,7 +658,7 @@ class newCanvas {
     this.ctx.fillStyle = "rgb(231,241,236)";
     this.ctx.fillRect(0, y, this.ctx.canvas.width, height);
     this.ctx.lineWidth = 2;
-    this.ctx.rect(0, y, this.ctx.canvas.width, height);
+    this.ctx.rect(-1, y - 1, this.ctx.canvas.width, height + 2);
     this.ctx.strokeStyle = "rgb(16,124,65)";
     this.ctx.stroke();
     this.ctx.restore();
@@ -621,7 +667,12 @@ class newCanvas {
     this.ctxLeftHeader.save();
     this.ctxLeftHeader.beginPath();
     this.ctxLeftHeader.fillStyle = "rgb(16,124,65)";
-    this.ctxLeftHeader.fillRect(0, y, this.ctxLeftHeader.canvas.width, height);
+    this.ctxLeftHeader.fillRect(
+      0,
+      y - 2,
+      this.ctxLeftHeader.canvas.width,
+      height + 4
+    );
     this.ctxLeftHeader.restore();
 
     //Top Header
@@ -642,8 +693,8 @@ class newCanvas {
   mouseDown(e, header) {
     this.inputBox.style.display = "none";
     this.clearCanvas();
+    this.isAnimationRunning = false;
     this.drawgrid(this.numRows, this.numCols);
-
     let rect = null;
     if (header == "topheader") {
       rect = this.topHeader.getBoundingClientRect();
@@ -652,6 +703,7 @@ class newCanvas {
     }
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
+    console.log(e.clientX);
     let columnIndex = this.getColumnIndex(clickX);
     let rowIndex = this.getRowIndex(clickY);
 
@@ -676,7 +728,6 @@ class newCanvas {
     for (let i = 0; i < rowIndex; i++) {
       rowTop += this.getCellHeight(i);
     }
-    this.selectedCol = columnIndex;
     this.columnHighlight();
     if (
       header == "topheader" &&
@@ -684,16 +735,14 @@ class newCanvas {
       columnIndex !== -1 &&
       this.getCellWidth(columnIndex) + columnLeft - clickX > 10
     ) {
-      this.selectedCol = columnIndex;
+      this.selectedCol = this.startingIndexTop[0];
       this.isColSelected = true;
       this.selectedRow = "all";
-      console.log(columnIndex);
       const startX = Math.min(this.startingIndexTop[0], columnIndex);
       const startY = Math.min(this.startingIndexTop[1], rowIndex);
       const endX = Math.max(this.startingIndexTop[0], columnIndex);
       const endY = Math.max(this.startingIndexTop[1], rowIndex);
       this.selectionDimensionsTop = [startX, startY, endX, endY];
-      console.log(this.selectionDimensionsTop);
       this.columnHighlight();
     } else if (
       columnIndex == 0 &&
@@ -717,6 +766,7 @@ class newCanvas {
       rowIndex !== -1 &&
       this.getCellHeight(rowIndex) + rowTop - clickY < 10
     ) {
+      this.selectedCol = this.startingIndexTop[0];
       this.isDraggingLeft = true;
       this.draggingLeft = rowIndex;
       this.startY = clickY;
@@ -741,13 +791,12 @@ class newCanvas {
     } else {
       rect = this.leftHeader.getBoundingClientRect();
     }
-    const clickX = e.clientX - rect.left;
+    const clickX = (e.clientX) - rect.left;
     const clickY = e.clientY - rect.top;
     let columnIndex = this.getColumnIndex(clickX);
     let rowIndex = this.getRowIndex(clickY);
     let columnLeft = 0;
     let rowTop = 0;
-    console.log(columnIndex);
     for (let i = 0; i < columnIndex; i++) {
       columnLeft += this.getCellWidth(i);
     }
@@ -762,7 +811,7 @@ class newCanvas {
     ) {
       this.topHeader.style.cursor = "col-resize";
     } else {
-      this.topHeader.style.cursor = "default";
+      this.topHeader.style.cursor = "pointer";
     }
 
     if (
@@ -775,7 +824,6 @@ class newCanvas {
       this.leftHeader.style.cursor = "default";
     }
 
-    
     if (this.isDraggingTop) {
       this.clearCanvas();
       this.topHeader.style.cursor = "col-resize";
@@ -786,10 +834,7 @@ class newCanvas {
       if (this.isColSelected) {
         const startX = Math.min(this.startingIndexTop[0], columnIndex + 1);
         const startY = Math.min(this.startingIndexTop[1], rowIndex);
-        const endX = Math.max(this.startingIndexTop[0], columnIndex);
-        const endY = Math.max(this.startingIndexTop[1], rowIndex);
-        this.selectionDimensionsTop = [startX, startY, endX, endY];
-        console.log(this.selectionDimensionsTop);
+        this.selectionDimensionsTop = [startX, startY, startX, startY];
         this.columnHighlight();
       } else {
         // this.clearCanvas();
