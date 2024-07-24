@@ -348,6 +348,15 @@ class newCanvas {
       height += this.getCellHeight(i);
     }
 
+    this.x1 = 0;
+    this.y1 = 0;
+    for (let i = 0; i < this.x1Index; i++) {
+      this.x1 += this.getCellWidth(i);
+    }
+    for (let i = 0; i < this.y1Index; i++) {
+      this.y1 += this.getCellHeight(i);
+    }
+
     this.ctx.fillStyle = "rgb(231,241,236)";
     this.ctx.fillRect(x, y, width, height);
 
@@ -563,20 +572,24 @@ class newCanvas {
     this.topHeader.addEventListener("pointerdown", (e) =>
       this.mouseDown(e, "topheader")
     );
-    window.addEventListener("pointermove", (e) =>
-      this.mouseMove(e, "topheader")
-    );
-    window.addEventListener("pointerup", () => this.mouseUp());
-    window.addEventListener("pointerleave", (e) => this.mouseUp());
+    // window.addEventListener("pointermove", (e) =>
+    //   this.mouseMove(e, "topheader")
+    // );
+    // window.addEventListener("pointerup", () => this.mouseUp());
+    // window.addEventListener("pointerleave", (e) => this.mouseUp());
 
     this.leftHeader.addEventListener("pointerdown", (e) =>
       this.mouseDown(e, "leftheader")
     );
-    this.leftHeader.addEventListener("pointermove", (e) =>
-      this.mouseMove(e, "leftheader")
-    );
-    this.leftHeader.addEventListener("pointerup", () => this.mouseUp());
-    this.leftHeader.addEventListener("pointerleave", () => this.mouseUp());
+    window.addEventListener("pointermove", (e) => {
+      if (e.target.id === "leftHeader-canvas") {
+        this.mouseMove(e, "leftheader");
+      } else if (e.target.id == "topHeader-canvas") {
+        this.mouseMove(e, "topheader");
+      }
+    });
+    window.addEventListener("pointerup", () => this.mouseUp());
+    window.addEventListener("pointerleave", () => this.mouseUp());
   }
 
   columnHighlight() {
@@ -653,14 +666,15 @@ class newCanvas {
     for (let i = startY; i <= endY; i++) {
       height += this.getCellHeight(i);
     }
+
     this.ctx.save();
     this.ctx.beginPath();
     this.ctx.fillStyle = "rgb(231,241,236)";
     this.ctx.fillRect(0, y, this.ctx.canvas.width, height);
     this.ctx.lineWidth = 2;
-    this.ctx.rect(-1, y - 1, this.ctx.canvas.width, height + 2);
     this.ctx.strokeStyle = "rgb(16,124,65)";
-    this.ctx.stroke();
+    this.ctx.strokeRect(-1, y - 1, this.ctx.canvas.width, height + 2);
+    // this.ctx.stroke();
     this.ctx.restore();
 
     //Left Header
@@ -678,7 +692,6 @@ class newCanvas {
     //Top Header
     this.ctxTopHeader.save();
     this.ctxTopHeader.beginPath();
-
     this.ctxTopHeader.moveTo(0, 24);
     this.ctxTopHeader.lineTo(this.ctxTopHeader.canvas.width, 24);
     this.ctxTopHeader.fillStyle = "rgb(202,234,216)";
@@ -693,27 +706,48 @@ class newCanvas {
   mouseDown(e, header) {
     this.inputBox.style.display = "none";
     this.clearCanvas();
+
     this.isAnimationRunning = false;
     this.drawgrid(this.numRows, this.numCols);
     let rect = null;
     if (header == "topheader") {
       rect = this.topHeader.getBoundingClientRect();
+      if (!this.isColSelected) {
+        this.drawHighlight();
+      } else {
+        this.selectedCol = this.startingIndexTop[0];
+        this.isColSelected = true;
+        this.selectedRow = "all";
+        this.columnHighlight();
+      }
     } else {
       rect = this.leftHeader.getBoundingClientRect();
+      if (!this.isRowSelected) {
+        this.drawHighlight();
+      } else {
+        this.selectedRow = this.startingIndexLeft[1];
+        this.isRowSelected = true;
+        this.selectedCol = "all";
+        this.rowHighlight();
+      }
     }
+
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
-    console.log(e.clientX);
     let columnIndex = this.getColumnIndex(clickX);
     let rowIndex = this.getRowIndex(clickY);
 
     let columnBool = this.getColumnBool(clickX);
+    let rowBool = this.getRowBool(clickY);
 
     if (columnBool) {
       this.startingIndexTop = [
         this.getColumnIndex(clickX),
         this.getRowIndex(clickY),
       ];
+    }
+
+    if (rowBool) {
       this.startingIndexLeft = [
         this.getColumnIndex(clickX),
         this.getRowIndex(clickY),
@@ -728,12 +762,13 @@ class newCanvas {
     for (let i = 0; i < rowIndex; i++) {
       rowTop += this.getCellHeight(i);
     }
-    this.columnHighlight();
+
     if (
       header == "topheader" &&
       rowIndex == 0 &&
       columnIndex !== -1 &&
-      this.getCellWidth(columnIndex) + columnLeft - clickX > 10
+      // this.getCellWidth(columnIndex) + columnLeft - clickX > 10 &&
+      columnBool
     ) {
       this.selectedCol = this.startingIndexTop[0];
       this.isColSelected = true;
@@ -747,11 +782,11 @@ class newCanvas {
     } else if (
       columnIndex == 0 &&
       rowIndex !== -1 &&
-      //   this.getCellHeight(rowIndex) + rowTop - clickY > 10 &&
-      columnBool
+      // this.getCellHeight(rowIndex) + rowTop - clickY > 10 &&
+      rowBool
     ) {
+      this.selectedRow = this.startingIndexLeft[1];
       this.selectedCol = "all";
-      this.selectedRow = rowIndex;
       this.isRowSelected = true;
       const startX = Math.min(this.startingIndexLeft[0], columnIndex);
       const startY = Math.min(this.startingIndexLeft[1], rowIndex);
@@ -762,25 +797,29 @@ class newCanvas {
     }
 
     if (
+      rowIndex == 0 &&
+      columnIndex !== -1 &&
+      // this.getCellWidth(columnIndex) + columnLeft - clickX < 10 &&
+      !columnBool
+    ) {
+      this.selectedRow = this.startingIndexLeft[1];
+      this.isDraggingTop = true;
+      this.draggingTop = columnIndex;
+      this.startX = clickX;
+      this.startWidth = this.getCellWidth(columnIndex);
+    }
+
+    if (
       columnIndex == 0 &&
       rowIndex !== -1 &&
-      this.getCellHeight(rowIndex) + rowTop - clickY < 10
+      // this.getCellHeight(rowIndex) + rowTop - clickY < 5 &&
+      !rowBool
     ) {
       this.selectedCol = this.startingIndexTop[0];
       this.isDraggingLeft = true;
       this.draggingLeft = rowIndex;
       this.startY = clickY;
       this.startHeight = this.getCellHeight(rowIndex);
-    }
-    if (
-      rowIndex == 0 &&
-      columnIndex !== -1 &&
-      this.getCellWidth(columnIndex) + columnLeft - clickX < 10
-    ) {
-      this.isDraggingTop = true;
-      this.draggingTop = columnIndex;
-      this.startX = clickX;
-      this.startWidth = this.getCellWidth(columnIndex);
     }
   }
 
@@ -791,10 +830,12 @@ class newCanvas {
     } else {
       rect = this.leftHeader.getBoundingClientRect();
     }
-    const clickX = (e.clientX) - rect.left;
+    const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
     let columnIndex = this.getColumnIndex(clickX);
     let rowIndex = this.getRowIndex(clickY);
+    let columnBool = this.getColumnBool(clickX);
+    let rowBool = this.getRowBool(clickY);
     let columnLeft = 0;
     let rowTop = 0;
     for (let i = 0; i < columnIndex; i++) {
@@ -807,7 +848,8 @@ class newCanvas {
     if (
       rowIndex == 0 &&
       columnIndex !== -1 &&
-      this.getCellWidth(columnIndex) + columnLeft - clickX < 10
+      // this.getCellWidth(columnIndex) + columnLeft - clickX < 10 &&
+      !columnBool
     ) {
       this.topHeader.style.cursor = "col-resize";
     } else {
@@ -817,7 +859,8 @@ class newCanvas {
     if (
       columnIndex == 0 &&
       rowIndex !== -1 &&
-      this.getCellHeight(rowIndex) + rowTop - clickY < 5
+      // this.getCellHeight(rowIndex) + rowTop - clickY < 5 &&
+      !rowBool
     ) {
       this.leftHeader.style.cursor = "row-resize";
     } else {
@@ -825,15 +868,22 @@ class newCanvas {
     }
 
     if (this.isDraggingTop) {
-      this.clearCanvas();
+      // this.clearCanvas();
       this.topHeader.style.cursor = "col-resize";
       const deltaX = clickX - this.startX;
       const newWidth = Math.max(20, this.startWidth + deltaX);
       this.cellWidths.set(this.draggingTop, newWidth);
 
       if (this.isColSelected) {
-        const startX = Math.min(this.startingIndexTop[0], columnIndex + 1);
-        const startY = Math.min(this.startingIndexTop[1], rowIndex);
+        this.selectedCol = this.startingIndexTop[0];
+        this.isColSelected = true;
+        this.selectedRow = "all";
+        // const startX = Math.min(this.startingIndexTop[0], columnIndex);
+        // const startY = Math.min(this.startingIndexTop[1], rowIndex);
+        const startX = this.startingIndexTop[0];
+        const startY = this.startingIndexTop[1];
+        // const endX = Math.max(this.startingIndexTop[0], columnIndex );
+        // const endY = Math.max(this.startingIndexTop[1], rowIndex);
         this.selectionDimensionsTop = [startX, startY, startX, startY];
         this.columnHighlight();
       } else {
@@ -845,17 +895,23 @@ class newCanvas {
     }
 
     if (this.isDraggingLeft) {
-      this.clearCanvas();
+      // this.clearCanvas();
       this.leftHeader.style.cursor = "row-resize";
       const deltaY = clickY - this.startY;
       const newHeight = Math.max(0, this.startHeight + deltaY);
       this.cellHeight.set(this.draggingLeft, newHeight);
+
       if (this.isRowSelected) {
-        const startX = Math.min(this.startingIndexLeft[0], columnIndex);
-        const startY = Math.min(this.startingIndexLeft[1], rowIndex);
-        const endX = Math.max(this.startingIndexLeft[0], columnIndex);
-        const endY = Math.max(this.startingIndexLeft[1], rowIndex);
-        this.selectionDimensionsLeft = [startX, startY, endX, endY];
+        this.selectedRow = this.startingIndexLeft[1];
+        this.isRowSelected = true;
+        this.selectedCol = "all";
+        // const startX = Math.min(this.startingIndexLeft[0], columnIndex);
+        // const startY = Math.min(this.startingIndexLeft[1], rowIndex);
+        const startX = this.startingIndexLeft[0];
+        const startY = this.startingIndexLeft[1];
+        // const endX = Math.max(this.startingIndexLeft[0], columnIndex);
+        // const endY = Math.max(this.startingIndexLeft[1], rowIndex);
+        this.selectionDimensionsLeft = [startX, startY, startX, startY];
         this.rowHighlight();
       } else {
         // this.clearCanvas();
@@ -936,6 +992,20 @@ class newCanvas {
     return -1;
   }
 
+  getRowBool(x) {
+    let cellPosition = 0;
+    for (let i = 0; i <= this.numRows; i++) {
+      if (
+        x >= cellPosition + 5 &&
+        x <= cellPosition + this.getCellHeight(i) - 5
+      ) {
+        return true;
+      }
+      cellPosition += this.getCellHeight(i);
+    }
+    return false;
+  }
+
   getCellWidth(i) {
     return this.cellWidths.get(i) ? this.cellWidths.get(i) : 100;
   }
@@ -946,3 +1016,4 @@ class newCanvas {
 }
 
 new newCanvas("Sheet-1");
+//start
