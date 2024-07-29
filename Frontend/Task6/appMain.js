@@ -10,17 +10,13 @@ class newCanvas {
     this.resizeGridEvents();
     this.highlightSelectedArea();
     this.inputBoxPosition();
-    let scroll = 21;
     document.addEventListener("keydown", (event) => {
       this.keyBoardEvents(event);
-      // if (this.cellPositionTop > 600) {
-      //   scroll=scroll + 21;
-      //   const main = document.getElementById("main");
-      //   const leftHeader = document.getElementById("leftHeader");
-      //   main.style.top = `-${scroll}px`;
-      //   leftHeader.style.top = `-${scroll}px`;
-      // }
     });
+    this.drawGrid();
+    this.highlightHeaders();
+    this.renderLeftHeader();
+    this.renderTopHeader();
   }
 
   initialVariables() {
@@ -147,6 +143,23 @@ class newCanvas {
       this.leftHeaderCanvas.height
     );
   }
+  clearTopheader() {
+    this.topHeaderCtx.clearRect(
+      0,
+      0,
+      this.topHeaderCanvas.width,
+      this.topHeaderCanvas.height
+    );
+  }
+
+  clearLeftHeader() {
+    this.leftHeaderCtx.clearRect(
+      0,
+      0,
+      this.leftHeaderCanvas.width,
+      this.leftHeaderCanvas.height
+    );
+  }
 
   inputBoxPosition() {
     this.inputBox.style.display = "block";
@@ -163,10 +176,9 @@ class newCanvas {
 
   //----------------------draw grid----------------------
   drawGrid() {
+    console.log("Draw Grid");
     this.drawRows();
     this.drawColumns();
-    this.renderTopHeader();
-    this.renderLeftHeader();
   }
 
   drawRows() {
@@ -252,13 +264,12 @@ class newCanvas {
     this.topHeaderCtx.stroke();
     this.topHeaderCtx.restore();
 
-    this.currSelectedCol = null;
+    // this.currSelectedCol = null;
   }
 
   renderLeftHeader() {
     let cellPosition = 0;
     this.leftHeaderCtx.font = "14px Arial";
-    // this.leftHeaderCtx.fillStyle = this.blackColor;
     for (let i = 0; i <= this.numRows; i++) {
       cellPosition += this.getCurCellHeight(i);
       this.leftHeaderCtx.save();
@@ -313,7 +324,7 @@ class newCanvas {
     this.leftHeaderCtx.stroke();
     this.leftHeaderCtx.restore();
 
-    this.currSelectedRow = null;
+    // this.currSelectedRow = null;
   }
 
   //----------------------Scroll Functionality----------------------
@@ -373,6 +384,11 @@ class newCanvas {
       endY = Math.max(this.y1CellIndex, this.y2CellIndex);
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearCanvas();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
     } else if (e.key == "Enter" || e.key == "ArrowDown") {
       this.isColSelected = false;
       this.isRowSelected = false;
@@ -403,6 +419,11 @@ class newCanvas {
       flag = true;
       this.isAnimationRunning = false;
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearTopheader();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
       this.inputBox.focus();
     }
 
@@ -416,75 +437,90 @@ class newCanvas {
         this.y1CellIndex,
       ];
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearTopheader();
+      this.clearLeftHeader();
+      this.renderTopHeader();
+      this.renderLeftHeader();
     }
 
     if (!e.shiftKey && !e.ctrlKey) {
       this.inputBoxPosition();
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearTopheader();
+      this.clearLeftHeader();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
     }
   }
 
   //----------------------Marching Ant Animation----------------------
   startMarchingAntsAnimation() {
-    if (this.isAnimationRunning == false) {
-      return;
-    }
+    if (this.isAnimationRunning == true) {
+      const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
 
-    const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
+      let x = 0;
+      let y = 0;
+      let width = 0;
+      let height = 0;
 
-    let x = 0;
-    let y = 0;
-    let width = 0;
-    let height = 0;
+      for (let i = 0; i < startX; i++) {
+        x += this.getCurCellWidth(i);
+      }
+      for (let i = 0; i < startY; i++) {
+        y += this.getCurCellHeight(i);
+      }
+      for (let i = startX; i <= endX; i++) {
+        width += this.getCurCellWidth(i);
+      }
+      for (let i = startY; i <= endY; i++) {
+        height += this.getCurCellHeight(i);
+      }
 
-    for (let i = 0; i < startX; i++) {
-      x += this.getCurCellWidth(i);
-    }
-    for (let i = 0; i < startY; i++) {
-      y += this.getCurCellHeight(i);
-    }
-    for (let i = startX; i <= endX; i++) {
-      width += this.getCurCellWidth(i);
-    }
-    for (let i = startY; i <= endY; i++) {
-      height += this.getCurCellHeight(i);
-    }
+      if (this.animateFullColumn) {
+        y = 0;
+        height = this.mainCtx.canvas.height;
+      }
+      if (this.animateFullRow) {
+        x = 0;
+        width = this.mainCtx.canvas.width;
+      }
 
-    if (this.animateFullColumn) {
-      y = 0;
-      height = this.mainCtx.canvas.height;
+      this.lineDashOffset = this.lineDashOffset - 0.2;
+
+      if (this.lineDashOffset < 0) {
+        this.lineDashOffset = 8;
+      }
+
+      // this.clearCanvas();
+      this.mainCtx.save();
+      this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearLeftHeader();
+      this.clearTopheader();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
+      this.mainCtx.beginPath();
+      this.mainCtx.setLineDash([5, 3]);
+      this.mainCtx.lineDashOffset = this.lineDashOffset;
+      this.mainCtx.lineWidth = 2;
+      this.mainCtx.strokeStyle = this.strokeColor;
+      this.mainCtx.rect(x + 1, y + 1, width - 1, height - 1);
+      this.mainCtx.stroke();
+      this.mainCtx.restore();
+
+      this.animationFrameId = requestAnimationFrame(() =>
+        this.startMarchingAntsAnimation()
+      );
     }
-    if (this.animateFullRow) {
-      x = 0;
-      width = this.mainCtx.canvas.width;
-    }
-
-    this.lineDashOffset = this.lineDashOffset - 0.2;
-
-    if (this.lineDashOffset < 0) {
-      this.lineDashOffset = 8;
-    }
-
-    this.clearCanvas();
-    this.mainCtx.save();
-    this.highlightSelectedArea();
-    this.mainCtx.beginPath();
-    this.mainCtx.setLineDash([5, 3]);
-    this.mainCtx.lineDashOffset = this.lineDashOffset;
-    this.mainCtx.lineWidth = 2;
-    this.mainCtx.strokeStyle = this.strokeColor;
-    this.mainCtx.rect(x + 1, y + 1, width - 1, height - 1);
-    this.mainCtx.stroke();
-    this.mainCtx.restore();
-
-    this.animationFrameId = requestAnimationFrame(() =>
-      this.startMarchingAntsAnimation()
-    );
   }
 
   //----------------------Highlight Selected Area----------------------
   highlightSelectedArea() {
-    this.clearCanvas();
+    this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     const [startX, startY, endX, endY] = this.selectedDimensionsMain;
 
     let x = 0;
@@ -560,13 +596,30 @@ class newCanvas {
       this.mainCtx.strokeRect(x - 1, y - 1, width + 3, height + 3);
     }
 
-    this.headersHighlightCoordinate = [x, y, width, height];
+    this.headersHighlightCoordinate = [startX, startY, endX, endY];
 
-    this.highlightHeaders();
+    // this.highlightHeaders();
   }
 
   highlightHeaders() {
-    const [x, y, width, height] = this.headersHighlightCoordinate;
+    const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
+
+    let x = 0;
+    let y = 0;
+    let width = 0;
+    let height = 0;
+    for (let i = 0; i < startX; i++) {
+      x += this.getCurCellWidth(i);
+    }
+    for (let i = 0; i < startY; i++) {
+      y += this.getCurCellHeight(i);
+    }
+    for (let i = startX; i <= endX; i++) {
+      width += this.getCurCellWidth(i);
+    }
+    for (let i = startY; i <= endY; i++) {
+      height += this.getCurCellHeight(i);
+    }
     if (this.isColSelected) {
       //Top Header
       this.topHeaderCtx.save();
@@ -638,8 +691,6 @@ class newCanvas {
       this.leftHeaderCtx.stroke();
       this.leftHeaderCtx.restore();
     }
-
-    this.drawGrid();
   }
 
   highlightSelectedAreaEvents() {
@@ -647,9 +698,10 @@ class newCanvas {
       this.inputBoxPosition();
       this.inputBox.focus();
       this.isAnimationRunning = false;
-      this.clearCanvas();
-      this.drawGrid();
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.renderLeftHeader();
+      this.renderTopHeader();
     });
 
     this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
@@ -676,8 +728,6 @@ class newCanvas {
     this.isColSelected = false;
     this.isRowSelected = false;
     this.alreadyCopy = 0;
-    this.clearCanvas();
-    this.drawGrid();
 
     const rect = this.mainCtx.canvas.getBoundingClientRect();
     this.isAreaSelected = true;
@@ -712,6 +762,12 @@ class newCanvas {
 
     this.selectedDimensionsMain = [startX, startY, endX, endY];
     this.highlightSelectedArea();
+    this.drawGrid();
+    this.clearLeftHeader();
+    this.clearTopheader();
+    this.highlightHeaders();
+    this.renderLeftHeader();
+    this.renderTopHeader();
   }
 
   highlightAreaPointerMove(e) {
@@ -730,7 +786,14 @@ class newCanvas {
       const endY = Math.max(this.startingIndex[1], rowIndex);
 
       this.selectedDimensionsMain = [startX, startY, endX, endY];
+      this.headersHighlightCoordinate = [startX, startY, endX, endY];
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearTopheader();
+      this.clearLeftHeader();
+      this.highlightHeaders();
+      this.renderLeftHeader();
+      this.renderTopHeader();
     }
   }
 
@@ -775,18 +838,6 @@ class newCanvas {
     let iscolPointDraggable = this.isColPointDraggable(clickX);
     let isrowPointDraggable = this.isRowPointDraggable(clickY);
 
-    if (this.isRowSelected) {
-      this.currSelectedRow = rowIndex;
-      this.currSelectedCol = "all";
-      this.highlightSelectedArea();
-    }
-
-    if (this.isColSelected) {
-      // this.currSelectedCol = columnIndex;
-      this.currSelectedRow = "all";
-      this.highlightSelectedArea();
-    }
-
     if (!iscolPointDraggable) {
       this.startingIndexTop = [
         this.getCurColumnIndex(clickX),
@@ -816,10 +867,13 @@ class newCanvas {
       columnIndex !== -1 &&
       !iscolPointDraggable
     ) {
+      this.clearTopheader();
+      this.clearLeftHeader();
       this.isTopAreaSelected = true;
       this.topheaderSelected = true;
       this.alreadyCopy = 0;
       this.currSelectedCol = this.startingIndexTop[0];
+
       this.isColSelected = true;
       this.isRowSelected = false;
       this.currSelectedRow = "all";
@@ -829,12 +883,19 @@ class newCanvas {
       const endY = Math.max(this.startingIndexTop[1], rowIndex);
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
+      this.drawGrid();
+
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
     } else if (
       header == this.leftHeaderCanvas &&
       columnIndex == 0 &&
       rowIndex !== -1 &&
       !isrowPointDraggable
     ) {
+      this.clearLeftHeader();
+      this.clearTopheader();
       this.isLeftAreaSelected = true;
       this.leftheaderSelected = true;
       this.alreadyCopy = 0;
@@ -848,6 +909,11 @@ class newCanvas {
       const endY = Math.max(this.startingIndexLeft[1], rowIndex);
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
+      this.drawGrid();
+
+      this.highlightHeaders();
+      this.renderLeftHeader();
+      this.renderTopHeader();
     }
 
     if (rowIndex == 0 && columnIndex !== -1 && iscolPointDraggable) {
@@ -897,24 +963,24 @@ class newCanvas {
     }
 
     if (this.isDraggingTop) {
+      this.clearTopheader();
+      this.clearLeftHeader();
+      this.highlightHeaders();
       this.topHeaderCanvas.style.cursor = "col-resize";
       const deltaX = clickX - this.resizeColTop;
-      const newWidth = Math.max(20, this.resizeColWidth + deltaX);
-      this.cellWidths.set(this.resizeColIndex, newWidth);
+      this.newWidth = Math.max(20, this.resizeColWidth + deltaX);
+      this.cellWidths.set(this.resizeColIndex, this.newWidth);
+      if (Array.isArray(this.currSelectedCol)) {
+        this.flag = true;
+      }
 
-      if (this.isColSelected && this.isTopAreaSelected) {
-        this.currSelectedCol = this.startingIndexTop[0];
-        this.currSelectedRow = "all";
-        const startX = this.startingIndexTop[0];
-        const startY = this.startingIndexTop[1];
-        this.selectedDimensionsMain = [startX, startY, startX, startY];
-        this.highlightSelectedArea();
-      } else {
-        this.drawGrid();
-        this.highlightSelectedArea();
+      if (!this.isColSelected) {
         cancelAnimationFrame(this.animationFrameId);
         this.startMarchingAntsAnimation();
       }
+
+      this.renderTopHeader();
+      this.renderLeftHeader();
     } else if (this.isTopAreaSelected) {
       this.topHeaderCanvas.style.cursor = "pointer";
       const startX = Math.min(this.startingIndexTop[0], columnIndex);
@@ -923,13 +989,25 @@ class newCanvas {
       const endY = Math.max(this.startingIndexTop[1], rowIndex);
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearTopheader();
+      this.clearLeftHeader();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
     }
 
     if (this.isDraggingLeft) {
       this.leftHeaderCanvas.style.cursor = "row-resize";
       const deltaY = clickY - this.resizeRowTop;
-      const newHeight = Math.max(0, this.resizeRowHeight + deltaY);
-      this.cellHeight.set(this.resizeRowIndex, newHeight);
+      this.newHeight = Math.max(0, this.resizeRowHeight + deltaY);
+      this.cellHeight.set(this.resizeRowIndex, this.newHeight);
+
+      this.clearLeftHeader();
+      this.clearTopheader();
+      this.highlightHeaders();
+      this.renderLeftHeader();
+      this.renderTopHeader();
 
       if (this.isRowSelected && this.isLeftAreaSelected) {
         this.currSelectedRow = this.startingIndexLeft[1];
@@ -937,10 +1015,7 @@ class newCanvas {
         const startX = this.startingIndexLeft[0];
         const startY = this.startingIndexLeft[1];
         this.selectedDimensionsMain = [startX, startY, startX, startY];
-        this.highlightSelectedArea();
       } else {
-        this.drawGrid();
-        this.highlightSelectedArea();
         cancelAnimationFrame(this.animationFrameId);
         this.startMarchingAntsAnimation();
       }
@@ -952,17 +1027,64 @@ class newCanvas {
       const endY = Math.max(this.startingIndexLeft[1], rowIndex);
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearTopheader();
+      this.clearLeftHeader();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
     }
   }
 
   resizeGridPointerUp() {
+    if (this.flag) {
+      for (let i = this.currSelectedCol[0]; i <= this.currSelectedCol[1]; i++) {
+        this.cellWidths.set(i, this.newWidth);
+      }
+      this.flag = false;
+    }
+
+    if (this.leftheaderSelected) {
+      for (let i = this.currSelectedRow[0]; i <= this.currSelectedRow[1]; i++) {
+        this.cellHeight.set(i, this.newHeight);
+      }
+    }
+
     this.isTopAreaSelected = false;
     this.isLeftAreaSelected = false;
+
     if (this.isDraggingTop) {
+      this.mainCtx.clearRect(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearTopheader();
+      this.clearLeftHeader();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
+
       this.isDraggingTop = false;
       this.resizeColIndex = -1;
     }
     if (this.isDraggingLeft) {
+      this.mainCtx.clearRect(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      this.highlightSelectedArea();
+      this.drawGrid();
+      this.clearLeftHeader();
+      this.clearTopheader();
+      this.highlightHeaders();
+      this.renderTopHeader();
+      this.renderLeftHeader();
       this.isDraggingLeft = false;
       this.resizeRowIndex = -1;
     }
