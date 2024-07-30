@@ -129,6 +129,7 @@ class newCanvas {
     const main = document.getElementById("main");
     const mainCanvas = document.createElement("canvas");
     mainCanvas.setAttribute("id", this.sheetName);
+    mainCanvas.setAttribute("class", "canvas");
     mainCanvas.width = Math.floor(2100 * scale);
     mainCanvas.height = Math.floor(1200 * scale);
 
@@ -141,7 +142,8 @@ class newCanvas {
     //topheader canvas
     const topHeader = document.getElementById("topHeader");
     const topHeaderCanvas = document.createElement("canvas");
-    topHeaderCanvas.setAttribute("id", "topHeader-canvas");
+    topHeaderCanvas.setAttribute("id", `topHeader-${this.sheetName}`);
+    topHeaderCanvas.setAttribute("class", "topHeaderCanvas");
     topHeaderCanvas.width = Math.floor(2100 * scale);
     topHeaderCanvas.height = Math.floor(24 * scale);
     // topHeaderCanvas.width = 2100;
@@ -153,7 +155,8 @@ class newCanvas {
     //leftheader canvas
     const leftHeader = document.getElementById("leftHeader");
     const leftHeaderCanvas = document.createElement("canvas");
-    leftHeaderCanvas.setAttribute("id", "leftHeader-canvas");
+    leftHeaderCanvas.setAttribute("id", `leftHeader-${this.sheetName}`);
+    leftHeaderCanvas.setAttribute("class", "leftHeaderCanvas");
     leftHeaderCanvas.width = Math.floor(40 * scale);
     leftHeaderCanvas.height = Math.floor(1200 * scale);
 
@@ -565,6 +568,7 @@ class newCanvas {
       this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
+
       this.mainCtx.beginPath();
       this.mainCtx.setLineDash([5, 3]);
       this.mainCtx.lineDashOffset = this.lineDashOffset;
@@ -620,9 +624,9 @@ class newCanvas {
     this.mainCtx.fillStyle = this.areaHighlightColor;
     if (this.isColSelected) {
       this.currSelectedCol = [startX, endX];
-      if(this.topheaderSelected && this.leftheaderSelected){
-          this.currSelectedRow = [0,100];
-      }else{
+      if (this.topheaderSelected && this.leftheaderSelected) {
+        this.currSelectedRow = [0, 100];
+      } else {
         this.currSelectedRow = "all";
       }
       this.mainCtx.fillRect(x, 0, width, this.mainCtx.canvas.height);
@@ -733,7 +737,6 @@ class newCanvas {
       this.leftHeaderCtx.stroke();
       this.leftHeaderCtx.restore();
     } else if (this.isRowSelected) {
-
       //Left Header
       this.leftHeaderCtx.save();
       this.leftHeaderCtx.beginPath();
@@ -1037,7 +1040,10 @@ class newCanvas {
       this.topHeaderCanvas.style.cursor = "pointer";
     }
 
-    if (columnIndex == 0 && rowIndex !== -1 && isrowPointDraggable) {
+    if (
+      // columnIndex == 0 && rowIndex !== -1 &&
+      isrowPointDraggable
+    ) {
       this.leftHeaderCanvas.style.cursor = "row-resize";
     } else {
       this.leftHeaderCanvas.style.cursor = "default";
@@ -1280,4 +1286,43 @@ class newCanvas {
   }
 }
 
-new newCanvas("Sheet-1");
+
+
+let arrayOfSheets = ["sheet1"];
+const addNewSheet = document.getElementById("addNewSheet");
+const sheets = document.getElementById("sheets");
+
+addNewSheet.addEventListener("click", () => {
+  let numberOfSheet = arrayOfSheets.length + 1;
+  arrayOfSheets.push(`Sheet${numberOfSheet}`);
+  var btn = document.createElement("span");
+  btn.classList.add("sheetBtn");
+  btn.innerHTML = `<div id=sheet-${numberOfSheet}>Sheet${numberOfSheet}</div>`;
+  sheets.appendChild(btn);
+});
+
+new newCanvas("sheet-1");
+
+const main = document.querySelectorAll("#main canvas");
+const canvasinput = document.getElementById("canvasinput");
+sheets.addEventListener("click", (e) => {
+  if (e.target.closest(".sheetBtn")) {
+    new newCanvas(e.target.id);
+    canvasinput.style.display = "none";
+
+    var canvases = document.querySelectorAll(".canvas");
+    var topHeaderCanvas = document.querySelectorAll(".topHeaderCanvas");
+    var leftHeaderCanvas = document.querySelectorAll(".leftHeaderCanvas");
+
+    canvases.forEach((canvas) => (canvas.style.display = "none"));
+
+    document.getElementById(`${e.target.id}`).style.display = "block";
+
+    topHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
+    document.getElementById(`topHeader-${e.target.id}`).style.display = "block";
+
+    leftHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
+    document.getElementById(`leftHeader-${e.target.id}`).style.display =
+      "block";
+  }
+});

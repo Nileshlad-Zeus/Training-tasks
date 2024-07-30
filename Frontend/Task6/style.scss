@@ -25,20 +25,19 @@ body {
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #f1f1f1;
 }
- 
+
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+  background: #888;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
 
 .topHeader {
@@ -67,41 +66,50 @@ body {
   border-top: none;
   border-left: none;
   z-index: 10;
-
-  
 }
 .canvasinput {
   display: none;
   position: absolute;
-  border: 1px solid rgb(16,124,65);
+  border: 2px solid rgb(16, 124, 65);
   // border: 1px solid red;
   // border: none;
   z-index: 10;
   outline: none;
   padding-left: 2px;
 }
-.canvasinput:focus {
-  box-shadow: 0 0 1.5px 1.5px rgb(16,124,65);
-}
+// .canvasinput:focus {
+//   box-shadow: 0 0 1.5px 1.5px rgb(16,124,65);
+// }
 
-.footer{
+.footer {
   background: #f5f5f5;
   height: 30px;
   display: flex;
   align-items: center;
   margin-left: 40px;
   gap: 10px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
-  div{
-    button{
-      padding: 5px 10px;
+  .sheets {
+    padding-left: 10px;
+    display: flex;
+    gap: 20px;
+
+    .sheetBtn {
       background: transparent;
       outline: none;
       border: none;
       cursor: pointer;
+
+      color: #444;
+      line-height: 16px;
+      font-size: 16px;
     }
   }
- 
+  .addNewSheet {
+    border: none;
+    cursor: pointer;
+  }
 }
 
 canvas {
@@ -112,11 +120,15 @@ canvas {
   -ms-interpolation-mode: nearest-neighbor;
 }
 
-.resizeLine{
+.resizeLine {
   position: absolute;
-  border-left: dashed rgb(16,124,65);
-  border-top: dashed rgb(16,124,65);
+  border-left: dashed rgb(16, 124, 65);
+  border-top: dashed rgb(16, 124, 65);
 }
 
-
-
+.displayNone {
+  display: none;
+}
+.displayBlock {
+  display: block;
+}
