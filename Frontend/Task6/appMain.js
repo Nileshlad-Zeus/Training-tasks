@@ -17,6 +17,27 @@ class newCanvas {
     this.highlightHeaders();
     this.renderLeftHeader();
     this.renderTopHeader();
+
+    const topleft = document.getElementById("topleft");
+    topleft.addEventListener("click", () => {
+      this.x1CellIndex = 0;
+      this.y1CellIndex = 0;
+      this.topheaderSelected = true;
+      this.leftheaderSelected = true;
+
+      this.isColSelected = true;
+      this.isRowSelected = true;
+
+      this.currSelectedCol = [0, 100];
+      this.currSelectedRow = [0, 100];
+
+      this.selectedDimensionsMain = [0, 0, 200, 200];
+      this.highlightSelectedArea();
+      this.drawGrid();
+      this.highlightHeaders();
+      this.renderLeftHeader();
+      this.renderTopHeader();
+    });
   }
 
   initialVariables() {
@@ -39,6 +60,7 @@ class newCanvas {
     this.gridStrokeColor = "rgb(128, 128, 128)";
     this.blackColor = "rgb(0, 0, 0)";
     this.whiteColor = "rgb(255, 255, 255)";
+    this.headerBgColor = "rgb(245,245,245)";
 
     //selected rows and cols for highlight them
     this.currSelectedCol = null;
@@ -92,15 +114,26 @@ class newCanvas {
     this.animateFullColumn = false;
     this.animateFullRow = false;
     this.alreadyCopy = 0; //0: ctrl+c on animation not running  1:ctrl+c on animation already running
+
+    this.colFlag = false;
   }
 
   createNewCanvas() {
     //sheet canvas
+    let scale = window.devicePixelRatio;
+    // window.addEventListener("change",()=>{
+    //     scale = window.devicePixelRatio;
+    // })
+    // console.log(scale);
+
     const main = document.getElementById("main");
     const mainCanvas = document.createElement("canvas");
     mainCanvas.setAttribute("id", this.sheetName);
-    mainCanvas.width = 2100;
-    mainCanvas.height = 1200;
+    mainCanvas.width = Math.floor(2100 * scale);
+    mainCanvas.height = Math.floor(1200 * scale);
+
+    // mainCanvas.width = 2100;
+    // mainCanvas.height = 1200;
     main.appendChild(mainCanvas);
     this.mainCanvas = mainCanvas;
     this.mainCtx = this.mainCanvas.getContext("2d");
@@ -109,8 +142,10 @@ class newCanvas {
     const topHeader = document.getElementById("topHeader");
     const topHeaderCanvas = document.createElement("canvas");
     topHeaderCanvas.setAttribute("id", "topHeader-canvas");
-    topHeaderCanvas.width = 2100;
-    topHeaderCanvas.height = 24;
+    topHeaderCanvas.width = Math.floor(2100 * scale);
+    topHeaderCanvas.height = Math.floor(24 * scale);
+    // topHeaderCanvas.width = 2100;
+    // topHeaderCanvas.height = 24;
     topHeader.appendChild(topHeaderCanvas);
     this.topHeaderCanvas = topHeaderCanvas;
     this.topHeaderCtx = this.topHeaderCanvas.getContext("2d");
@@ -119,8 +154,11 @@ class newCanvas {
     const leftHeader = document.getElementById("leftHeader");
     const leftHeaderCanvas = document.createElement("canvas");
     leftHeaderCanvas.setAttribute("id", "leftHeader-canvas");
-    leftHeaderCanvas.width = 40;
-    leftHeaderCanvas.height = 1200;
+    leftHeaderCanvas.width = Math.floor(40 * scale);
+    leftHeaderCanvas.height = Math.floor(1200 * scale);
+
+    // leftHeaderCanvas.width = 40;
+    // leftHeaderCanvas.height = 1200;
     leftHeader.appendChild(leftHeaderCanvas);
     this.leftHeaderCanvas = leftHeaderCanvas;
     this.leftHeaderCtx = this.leftHeaderCanvas.getContext("2d");
@@ -176,7 +214,6 @@ class newCanvas {
 
   //----------------------draw grid----------------------
   drawGrid() {
-    console.log("Draw Grid");
     this.drawRows();
     this.drawColumns();
   }
@@ -209,8 +246,9 @@ class newCanvas {
 
   renderTopHeader() {
     let cellPosition = 0;
-    this.topHeaderCtx.font = "16px Arial";
+    this.topHeaderCtx.font = "11pt Arial";
     this.topHeaderCtx.textAlign = "center";
+
     for (let i = 0; i <= this.numCols; i++) {
       cellPosition += this.getCurCellWidth(i);
       this.topHeaderCtx.save();
@@ -220,8 +258,18 @@ class newCanvas {
         cellPosition + 0.5,
         this.topHeaderCtx.canvas.height
       );
-      this.topHeaderCtx.lineWidth = 0.2;
-      this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
+
+      if (
+        this.topheaderSelected &&
+        this.currSelectedCol[0] <= i &&
+        i < this.currSelectedCol[1]
+      ) {
+        this.topHeaderCtx.strokeStyle = this.whiteColor;
+        this.topHeaderCtx.lineWidth = 1;
+      } else {
+        this.topHeaderCtx.lineWidth = 0.2;
+        this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
+      }
       this.topHeaderCtx.stroke();
       this.topHeaderCtx.restore();
 
@@ -230,6 +278,7 @@ class newCanvas {
       let xPosition = cellPosition - this.getCurCellWidth(i) / 2;
       let yPosition = 15;
 
+      this.topHeaderCtx.fillStyle = this.gridStrokeColor;
       if (Array.isArray(this.currSelectedCol)) {
         if (
           this.topheaderSelected &&
@@ -250,7 +299,7 @@ class newCanvas {
       } else if (this.currSelectedCol == "all") {
         this.topHeaderCtx.fillStyle = this.strokeColor;
       } else {
-        this.topHeaderCtx.fillStyle = this.blackColor;
+        this.topHeaderCtx.fillStyle = this.gridStrokeColor;
       }
       this.topHeaderCtx.fillText(text, xPosition, yPosition + 1);
       this.topHeaderCtx.restore();
@@ -258,9 +307,10 @@ class newCanvas {
 
     this.topHeaderCtx.save();
     this.topHeaderCtx.beginPath();
-    this.topHeaderCtx.moveTo(0, 24);
+
     this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
-    this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24);
+    this.topHeaderCtx.moveTo(0, 24 - 0.5);
+    this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24 - 0.5);
     this.topHeaderCtx.stroke();
     this.topHeaderCtx.restore();
 
@@ -279,8 +329,19 @@ class newCanvas {
         this.leftHeaderCtx.canvas.width,
         cellPosition + 0.5
       );
-      this.leftHeaderCtx.lineWidth = 0.2;
-      this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
+
+      if (
+        this.leftheaderSelected &&
+        this.currSelectedRow[0] <= i &&
+        i < this.currSelectedRow[1]
+      ) {
+        this.leftHeaderCtx.lineWidth = 1;
+        this.leftHeaderCtx.strokeStyle = this.whiteColor;
+      } else {
+        this.leftHeaderCtx.lineWidth = 0.2;
+        this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
+      }
+
       this.leftHeaderCtx.stroke();
       this.leftHeaderCtx.restore();
 
@@ -290,6 +351,7 @@ class newCanvas {
       let xPosition = this.leftHeaderCtx.canvas.width - textWidth - 10;
       let yPosition = cellPosition - this.getCurCellHeight(i) / 2;
 
+      this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
       if (Array.isArray(this.currSelectedRow)) {
         if (
           this.leftheaderSelected &&
@@ -558,7 +620,11 @@ class newCanvas {
     this.mainCtx.fillStyle = this.areaHighlightColor;
     if (this.isColSelected) {
       this.currSelectedCol = [startX, endX];
-      this.currSelectedRow = "all";
+      if(this.topheaderSelected && this.leftheaderSelected){
+          this.currSelectedRow = [0,100];
+      }else{
+        this.currSelectedRow = "all";
+      }
       this.mainCtx.fillRect(x, 0, width, this.mainCtx.canvas.height);
     } else if (this.isRowSelected) {
       this.currSelectedRow = [startY, endY];
@@ -603,6 +669,16 @@ class newCanvas {
 
   highlightHeaders() {
     const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
+    this.topHeaderCtx.save();
+    this.topHeaderCtx.beginPath();
+    this.topHeaderCtx.fillStyle = this.headerBgColor;
+    this.topHeaderCtx.fillRect(0, 0, this.topHeaderCtx.canvas.width, 24);
+    this.topHeaderCtx.restore();
+    this.leftHeaderCtx.save();
+    this.leftHeaderCtx.beginPath();
+    this.leftHeaderCtx.fillStyle = this.headerBgColor;
+    this.leftHeaderCtx.fillRect(0, 0, 44, this.leftHeaderCtx.canvas.height);
+    this.leftHeaderCtx.restore();
 
     let x = 0;
     let y = 0;
@@ -620,7 +696,19 @@ class newCanvas {
     for (let i = startY; i <= endY; i++) {
       height += this.getCurCellHeight(i);
     }
-    if (this.isColSelected) {
+
+    if (this.isColSelected && this.isRowSelected) {
+      this.topHeaderCtx.save();
+      this.topHeaderCtx.beginPath();
+      this.topHeaderCtx.fillStyle = this.strokeColor;
+      this.topHeaderCtx.fillRect(0, 0, this.topHeaderCtx.canvas.width, 24);
+      this.topHeaderCtx.restore();
+      this.leftHeaderCtx.save();
+      this.leftHeaderCtx.beginPath();
+      this.leftHeaderCtx.fillStyle = this.strokeColor;
+      this.leftHeaderCtx.fillRect(0, 0, 44, this.leftHeaderCtx.canvas.height);
+      this.leftHeaderCtx.restore();
+    } else if (this.isColSelected) {
       //Top Header
       this.topHeaderCtx.save();
       this.topHeaderCtx.beginPath();
@@ -645,6 +733,7 @@ class newCanvas {
       this.leftHeaderCtx.stroke();
       this.leftHeaderCtx.restore();
     } else if (this.isRowSelected) {
+
       //Left Header
       this.leftHeaderCtx.save();
       this.leftHeaderCtx.beginPath();
@@ -780,8 +869,8 @@ class newCanvas {
       const rowIndex = this.getCurRowIndex(clickY);
 
       // Determine dimensions of selection
-      const startX = Math.min(this.startingIndex[0], colIndex);
-      const startY = Math.min(this.startingIndex[1], rowIndex);
+      const startX = Math.max(0, Math.min(this.startingIndex[0], colIndex));
+      const startY = Math.max(0, Math.min(this.startingIndex[1], rowIndex));
       const endX = Math.max(this.startingIndex[0], colIndex);
       const endY = Math.max(this.startingIndex[1], rowIndex);
 
@@ -917,7 +1006,6 @@ class newCanvas {
     }
 
     if (rowIndex == 0 && columnIndex !== -1 && iscolPointDraggable) {
-      this.currSelectedRow = this.startingIndexLeft[1];
       this.isDraggingTop = true;
       this.resizeColIndex = columnIndex;
       this.resizeColTop = clickX;
@@ -925,7 +1013,6 @@ class newCanvas {
     }
 
     if (columnIndex == 0 && rowIndex !== -1 && isrowPointDraggable) {
-      this.currSelectedCol = this.startingIndexTop[0];
       this.isDraggingLeft = true;
       this.resizeRowIndex = rowIndex;
       this.resizeRowTop = clickY;
@@ -934,6 +1021,8 @@ class newCanvas {
   }
 
   resizeGridPointerMove(e, header) {
+    this.resizeLine = document.getElementById("resizeLine");
+
     let rect = header.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
@@ -941,14 +1030,6 @@ class newCanvas {
     let rowIndex = this.getCurRowIndex(clickY);
     let iscolPointDraggable = this.isColPointDraggable(clickX);
     let isrowPointDraggable = this.isRowPointDraggable(clickY);
-    let columnLeft = 0;
-    let rowTop = 0;
-    for (let i = 0; i < columnIndex; i++) {
-      columnLeft += this.getCurCellWidth(i);
-    }
-    for (let i = 0; i < rowIndex; i++) {
-      rowTop += this.getCurCellHeight(i);
-    }
 
     if (rowIndex == 0 && columnIndex !== -1 && iscolPointDraggable) {
       this.topHeaderCanvas.style.cursor = "col-resize";
@@ -963,6 +1044,7 @@ class newCanvas {
     }
 
     if (this.isDraggingTop) {
+      this.columnIndex2 = this.getCurColumnIndex(clickX - 10);
       this.clearTopheader();
       this.clearLeftHeader();
       this.highlightHeaders();
@@ -970,13 +1052,21 @@ class newCanvas {
       const deltaX = clickX - this.resizeColTop;
       this.newWidth = Math.max(20, this.resizeColWidth + deltaX);
       this.cellWidths.set(this.resizeColIndex, this.newWidth);
-      if (Array.isArray(this.currSelectedCol)) {
-        this.flag = true;
+      if (Array.isArray(this.currSelectedCol) && this.topheaderSelected) {
+        this.colFlag = true;
       }
 
       if (!this.isColSelected) {
         cancelAnimationFrame(this.animationFrameId);
         this.startMarchingAntsAnimation();
+      }
+
+      this.resizeLine.style.display = "block";
+      this.resizeLine.style.width = "3px";
+      this.resizeLine.style.height = `${this.mainCtx.canvas.height}px`;
+      if (this.newWidth > 20) {
+        this.resizeLine.style.top = 0;
+        this.resizeLine.style.left = `${e.clientX - rect.x}px`;
       }
 
       this.renderTopHeader();
@@ -998,27 +1088,34 @@ class newCanvas {
     }
 
     if (this.isDraggingLeft) {
-      this.leftHeaderCanvas.style.cursor = "row-resize";
-      const deltaY = clickY - this.resizeRowTop;
-      this.newHeight = Math.max(0, this.resizeRowHeight + deltaY);
-      this.cellHeight.set(this.resizeRowIndex, this.newHeight);
+      this.rowIndex2 = this.getCurRowIndex(clickY - 5);
 
       this.clearLeftHeader();
       this.clearTopheader();
       this.highlightHeaders();
-      this.renderLeftHeader();
-      this.renderTopHeader();
+      this.leftHeaderCanvas.style.cursor = "row-resize";
+      const deltaY = clickY - this.resizeRowTop;
+      this.newHeight = Math.max(10, this.resizeRowHeight + deltaY);
+      this.cellHeight.set(this.resizeRowIndex, this.newHeight);
+      if (Array.isArray(this.currSelectedRow) && this.leftheaderSelected) {
+        this.rowFlag = true;
+      }
 
-      if (this.isRowSelected && this.isLeftAreaSelected) {
-        this.currSelectedRow = this.startingIndexLeft[1];
-        this.currSelectedCol = "all";
-        const startX = this.startingIndexLeft[0];
-        const startY = this.startingIndexLeft[1];
-        this.selectedDimensionsMain = [startX, startY, startX, startY];
-      } else {
+      if (!this.isRowSelected) {
         cancelAnimationFrame(this.animationFrameId);
         this.startMarchingAntsAnimation();
       }
+
+      this.resizeLine.style.display = "block";
+      this.resizeLine.style.width = `${this.mainCtx.canvas.width}px`;
+      this.resizeLine.style.height = "3px";
+      if (this.newHeight > 10) {
+        this.resizeLine.style.left = 0;
+        this.resizeLine.style.top = `${e.clientY - rect.y}px`;
+      }
+
+      this.renderLeftHeader();
+      this.renderTopHeader();
     } else if (this.isLeftAreaSelected) {
       this.leftHeaderCanvas.style.cursor = "pointer";
       const startX = Math.min(this.startingIndexLeft[0], columnIndex);
@@ -1037,17 +1134,28 @@ class newCanvas {
   }
 
   resizeGridPointerUp() {
-    if (this.flag) {
+    this.resizeLine.style.display = "none";
+    if (
+      this.topheaderSelected &&
+      this.colFlag &&
+      this.columnIndex2 >= this.currSelectedCol[0] &&
+      this.columnIndex2 <= this.currSelectedCol[1]
+    ) {
+      this.colFlag = false;
       for (let i = this.currSelectedCol[0]; i <= this.currSelectedCol[1]; i++) {
         this.cellWidths.set(i, this.newWidth);
       }
-      this.flag = false;
     }
 
-    if (this.leftheaderSelected) {
+    if (
+      this.rowFlag &&
+      this.rowIndex2 >= this.currSelectedRow[0] &&
+      this.rowIndex2 <= this.currSelectedRow[1]
+    ) {
       for (let i = this.currSelectedRow[0]; i <= this.currSelectedRow[1]; i++) {
         this.cellHeight.set(i, this.newHeight);
       }
+      this.rowFlag = false;
     }
 
     this.isTopAreaSelected = false;

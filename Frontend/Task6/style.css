@@ -104,4 +104,10 @@ canvas {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   -ms-interpolation-mode: nearest-neighbor;
+}
+
+.resizeLine {
+  position: absolute;
+  border-left: dashed rgb(16, 124, 65);
+  border-top: dashed rgb(16, 124, 65);
 }/*# sourceMappingURL=style.css.map */

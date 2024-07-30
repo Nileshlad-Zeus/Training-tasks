@@ -112,5 +112,11 @@ canvas {
   -ms-interpolation-mode: nearest-neighbor;
 }
 
+.resizeLine{
+  position: absolute;
+  border-left: dashed rgb(16,124,65);
+  border-top: dashed rgb(16,124,65);
+}
+
 
 
