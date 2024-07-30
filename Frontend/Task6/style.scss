@@ -103,7 +103,14 @@ body {
 
       color: #444;
       line-height: 16px;
-      font-size: 16px;
+      font-size: 14px;
+      height: 30px;
+
+      div{
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
     }
   }
   .addNewSheet {
@@ -131,4 +138,8 @@ canvas {
 }
 .displayBlock {
   display: block;
+}
+
+.selected{
+  border-bottom: 4px solid rgb(16, 124, 65);
 }

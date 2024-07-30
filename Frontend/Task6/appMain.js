@@ -1286,8 +1286,6 @@ class newCanvas {
   }
 }
 
-
-
 let arrayOfSheets = ["sheet1"];
 const addNewSheet = document.getElementById("addNewSheet");
 const sheets = document.getElementById("sheets");
@@ -1297,25 +1295,35 @@ addNewSheet.addEventListener("click", () => {
   arrayOfSheets.push(`Sheet${numberOfSheet}`);
   var btn = document.createElement("span");
   btn.classList.add("sheetBtn");
-  btn.innerHTML = `<div id=sheet-${numberOfSheet}>Sheet${numberOfSheet}</div>`;
+  btn.innerHTML = `<div id=sheet-${numberOfSheet} class="sheetBtn1">Sheet${numberOfSheet}</div>`;
   sheets.appendChild(btn);
 });
 
 new newCanvas("sheet-1");
 
 const main = document.querySelectorAll("#main canvas");
-const canvasinput = document.getElementById("canvasinput");
+
+let current = "sheet-1";
+let createdCanvas = ["sheet-1"]
 sheets.addEventListener("click", (e) => {
   if (e.target.closest(".sheetBtn")) {
-    new newCanvas(e.target.id);
-    canvasinput.style.display = "none";
+    var sheetBtn1 = document.querySelectorAll(".sheetBtn1");
+    sheetBtn1.forEach((btn) => btn.classList.remove("selected"));
+    e.target.classList.add("selected");
+    if(!createdCanvas.includes(e.target.id)){
+      createdCanvas.push(e.target.id)
+      new newCanvas(e.target.id);
+    }
+    // console.log(createdCanvas);
+    // if (current != e.target.id) {
+    // }
 
+    current = e.target.id;
     var canvases = document.querySelectorAll(".canvas");
     var topHeaderCanvas = document.querySelectorAll(".topHeaderCanvas");
     var leftHeaderCanvas = document.querySelectorAll(".leftHeaderCanvas");
 
     canvases.forEach((canvas) => (canvas.style.display = "none"));
-
     document.getElementById(`${e.target.id}`).style.display = "block";
 
     topHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
