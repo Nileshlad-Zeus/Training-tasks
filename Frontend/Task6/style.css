@@ -15,14 +15,6 @@ body {
   width: 90%;
 }
 
-#main {
-  height: calc(100vh - 55px);
-  margin-left: 40px;
-  margin-top: 24px;
-  overflow: auto;
-  position: relative;
-}
-
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -41,6 +33,37 @@ body {
   background: #555;
 }
 
+.topleftDiv {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 24px;
+  background-color: rgb(245, 245, 245);
+  border: 1px solid #d5cece;
+  border-top: none;
+  border-left: none;
+  z-index: 10;
+  cursor: cell;
+}
+.topleftDiv .topleft {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-right: 15px solid rgb(183, 183, 183);
+}
+
+#main {
+  height: calc(100vh - 80px);
+  margin-left: 40px;
+  margin-top: 24px;
+  overflow: auto;
+  position: relative;
+}
+
 .topHeader {
   position: absolute;
   top: 0;
@@ -55,18 +78,7 @@ body {
   left: 0;
   margin-top: 24px;
   top: 0;
-}
-
-.topleft {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 40px;
-  height: 24px;
-  background-color: #f5f5f5;
-  border-top: none;
-  border-left: none;
-  z-index: 10;
+  height: calc(100vh - 80px);
 }
 
 .canvasinput {
@@ -79,18 +91,29 @@ body {
 }
 
 .footer {
-  background: #f5f5f5;
-  height: 30px;
+  padding-left: 10px;
+  position: relative;
+  z-index: 100;
+  background: rgb(245, 245, 245);
+  height: 32px;
   display: flex;
   align-items: center;
-  margin-left: 40px;
-  gap: 10px;
+  gap: 24px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
+.footer i {
+  font-size: 14px;
+  color: rgb(85, 83, 83);
+  cursor: pointer;
+}
 .footer .sheets {
-  padding-left: 10px;
   display: flex;
   gap: 20px;
+}
+.footer .sheets .selected {
+  color: rgba(0, 0, 0, 0.849);
+  font-weight: 600;
+  border-bottom: 4px solid rgb(16, 124, 65);
 }
 .footer .sheets .sheetBtn {
   background: transparent;
@@ -98,6 +121,7 @@ body {
   border: none;
   cursor: pointer;
   color: #444;
+  font-weight: 400;
   line-height: 16px;
   font-size: 14px;
   height: 30px;
@@ -111,6 +135,36 @@ body {
   border: none;
   cursor: pointer;
 }
+.footer .sheetListModal {
+  display: none;
+  position: absolute;
+  width: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: white;
+  bottom: 28px;
+  left: 70px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 2px;
+  flex-direction: column;
+}
+.footer .sheetListModal span {
+  font-size: 15px;
+  color: rgb(61, 58, 58);
+  cursor: pointer;
+  padding: 10px 10px;
+}
+.footer .sheetListModal .selected {
+  background-color: rgb(225, 223, 221);
+}
+.footer .arrowBtn {
+  display: flex;
+  gap: 24px;
+}
+.footer .arrowBtn i {
+  font-size: 12px;
+  color: rgba(128, 128, 128, 0.432);
+}
 
 canvas {
   image-rendering: -moz-crisp-edges;
@@ -120,10 +174,18 @@ canvas {
   -ms-interpolation-mode: nearest-neighbor;
 }
 
-.resizeLine {
+.resizeLineHorizontal {
+  display: none;
   position: absolute;
-  border-left: dashed rgb(16, 124, 65);
+  height: 3px;
   border-top: dashed rgb(16, 124, 65);
+}
+
+.resizeLineVertical {
+  display: none;
+  position: absolute;
+  width: 3px;
+  border-left: dashed rgb(16, 124, 65);
 }
 
 .displayNone {
@@ -134,6 +196,39 @@ canvas {
   display: block;
 }
 
-.selected {
-  border-bottom: 4px solid rgb(16, 124, 65);
+.footer2 {
+  position: relative;
+  height: 25px;
+  width: 100%;
+  padding: 0 14px;
+  background-color: white;
+  z-index: 200;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer2 i {
+  color: rgb(80, 77, 77);
+}
+.footer2 .footer2-left {
+  font-size: 12px;
+  color: gray;
+}
+.footer2 .footer2-right {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.footer2 .footer2-right span {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid rgba(128, 128, 128, 0.712);
+  padding: 0 2px;
+  font-size: 13px;
+}
+.footer2 .footer2-right span i {
+  font-size: 12px;
 }/*# sourceMappingURL=style.css.map */

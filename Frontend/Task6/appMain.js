@@ -10,6 +10,7 @@ class newCanvas {
     this.resizeGridEvents();
     this.highlightSelectedArea();
     this.inputBoxPosition();
+    this.inputBox.style.display = "none";
     document.addEventListener("keydown", (event) => {
       this.keyBoardEvents(event);
     });
@@ -204,14 +205,14 @@ class newCanvas {
 
   inputBoxPosition() {
     this.inputBox.style.display = "block";
-    this.inputBox.style.top = `${this.cellPositionTop - 1}px`;
+    this.inputBox.style.top = `${this.cellPositionTop - 2}px`;
     0;
-    this.inputBox.style.left = `${this.cellPositionLeft - 1}px`;
+    this.inputBox.style.left = `${this.cellPositionLeft - 2}px`;
     this.inputBox.style.height = `${
-      this.getCurCellHeight(this.y1CellIndex) + 3
+      this.getCurCellHeight(this.y1CellIndex) + 5
     }px`;
     this.inputBox.style.width = `${
-      this.getCurCellWidth(this.x1CellIndex) + 3
+      this.getCurCellWidth(this.x1CellIndex) + 5
     }px`;
   }
 
@@ -251,7 +252,6 @@ class newCanvas {
     let cellPosition = 0;
     this.topHeaderCtx.font = "11pt Arial";
     this.topHeaderCtx.textAlign = "center";
-
     for (let i = 0; i <= this.numCols; i++) {
       cellPosition += this.getCurCellWidth(i);
       this.topHeaderCtx.save();
@@ -306,6 +306,14 @@ class newCanvas {
       }
       this.topHeaderCtx.fillText(text, xPosition, yPosition + 1);
       this.topHeaderCtx.restore();
+
+      if (
+        i == this.columnIndex2 &&
+        cellPosition - this.columnLeftOfDrag >= 20
+      ) {
+        this.resizeLineVertical.style.top = 0;
+        this.resizeLineVertical.style.left = `${cellPosition}px`;
+      }
     }
 
     this.topHeaderCtx.save();
@@ -379,6 +387,11 @@ class newCanvas {
       }
       this.leftHeaderCtx.fillText(text, xPosition, yPosition + 4);
       this.leftHeaderCtx.restore();
+
+      if (i == this.rowIndex2 && cellPosition - this.rowTopOfDrag > 10) {
+        this.resizeLineHorizontal.style.top = `${cellPosition}px`;
+        this.resizeLineHorizontal.style.left = 0;
+      }
     }
 
     this.leftHeaderCtx.save();
@@ -449,27 +462,35 @@ class newCanvas {
       endY = Math.max(this.y1CellIndex, this.y2CellIndex);
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
+      // this.clearCanvas();
       this.drawGrid();
-      this.clearCanvas();
       this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
     } else if (e.key == "Enter" || e.key == "ArrowDown") {
+      this.topheaderSelected = false;
+      this.leftheaderSelected = false;
       this.isColSelected = false;
       this.isRowSelected = false;
       this.cellPositionTop += this.getCurCellHeight(this.y1CellIndex);
       this.y1CellIndex = this.y1CellIndex + 1;
     } else if (e.key == "ArrowUp" && this.y1CellIndex >= 1) {
+      this.topheaderSelected = false;
+      this.leftheaderSelected = false;
       this.isColSelected = false;
       this.isRowSelected = false;
       this.cellPositionTop -= this.getCurCellHeight(this.y1CellIndex - 1);
       this.y1CellIndex = this.y1CellIndex - 1;
     } else if (e.key == "Tab" || e.key == "ArrowRight") {
+      this.topheaderSelected = false;
+      this.leftheaderSelected = false;
       this.isColSelected = false;
       this.isRowSelected = false;
       this.cellPositionLeft += this.getCurCellWidth(this.x1CellIndex);
       this.x1CellIndex = this.x1CellIndex + 1;
     } else if (e.key == "ArrowLeft" && this.x1CellIndex >= 1) {
+      this.topheaderSelected = false;
+      this.leftheaderSelected = false;
       this.isColSelected = false;
       this.isRowSelected = false;
       this.cellPositionLeft -= this.getCurCellWidth(this.x1CellIndex - 1);
@@ -553,6 +574,7 @@ class newCanvas {
         width = this.mainCtx.canvas.width;
       }
 
+      // this.lineDashOffset = this.lineDashOffset - 0.2;
       this.lineDashOffset = this.lineDashOffset - 0.2;
 
       if (this.lineDashOffset < 0) {
@@ -620,6 +642,7 @@ class newCanvas {
     for (let i = 0; i < this.y1CellIndex; i++) {
       this.cellPositionTop += this.getCurCellHeight(i);
     }
+    this.mainCtx.save();
 
     this.mainCtx.fillStyle = this.areaHighlightColor;
     if (this.isColSelected) {
@@ -659,16 +682,16 @@ class newCanvas {
     this.mainCtx.lineWidth = 2;
     this.mainCtx.strokeStyle = this.strokeColor;
     if (this.isColSelected) {
-      this.mainCtx.strokeRect(x - 1, -1, width + 2, this.mainCtx.canvas.height);
+      this.mainCtx.strokeRect(x - 1, -2, width + 3, this.mainCtx.canvas.height);
     } else if (this.isRowSelected) {
       this.mainCtx.strokeRect(-1, y - 1, this.mainCtx.canvas.width, height + 2);
     } else {
       this.mainCtx.strokeRect(x - 1, y - 1, width + 3, height + 3);
     }
 
-    this.headersHighlightCoordinate = [startX, startY, endX, endY];
+    this.mainCtx.restore();
 
-    // this.highlightHeaders();
+    this.headersHighlightCoordinate = [startX, startY, endX, endY];
   }
 
   highlightHeaders() {
@@ -763,10 +786,10 @@ class newCanvas {
     } else {
       this.topHeaderCtx.save();
       this.topHeaderCtx.beginPath();
-      this.topHeaderCtx.moveTo(x - 2, 24);
-      this.topHeaderCtx.lineTo(x + width + 2.5, 24);
       this.topHeaderCtx.fillStyle = this.headersHighlightColor;
       this.topHeaderCtx.fillRect(x, 0, width, 24);
+      this.topHeaderCtx.moveTo(x - 2, 24);
+      this.topHeaderCtx.lineTo(x + width + 2.5, 24);
       this.topHeaderCtx.lineWidth = 5;
       this.topHeaderCtx.strokeStyle = this.strokeColor;
       this.topHeaderCtx.stroke();
@@ -895,19 +918,24 @@ class newCanvas {
 
   //----------------------Resize Grid Columns and rows----------------------
   resizeGridEvents() {
-    this.topHeaderCanvas.addEventListener("pointerdown", (e) =>
-      this.resizeGridPointerDown(e, this.topHeaderCanvas)
-    );
-    this.leftHeaderCanvas.addEventListener("pointerdown", (e) =>
-      this.resizeGridPointerDown(e, this.leftHeaderCanvas)
-    );
+    this.pointerDownHeader = this.mainCanvas;
+    this.topHeaderCanvas.addEventListener("pointerdown", (e) => {
+      this.pointerDownHeader = this.topHeaderCanvas;
+      this.resizeGridPointerDown(e, this.topHeaderCanvas);
+    });
+    this.leftHeaderCanvas.addEventListener("pointerdown", (e) => {
+      this.pointerDownHeader = this.leftHeaderCanvas;
+      this.resizeGridPointerDown(e, this.leftHeaderCanvas);
+    });
     window.addEventListener("pointermove", (e) => {
-      this.resizeGridPointerMove(
-        e,
-        e.target.id === "leftHeader-canvas"
-          ? this.leftHeaderCanvas
-          : this.topHeaderCanvas
-      );
+      let text = e.target.id;
+      let result = text.replace(/-sheet-[0,100]/, "");
+      if (result == "topHeader") {
+        this.pointerDownHeader = this.topHeaderCanvas;
+      } else if (result == "leftHeader") {
+        this.pointerDownHeader = this.leftHeaderCanvas;
+      }
+      this.resizeGridPointerMove(e, this.pointerDownHeader);
     });
     window.addEventListener("pointerup", () => this.resizeGridPointerUp());
     window.addEventListener("pointerleave", () => this.resizeGridPointerUp());
@@ -1007,7 +1035,6 @@ class newCanvas {
       this.renderLeftHeader();
       this.renderTopHeader();
     }
-
     if (rowIndex == 0 && columnIndex !== -1 && iscolPointDraggable) {
       this.isDraggingTop = true;
       this.resizeColIndex = columnIndex;
@@ -1021,10 +1048,41 @@ class newCanvas {
       this.resizeRowTop = clickY;
       this.resizeRowHeight = this.getCurCellHeight(rowIndex);
     }
+
+    this.rowIndex2 = this.getCurRowIndex(clickY - 5);
+    this.columnIndex2 = this.getCurColumnIndex(clickX - 10);
+    let width = this.getCurCellWidth(this.columnIndex2);
+    let height = this.getCurCellHeight(this.rowIndex2);
+
+    if (header == this.topHeaderCanvas && iscolPointDraggable) {
+      this.mainCtx.beginPath();
+      this.mainCtx.save();
+      this.mainCtx.lineWidth = 2;
+      this.mainCtx.strokeStyle = this.strokeColor;
+      this.columnLeftOfDrag = columnLeft;
+      this.mainCtx.strokeRect(
+        columnLeft,
+        -1,
+        width,
+        this.mainCtx.canvas.height
+      );
+      this.mainCtx.restore();
+    }
+
+    if (header == this.leftHeaderCanvas && isrowPointDraggable) {
+      this.rowTopOfDrag = rowTop;
+      this.mainCtx.beginPath();
+      this.mainCtx.save();
+      this.mainCtx.lineWidth = 2;
+      this.mainCtx.strokeStyle = this.strokeColor;
+      this.mainCtx.strokeRect(-1, rowTop, this.mainCtx.canvas.width, height);
+      this.mainCtx.restore();
+    }
   }
 
   resizeGridPointerMove(e, header) {
-    this.resizeLine = document.getElementById("resizeLine");
+    this.resizeLineVertical = document.getElementById("resizeLineVertical");
+    this.resizeLineHorizontal = document.getElementById("resizeLineHorizontal");
 
     let rect = header.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -1034,8 +1092,11 @@ class newCanvas {
     let iscolPointDraggable = this.isColPointDraggable(clickX);
     let isrowPointDraggable = this.isRowPointDraggable(clickY);
 
-    if (rowIndex == 0 && columnIndex !== -1 && iscolPointDraggable) {
-      this.topHeaderCanvas.style.cursor = "col-resize";
+    if (
+      // rowIndex == 0 && columnIndex !== -1 &&
+      iscolPointDraggable
+    ) {
+      this.topHeaderCanvas.style.cursor = "ew-resize";
     } else {
       this.topHeaderCanvas.style.cursor = "pointer";
     }
@@ -1044,9 +1105,9 @@ class newCanvas {
       // columnIndex == 0 && rowIndex !== -1 &&
       isrowPointDraggable
     ) {
-      this.leftHeaderCanvas.style.cursor = "row-resize";
+      this.leftHeaderCanvas.style.cursor = "ns-resize";
     } else {
-      this.leftHeaderCanvas.style.cursor = "default";
+      this.leftHeaderCanvas.style.cursor = "pointer";
     }
 
     if (this.isDraggingTop) {
@@ -1054,10 +1115,13 @@ class newCanvas {
       this.clearTopheader();
       this.clearLeftHeader();
       this.highlightHeaders();
-      this.topHeaderCanvas.style.cursor = "col-resize";
+      this.topHeaderCanvas.style.cursor = "ew-resize";
+      this.mainCanvas.style.cursor = "ew-resize";
+      this.resizeLineVertical.style.cursor = "ew-resize";
       const deltaX = clickX - this.resizeColTop;
       this.newWidth = Math.max(20, this.resizeColWidth + deltaX);
       this.cellWidths.set(this.resizeColIndex, this.newWidth);
+
       if (Array.isArray(this.currSelectedCol) && this.topheaderSelected) {
         this.colFlag = true;
       }
@@ -1067,13 +1131,8 @@ class newCanvas {
         this.startMarchingAntsAnimation();
       }
 
-      this.resizeLine.style.display = "block";
-      this.resizeLine.style.width = "3px";
-      this.resizeLine.style.height = `${this.mainCtx.canvas.height}px`;
-      if (this.newWidth > 20) {
-        this.resizeLine.style.top = 0;
-        this.resizeLine.style.left = `${e.clientX - rect.x}px`;
-      }
+      this.resizeLineVertical.style.display = "block";
+      this.resizeLineVertical.style.height = `${this.mainCtx.canvas.height}px`;
 
       this.renderTopHeader();
       this.renderLeftHeader();
@@ -1099,9 +1158,12 @@ class newCanvas {
       this.clearLeftHeader();
       this.clearTopheader();
       this.highlightHeaders();
-      this.leftHeaderCanvas.style.cursor = "row-resize";
+      this.leftHeaderCanvas.style.cursor = "ns-resize";
+      this.resizeLineHorizontal.style.cursor = "ns-resize";
+
       const deltaY = clickY - this.resizeRowTop;
       this.newHeight = Math.max(10, this.resizeRowHeight + deltaY);
+
       this.cellHeight.set(this.resizeRowIndex, this.newHeight);
       if (Array.isArray(this.currSelectedRow) && this.leftheaderSelected) {
         this.rowFlag = true;
@@ -1112,13 +1174,8 @@ class newCanvas {
         this.startMarchingAntsAnimation();
       }
 
-      this.resizeLine.style.display = "block";
-      this.resizeLine.style.width = `${this.mainCtx.canvas.width}px`;
-      this.resizeLine.style.height = "3px";
-      if (this.newHeight > 10) {
-        this.resizeLine.style.left = 0;
-        this.resizeLine.style.top = `${e.clientY - rect.y}px`;
-      }
+      this.resizeLineHorizontal.style.display = "block";
+      this.resizeLineHorizontal.style.width = `${this.mainCtx.canvas.width}px`;
 
       this.renderLeftHeader();
       this.renderTopHeader();
@@ -1140,7 +1197,9 @@ class newCanvas {
   }
 
   resizeGridPointerUp() {
-    this.resizeLine.style.display = "none";
+    this.mainCanvas.style.cursor = "cell";
+    this.resizeLineHorizontal.style.display = "none";
+    this.resizeLineVertical.style.display = "none";
     if (
       this.topheaderSelected &&
       this.colFlag &&
@@ -1286,51 +1345,73 @@ class newCanvas {
   }
 }
 
-let arrayOfSheets = ["sheet1"];
+let arrayOfSheets = ["Sheet1"];
 const addNewSheet = document.getElementById("addNewSheet");
 const sheets = document.getElementById("sheets");
+const sheetListModal = document.getElementById("sheetListModal");
+
+new newCanvas("sheet-1");
 
 addNewSheet.addEventListener("click", () => {
+  sheetListModal.style.display = "none";
   let numberOfSheet = arrayOfSheets.length + 1;
   arrayOfSheets.push(`Sheet${numberOfSheet}`);
+  localStorage.setItem("sheetlist", JSON.stringify(arrayOfSheets));
+
   var btn = document.createElement("span");
   btn.classList.add("sheetBtn");
   btn.innerHTML = `<div id=sheet-${numberOfSheet} class="sheetBtn1">Sheet${numberOfSheet}</div>`;
   sheets.appendChild(btn);
-});
 
-new newCanvas("sheet-1");
+  var li = document.createElement("span");
+  li.classList.add("sheetLi");
+  li.innerText = `Sheet${numberOfSheet}`;
+  sheetListModal.appendChild(li);
+});
 
 const main = document.querySelectorAll("#main canvas");
 
 let current = "sheet-1";
-let createdCanvas = ["sheet-1"]
+let createdCanvas = ["sheet-1"];
 sheets.addEventListener("click", (e) => {
   if (e.target.closest(".sheetBtn")) {
-    var sheetBtn1 = document.querySelectorAll(".sheetBtn1");
-    sheetBtn1.forEach((btn) => btn.classList.remove("selected"));
-    e.target.classList.add("selected");
-    if(!createdCanvas.includes(e.target.id)){
-      createdCanvas.push(e.target.id)
-      new newCanvas(e.target.id);
-    }
-    // console.log(createdCanvas);
-    // if (current != e.target.id) {
-    // }
+    selectCurrSheet(e);
+  }
+});
 
-    current = e.target.id;
-    var canvases = document.querySelectorAll(".canvas");
-    var topHeaderCanvas = document.querySelectorAll(".topHeaderCanvas");
-    var leftHeaderCanvas = document.querySelectorAll(".leftHeaderCanvas");
+var canvases = document.querySelectorAll(".canvas");
+var topHeaderCanvas = document.querySelectorAll(".topHeaderCanvas");
+var leftHeaderCanvas = document.querySelectorAll(".leftHeaderCanvas");
 
-    canvases.forEach((canvas) => (canvas.style.display = "none"));
-    document.getElementById(`${e.target.id}`).style.display = "block";
+const selectCurrSheet = (e) => {
+  var sheetBtn1 = document.querySelectorAll(".sheetBtn1");
+  sheetBtn1.forEach((btn) => btn.classList.remove("selected"));
+  e.target.classList.add("selected");
 
-    topHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
-    document.getElementById(`topHeader-${e.target.id}`).style.display = "block";
+  if (!createdCanvas.includes(e.target.id)) {
+    createdCanvas.push(e.target.id);
+    new newCanvas(e.target.id);
+  }
 
-    leftHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
-    document.getElementById(`leftHeader-${e.target.id}`).style.display =
-      "block";
+  current = e.target.id;
+
+  canvases.forEach((canvas) => (canvas.style.display = "none"));
+  document.getElementById(`${e.target.id}`).style.display = "block";
+
+  topHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
+  document.getElementById(`topHeader-${e.target.id}`).style.display = "block";
+
+  leftHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
+  document.getElementById(`leftHeader-${e.target.id}`).style.display = "block";
+};
+
+const sheetListModalBtn = document.getElementById("sheetListModalBtn");
+const sheetList = JSON.parse(localStorage.getItem("sheetlist"));
+
+sheetListModalBtn.addEventListener("click", () => {
+  if (sheetListModal.style.display == "flex") {
+    sheetListModal.style.display = "none";
+  } else {
+    sheetListModal.style.display = "flex";
   }
 });

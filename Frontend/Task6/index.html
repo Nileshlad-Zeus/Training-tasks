@@ -11,30 +11,60 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="topleft" id="topleft"></div>
+    <div class="topleftDiv" id="topleftDiv">
+      <div class="topleft" id="topleft"></div>
+    </div>
     <div class="topHeader" id="topHeader"></div>
     <div class="leftHeader" id="leftHeader"></div>
 
-    <div id="main">
-      <div class="scroller" id="scroller"></div>
-      <input
-        type="text"
-        id="canvasinput"
-        autocomplete="off"
-        class="canvasinput"
-      />
-      <div class="resizeLine" id="resizeLine"></div>
+    <div class="mainSection">
+      <div id="main">
+        <div class="scroller" id="scroller"></div>
+        <input
+          type="text"
+          id="canvasinput"
+          autocomplete="off"
+          class="canvasinput"
+        />
+        <div class="resizeLineVertical" id="resizeLineVertical"></div>
+        <div class="resizeLineHorizontal" id="resizeLineHorizontal"></div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="arrowBtn">
+        <i class="fa-solid fa-chevron-left"></i>
+        <i class="fa-solid fa-chevron-right"></i>
+      </div>
+      <i class="fa-solid fa-bars sheetListModalBtn" id="sheetListModalBtn"></i>
+      <div class="sheetListModal" id="sheetListModal">
+        <span class="sheetLi selected">Sheet1</span>
+      </div>
+      
+      <div class="sheets" id="sheets">
+        <span class="sheetBtn"
+          ><div id="sheet-1" class="sheetBtn1 selected">Sheet1</div>
+        </span>
+      </div>
+      <i class="fa-solid fa-plus addNewSheet" id="addNewSheet"></i>
+    </div>
+    <div class="footer2">
+      <div class="footer2-left">
+        <p>Workbook Statistics</p>
+      </div>
+      <div class="footer2-right">
+        <i class="fa-solid fa-chevron-down"></i>
+        <i class="fa-regular fa-keyboard"></i>
+        <i class="fa-regular fa-circle-question"></i>
+        <i class="fa-solid fa-minus"></i>
+        <span>
+          <p>100%</p>
+          <i class="fa-solid fa-chevron-down"></i>
+        </span>
+        <i class="fa-solid fa-plus"></i>
+      </div>
+
     </div>
 
-    <div class="footer">
-      <div class="sheets" id="sheets">
-        <span class="sheetBtn"><div id="sheet-1" class="sheetBtn1 selected">Sheet1</div></span>
-        
-      </div>
-        <button id="addNewSheet" class="addNewSheet">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-    </div>
     <script src="./appMain.js"></script>
   </body>
 </html>
