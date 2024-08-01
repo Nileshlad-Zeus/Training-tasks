@@ -11,14 +11,55 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="topleftDiv" id="topleftDiv">
-      <div class="topleft" id="topleft"></div>
-    </div>
-    <div class="topHeader" id="topHeader"></div>
-    <div class="leftHeader" id="leftHeader"></div>
+    <div class="toolsSection">
+      <div class="fontSection">
+        <div class="fontFamilySize">
+          <div class="fontFamily">
+            <select name="fontfamily" id="fontfamily">
+              <option value="Arial">Arial</option>
+              <option value="Calibri" selected>Calibri</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Georgia ">Georgia</option>
+              <option value="Tahoma">Tahoma</option>
+            </select>
+          </div>
 
-    <div class="mainSection">
-      <div id="main">
+          <div class="fontSize">
+            <select name="fontSize" id="fontsize">
+              <option value="8pt">8</option>
+              <option value="9pt">9</option>
+              <option value="10pt">10</option>
+              <option value="11pt">11</option>
+              <option value="12pt" selected>12</option>
+              <option value="14pt">14</option>
+              <option value="16pt">16</option>
+              <option value="18pt">18</option>
+              <option value="20pt">20</option>
+              <option value="24pt">24</option>
+              <option value="26pt">26</option>
+              <option value="28pt">28</option>
+              <option value="36pt">36</option>
+              <option value="48pt">48</option>
+              <option value="72pt">72</option>
+            </select>
+          </div>
+        </div>
+        <div class="fontStyle">
+          <span class="bold" id="fontbold">B</span>
+          <span class="italic " id="fontitalic" >i</span>
+          <span class="underline " id="fontunderline" >U</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mainSheet">
+      <div class="topleftDiv" id="topleftDiv">
+        <div class="topleft" id="topleft"></div>
+      </div>
+      <div class="topHeader" id="topHeader"></div>
+      <div class="leftHeader" id="leftHeader"></div>
+
+      <div id="main" class="mainSection">
         <div class="scroller" id="scroller"></div>
         <input
           type="text"
@@ -39,7 +80,7 @@
       <div class="sheetListModal" id="sheetListModal">
         <span class="sheetLi selected">Sheet1</span>
       </div>
-      
+
       <div class="sheets" id="sheets">
         <span class="sheetBtn"
           ><div id="sheet-1" class="sheetBtn1 selected">Sheet1</div>
@@ -62,7 +103,6 @@
         </span>
         <i class="fa-solid fa-plus"></i>
       </div>
-
     </div>
 
     <script src="./appMain.js"></script>

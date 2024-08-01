@@ -3,6 +3,11 @@ class newCanvas {
     this.sheetName = sheetName;
     this.inputBox = document.getElementById("canvasinput");
 
+    this.scale = window.devicePixelRatio;
+    // document.addEventListener("resize", () => {
+    //   this.scale = window.devicePixelRatio;
+    //   this.createNewCanvas();
+    // });
     this.createNewCanvas();
     this.initialVariables();
     this.highlightSelectedAreaEvents();
@@ -18,6 +23,7 @@ class newCanvas {
     this.highlightHeaders();
     this.renderLeftHeader();
     this.renderTopHeader();
+    this.changeFontStyle();
 
     const topleft = document.getElementById("topleft");
     topleft.addEventListener("click", () => {
@@ -117,55 +123,83 @@ class newCanvas {
     this.alreadyCopy = 0; //0: ctrl+c on animation not running  1:ctrl+c on animation already running
 
     this.colFlag = false;
+    this.rowFlag = false;
+
+    //data store
+    //color, font style, bold, font size, font family
+    this.sheetData = [
+      {
+        0: {
+          0: {
+            data: "Nilesh",
+            properties: "*****",
+          },
+          1: {
+            data: "Lad",
+            properties: "*****",
+          },
+        },
+      },
+      {
+        1: {
+          0: {
+            data: "Jhon",
+            properties: "*****",
+          },
+          1: {
+            data: "Cena",
+            properties: "*****",
+          },
+        },
+      },
+    ];
   }
 
   createNewCanvas() {
     //sheet canvas
-    let scale = window.devicePixelRatio;
-    // window.addEventListener("change",()=>{
-    //     scale = window.devicePixelRatio;
-    // })
-    // console.log(scale);
 
     const main = document.getElementById("main");
     const mainCanvas = document.createElement("canvas");
     mainCanvas.setAttribute("id", this.sheetName);
     mainCanvas.setAttribute("class", "canvas");
-    mainCanvas.width = Math.floor(2100 * scale);
-    mainCanvas.height = Math.floor(1200 * scale);
+    mainCanvas.width = Math.floor(2100 * this.scale);
+    mainCanvas.height = Math.floor(1200 * this.scale);
 
     // mainCanvas.width = 2100;
     // mainCanvas.height = 1200;
     main.appendChild(mainCanvas);
     this.mainCanvas = mainCanvas;
     this.mainCtx = this.mainCanvas.getContext("2d");
+    this.mainCtx.scale(this.scale, this.scale);
 
     //topheader canvas
     const topHeader = document.getElementById("topHeader");
     const topHeaderCanvas = document.createElement("canvas");
     topHeaderCanvas.setAttribute("id", `topHeader-${this.sheetName}`);
     topHeaderCanvas.setAttribute("class", "topHeaderCanvas");
-    topHeaderCanvas.width = Math.floor(2100 * scale);
-    topHeaderCanvas.height = Math.floor(24 * scale);
+    topHeaderCanvas.width = Math.floor(2100 * this.scale);
+    topHeaderCanvas.height = Math.floor(24 * this.scale);
     // topHeaderCanvas.width = 2100;
     // topHeaderCanvas.height = 24;
     topHeader.appendChild(topHeaderCanvas);
     this.topHeaderCanvas = topHeaderCanvas;
     this.topHeaderCtx = this.topHeaderCanvas.getContext("2d");
+    this.topHeaderCtx.scale(this.scale, this.scale);
 
     //leftheader canvas
     const leftHeader = document.getElementById("leftHeader");
     const leftHeaderCanvas = document.createElement("canvas");
     leftHeaderCanvas.setAttribute("id", `leftHeader-${this.sheetName}`);
     leftHeaderCanvas.setAttribute("class", "leftHeaderCanvas");
-    leftHeaderCanvas.width = Math.floor(40 * scale);
-    leftHeaderCanvas.height = Math.floor(1200 * scale);
+    leftHeaderCanvas.width = Math.floor(40 * this.scale);
+    leftHeaderCanvas.height = Math.floor(1200 * this.scale);
 
     // leftHeaderCanvas.width = 40;
     // leftHeaderCanvas.height = 1200;
     leftHeader.appendChild(leftHeaderCanvas);
     this.leftHeaderCanvas = leftHeaderCanvas;
     this.leftHeaderCtx = this.leftHeaderCanvas.getContext("2d");
+    this.leftHeaderCtx.scale(this.scale, this.scale);
 
     this.mainCanvas.style.cursor = "cell";
   }
@@ -216,10 +250,209 @@ class newCanvas {
     }px`;
   }
 
+  changeFontStyle() {
+    const fontsize = document.getElementById("fontsize");
+    const fontfamily = document.getElementById("fontfamily");
+    const fontbold = document.getElementById("fontbold");
+    const fontitalic = document.getElementById("fontitalic");
+
+
+    fontsize.addEventListener("change", () => {
+      var value = fontsize.value;
+      console.log(value);
+      const [startX, startY] = this.selectedDimensionsMain;
+      console.log(startX, startY);
+      let currentData = this.sheetData[startY][startY][startX];
+      let properties = currentData?.properties;
+      let Pos = this.getPos(properties, "*", 4);
+      let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
+      let newValue;
+      if (oldVal == "") {
+        newValue =
+          properties.slice(0, Pos[0] + 1) +
+          value +
+          properties.slice(Pos[0] + 1);
+      } else {
+        newValue = properties.replace(oldVal, value);
+      }
+      this.sheetData[startY][startY][startX]["properties"] = newValue;
+      console.log(newValue);
+      this.mainCtx.clearRect(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      this.highlightSelectedArea();
+      this.drawGrid();
+    });
+
+    fontfamily.addEventListener("change", () => {
+      var value = fontfamily.value;
+      console.log(value);
+      const [startX, startY] = this.selectedDimensionsMain;
+      console.log(startX, startY);
+      let currentData = this.sheetData[startY][startY][startX];
+      let properties = currentData?.properties;
+      let Pos = this.getPos(properties, "*", 5);
+      let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
+      let newValue;
+      if (oldVal == "") {
+        newValue =
+          properties.slice(0, Pos[0] + 1) +
+          value +
+          properties.slice(Pos[0] + 1);
+      } else {
+        newValue = properties.replace(oldVal, value);
+      }
+
+      this.sheetData[startY][startY][startX]["properties"] = newValue;
+      this.mainCtx.clearRect(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      this.highlightSelectedArea();
+      this.drawGrid();
+    });
+
+    fontbold.addEventListener("click", () => {
+      console.log(fontbold);
+
+      let value = "";
+      if (!fontbold.classList.contains("fontstyleactive")) {
+        value = "bold";
+      }
+      fontbold.classList.toggle("fontstyleactive");
+
+      console.log(value);
+      const [startX, startY] = this.selectedDimensionsMain;
+      console.log(startX, startY);
+      let currentData = this.sheetData[startY][startY][startX];
+      let properties = currentData?.properties;
+      let Pos = this.getPos(properties, "*", 3);
+      let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
+      let newValue;
+      if (oldVal == "") {
+        newValue =
+          properties.slice(0, Pos[0] + 1) +
+          value +
+          properties.slice(Pos[0] + 1);
+      } else {
+        newValue = properties.replace(oldVal, value);
+      }
+
+      console.log(newValue);
+      this.sheetData[startY][startY][startX]["properties"] = newValue;
+      console.log(this.sheetData[startY][startY][startX][properties]);
+      this.mainCtx.clearRect(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      this.highlightSelectedArea();
+      this.drawGrid();
+    });
+
+    fontitalic.addEventListener("click", () => {
+      let value = "";
+      if (!fontitalic.classList.contains("fontstyleactive")) {
+        value = "italic";
+      }
+      fontitalic.classList.toggle("fontstyleactive");
+
+      const [startX, startY] = this.selectedDimensionsMain;
+      let currentData = this.sheetData[startY][startY][startX];
+      let properties = currentData?.properties;
+      let Pos = this.getPos(properties, "*", 2);
+      let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
+      let newValue;
+      if (oldVal == "") {
+        newValue =
+          properties.slice(0, Pos[0] + 1) +
+          value +
+          properties.slice(Pos[0] + 1);
+      } else {
+        newValue = properties.replace(oldVal, value);
+      }
+
+      console.log(newValue);
+      this.sheetData[startY][startY][startX]["properties"] = newValue;
+      console.log(this.sheetData[startY][startY][startX][properties]);
+      this.mainCtx.clearRect(
+        0,
+        0,
+        this.mainCanvas.width,
+        this.mainCanvas.height
+      );
+      this.highlightSelectedArea();
+      this.drawGrid();
+    });
+  }
+
   //----------------------draw grid----------------------
   drawGrid() {
+    this.mainCtx.save();
+    // this.mainCtx.fillStyle="#ffffff"
+    // this.mainCtx.fillRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+    this.mainCtx.restore();
     this.drawRows();
     this.drawColumns();
+
+    let i = 0;
+    let cellPositionY = 0;
+    this.sheetData.forEach((data) => {
+      let cellPositionX = 0;
+      cellPositionY += this.getCurCellHeight(i);
+      let count = Object.keys(data[i]).length;
+      for (let j = 0; j < count; j++) {
+        let currProperties = data[i][j]?.properties;
+        let colorPos = this.getPos(currProperties, "*", 1);
+        let fontColor = currProperties.slice(colorPos[0] + 1, colorPos[1]);
+
+        let fontStylePos = this.getPos(currProperties, "*", 2);
+        let fontStyle = currProperties.slice(
+          fontStylePos[0] + 1,
+          fontStylePos[1]
+        );
+
+        let fontWeightPos = this.getPos(currProperties, "*", 3);
+        let fontWeight = currProperties.slice(
+          fontWeightPos[0] + 1,
+          fontWeightPos[1]
+        );
+
+        let fontSizePos = this.getPos(currProperties, "*", 4);
+        let fontSize =
+          currProperties.slice(fontSizePos[0] + 1, fontSizePos[1]) || "12pt";
+
+        let fontFamPos = this.getPos(currProperties, "*", 5);
+        let fontFam = currProperties.slice(fontFamPos[0] + 1, fontFamPos[1]) || "calibri";
+
+        this.mainCtx.save();
+        this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
+        this.mainCtx.fillStyle = fontColor;
+        this.mainCtx.fillText(
+          data[i][j]?.data,
+          cellPositionX + 4,
+          cellPositionY - 2
+        );
+        this.mainCtx.clip();
+        this.mainCtx.restore();
+
+        cellPositionX += this.getCurCellWidth(j);
+      }
+      i++;
+    });
+  }
+
+  getPos(str, subStr, i) {
+    return [
+      str.split(subStr, i).join(subStr).length,
+      str.split(subStr, i + 1).join(subStr).length,
+    ];
   }
 
   drawRows() {
@@ -227,12 +460,20 @@ class newCanvas {
     for (let i = 0; i <= this.numRows; i++) {
       cellPosition += this.getCurCellHeight(i);
       this.mainCtx.beginPath();
+      this.mainCtx.save();
       this.mainCtx.moveTo(0, cellPosition + 0.5);
       this.mainCtx.lineTo(this.mainCtx.canvas.width, cellPosition + 0.5);
       this.mainCtx.lineWidth = 0.2;
       this.mainCtx.strokeStyle = this.gridStrokeColor;
       this.mainCtx.stroke();
+      this.mainCtx.restore();
     }
+  }
+
+  trimData(data, i) {
+    let cellwidth = this.getCurCellWidth(i);
+    let textWidth = this.mainCtx.measureText(data).width;
+    console.log(cellwidth, textWidth);
   }
 
   drawColumns() {
@@ -360,6 +601,7 @@ class newCanvas {
       let text = (i + 1).toString();
       let textWidth = this.leftHeaderCtx.measureText(text).width;
       let xPosition = this.leftHeaderCtx.canvas.width - textWidth - 10;
+      // let xPosition = this.leftHeaderCtx.canvas.width - 10;
       let yPosition = cellPosition - this.getCurCellHeight(i) / 2;
 
       this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
@@ -396,8 +638,8 @@ class newCanvas {
 
     this.leftHeaderCtx.save();
     this.leftHeaderCtx.beginPath();
-    this.leftHeaderCtx.moveTo(40, 0);
-    this.leftHeaderCtx.lineTo(40, this.leftHeaderCtx.canvas.height);
+    this.leftHeaderCtx.moveTo(40 - 0.5, 0);
+    this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
     this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
     this.leftHeaderCtx.stroke();
     this.leftHeaderCtx.restore();
@@ -462,37 +704,20 @@ class newCanvas {
       endY = Math.max(this.y1CellIndex, this.y2CellIndex);
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
-      // this.clearCanvas();
       this.drawGrid();
       this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
     } else if (e.key == "Enter" || e.key == "ArrowDown") {
-      this.topheaderSelected = false;
-      this.leftheaderSelected = false;
-      this.isColSelected = false;
-      this.isRowSelected = false;
       this.cellPositionTop += this.getCurCellHeight(this.y1CellIndex);
       this.y1CellIndex = this.y1CellIndex + 1;
     } else if (e.key == "ArrowUp" && this.y1CellIndex >= 1) {
-      this.topheaderSelected = false;
-      this.leftheaderSelected = false;
-      this.isColSelected = false;
-      this.isRowSelected = false;
       this.cellPositionTop -= this.getCurCellHeight(this.y1CellIndex - 1);
       this.y1CellIndex = this.y1CellIndex - 1;
     } else if (e.key == "Tab" || e.key == "ArrowRight") {
-      this.topheaderSelected = false;
-      this.leftheaderSelected = false;
-      this.isColSelected = false;
-      this.isRowSelected = false;
       this.cellPositionLeft += this.getCurCellWidth(this.x1CellIndex);
       this.x1CellIndex = this.x1CellIndex + 1;
     } else if (e.key == "ArrowLeft" && this.x1CellIndex >= 1) {
-      this.topheaderSelected = false;
-      this.leftheaderSelected = false;
-      this.isColSelected = false;
-      this.isRowSelected = false;
       this.cellPositionLeft -= this.getCurCellWidth(this.x1CellIndex - 1);
       this.x1CellIndex = this.x1CellIndex - 1;
     } else if (
@@ -504,6 +729,7 @@ class newCanvas {
       if (e.key == " ") e.preventDefault();
       flag = true;
       this.isAnimationRunning = false;
+      this.inputBoxPosition();
       this.highlightSelectedArea();
       this.drawGrid();
       this.clearTopheader();
@@ -511,6 +737,21 @@ class newCanvas {
       this.renderTopHeader();
       this.renderLeftHeader();
       this.inputBox.focus();
+    }
+
+    if (
+      e.key == "Enter" ||
+      e.key == "ArrowDown" ||
+      e.key == "ArrowUp" ||
+      e.key == "Tab" ||
+      e.key == "ArrowRight" ||
+      e.key == "ArrowLeft"
+    ) {
+      this.inputBox.style.display = "none";
+      this.topheaderSelected = false;
+      this.leftheaderSelected = false;
+      this.isColSelected = false;
+      this.isRowSelected = false;
     }
 
     if (!e.ctrlKey && flag == false) {
@@ -531,7 +772,7 @@ class newCanvas {
     }
 
     if (!e.shiftKey && !e.ctrlKey) {
-      this.inputBoxPosition();
+      // this.inputBoxPosition();
       this.highlightSelectedArea();
       this.drawGrid();
       this.clearTopheader();
@@ -546,7 +787,7 @@ class newCanvas {
   startMarchingAntsAnimation() {
     if (this.isAnimationRunning == true) {
       const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
-
+      console.log(this.marchingAntsCoordinates);
       let x = 0;
       let y = 0;
       let width = 0;
@@ -698,13 +939,13 @@ class newCanvas {
     const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
     this.topHeaderCtx.save();
     this.topHeaderCtx.beginPath();
-    this.topHeaderCtx.fillStyle = this.headerBgColor;
-    this.topHeaderCtx.fillRect(0, 0, this.topHeaderCtx.canvas.width, 24);
+    // this.topHeaderCtx.fillStyle = this.headerBgColor;
+    // this.topHeaderCtx.fillRect(0, 0, this.topHeaderCtx.canvas.width, 24);
     this.topHeaderCtx.restore();
     this.leftHeaderCtx.save();
     this.leftHeaderCtx.beginPath();
-    this.leftHeaderCtx.fillStyle = this.headerBgColor;
-    this.leftHeaderCtx.fillRect(0, 0, 44, this.leftHeaderCtx.canvas.height);
+    // this.leftHeaderCtx.fillStyle = this.headerBgColor;
+    // this.leftHeaderCtx.fillRect(0, 0, 44, this.leftHeaderCtx.canvas.height);
     this.leftHeaderCtx.restore();
 
     let x = 0;
@@ -1345,12 +1586,12 @@ class newCanvas {
   }
 }
 
+new newCanvas("sheet-1");
+
 let arrayOfSheets = ["Sheet1"];
 const addNewSheet = document.getElementById("addNewSheet");
 const sheets = document.getElementById("sheets");
 const sheetListModal = document.getElementById("sheetListModal");
-
-new newCanvas("sheet-1");
 
 addNewSheet.addEventListener("click", () => {
   sheetListModal.style.display = "none";
