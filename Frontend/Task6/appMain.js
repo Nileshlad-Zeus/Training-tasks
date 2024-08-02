@@ -3,7 +3,7 @@ class newCanvas {
     this.sheetName = sheetName;
     this.inputBox = document.getElementById("canvasinput");
 
-    this.scale = window.devicePixelRatio;
+    this.scale = 1;
     // document.addEventListener("resize", () => {
     //   this.scale = window.devicePixelRatio;
     //   this.createNewCanvas();
@@ -59,6 +59,8 @@ class newCanvas {
     //data structure for storing data
     this.cellHeight = new Map();
     this.cellWidths = new Map();
+    this.cellPositionTopArr = new Map();
+    this.cellPositionTopArr = new Map();
 
     //colors
     this.strokeColor = "rgb(16,124,65)";
@@ -134,7 +136,7 @@ class newCanvas {
             data: "Nilesh",
             properties: "*****",
           },
-          1: {
+          2: {
             data: "Lad",
             properties: "*****",
           },
@@ -147,6 +149,30 @@ class newCanvas {
             properties: "*****",
           },
           1: {
+            data: "Cena",
+            properties: "*****",
+          },
+        },
+      },
+      {
+        5: {
+          0: {
+            data: "Jhon",
+            properties: "*****",
+          },
+          6: {
+            data: "Cena",
+            properties: "*****",
+          },
+        },
+      },
+      {
+        3: {
+          5: {
+            data: "Harsh",
+            properties: "*****",
+          },
+          0: {
             data: "Cena",
             properties: "*****",
           },
@@ -250,19 +276,56 @@ class newCanvas {
     }px`;
   }
 
+  changeFontColor() {
+    var value = colorSelector.value;
+    const [startX, startY] = this.selectedDimensionsMain;
+    const result = this.sheetData.find((item) => item[startY]);
+    let currentData = result[startY][startX];
+    let properties = currentData?.properties;
+    let Pos = this.getPos(properties, "*", 1);
+    let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
+    let newValue;
+    if (oldVal == "") {
+      newValue =
+        properties.slice(0, Pos[0] + 1) + value + properties.slice(Pos[0] + 1);
+    } else {
+      newValue = properties.replace(oldVal, value);
+    }
+    console.log(newValue);
+    // this.sheetData[startY][startY][startX]["properties"] = newValue;
+
+    result[startY][startX].properties = newValue;
+    this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+    this.highlightSelectedArea();
+    this.drawGrid();
+  }
   changeFontStyle() {
     const fontsize = document.getElementById("fontsize");
     const fontfamily = document.getElementById("fontfamily");
     const fontbold = document.getElementById("fontbold");
     const fontitalic = document.getElementById("fontitalic");
+    const openColorPalette = document.getElementById("openColorPalette");
+    const colorSelector = document.getElementById("colorSelector");
 
+    const fontUnderline = document.querySelector(".fontColor p");
+
+    openColorPalette.addEventListener("click", (e) => {
+      colorSelector.click();
+    });
+    fontUnderline.addEventListener("click", (e) => {
+      this.changeFontColor();
+    });
+    colorSelector.addEventListener("change", (e) => {
+      var value = colorSelector.value;
+      fontUnderline.style.borderColor = value;
+      this.changeFontColor();
+    });
 
     fontsize.addEventListener("change", () => {
       var value = fontsize.value;
-      console.log(value);
       const [startX, startY] = this.selectedDimensionsMain;
-      console.log(startX, startY);
-      let currentData = this.sheetData[startY][startY][startX];
+      const result = this.sheetData.find((item) => item[startY]);
+      let currentData = result[startY][startX];
       let properties = currentData?.properties;
       let Pos = this.getPos(properties, "*", 4);
       let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
@@ -275,8 +338,9 @@ class newCanvas {
       } else {
         newValue = properties.replace(oldVal, value);
       }
-      this.sheetData[startY][startY][startX]["properties"] = newValue;
-      console.log(newValue);
+      // this.sheetData[startY][startY][startX]["properties"] = newValue;
+
+      result[startY][startX].properties = newValue;
       this.mainCtx.clearRect(
         0,
         0,
@@ -289,10 +353,9 @@ class newCanvas {
 
     fontfamily.addEventListener("change", () => {
       var value = fontfamily.value;
-      console.log(value);
       const [startX, startY] = this.selectedDimensionsMain;
-      console.log(startX, startY);
-      let currentData = this.sheetData[startY][startY][startX];
+      const result = this.sheetData.find((item) => item[startY]);
+      let currentData = result[startY][startX];
       let properties = currentData?.properties;
       let Pos = this.getPos(properties, "*", 5);
       let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
@@ -306,7 +369,9 @@ class newCanvas {
         newValue = properties.replace(oldVal, value);
       }
 
-      this.sheetData[startY][startY][startX]["properties"] = newValue;
+      // this.sheetData[startY][startY][startX]["properties"] = newValue;
+
+      result[startY][startX].properties = newValue;
       this.mainCtx.clearRect(
         0,
         0,
@@ -318,18 +383,15 @@ class newCanvas {
     });
 
     fontbold.addEventListener("click", () => {
-      console.log(fontbold);
-
       let value = "";
       if (!fontbold.classList.contains("fontstyleactive")) {
         value = "bold";
       }
       fontbold.classList.toggle("fontstyleactive");
 
-      console.log(value);
       const [startX, startY] = this.selectedDimensionsMain;
-      console.log(startX, startY);
-      let currentData = this.sheetData[startY][startY][startX];
+      const result = this.sheetData.find((item) => item[startY]);
+      let currentData = result[startY][startX];
       let properties = currentData?.properties;
       let Pos = this.getPos(properties, "*", 3);
       let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
@@ -343,9 +405,8 @@ class newCanvas {
         newValue = properties.replace(oldVal, value);
       }
 
-      console.log(newValue);
-      this.sheetData[startY][startY][startX]["properties"] = newValue;
-      console.log(this.sheetData[startY][startY][startX][properties]);
+      // this.sheetData[startY][startY][startX]["properties"] = newValue;
+      result[startY][startX].properties = newValue;
       this.mainCtx.clearRect(
         0,
         0,
@@ -364,7 +425,10 @@ class newCanvas {
       fontitalic.classList.toggle("fontstyleactive");
 
       const [startX, startY] = this.selectedDimensionsMain;
-      let currentData = this.sheetData[startY][startY][startX];
+
+      const result = this.sheetData.find((item) => item[startY]);
+      let currentData = result[startY][startX];
+
       let properties = currentData?.properties;
       let Pos = this.getPos(properties, "*", 2);
       let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
@@ -378,9 +442,7 @@ class newCanvas {
         newValue = properties.replace(oldVal, value);
       }
 
-      console.log(newValue);
-      this.sheetData[startY][startY][startX]["properties"] = newValue;
-      console.log(this.sheetData[startY][startY][startX][properties]);
+      result[startY][startX].properties = newValue;
       this.mainCtx.clearRect(
         0,
         0,
@@ -401,54 +463,76 @@ class newCanvas {
     this.drawRows();
     this.drawColumns();
 
-    let i = 0;
+    let i;
     let cellPositionY = 0;
     this.sheetData.forEach((data) => {
       let cellPositionX = 0;
-      cellPositionY += this.getCurCellHeight(i);
-      let count = Object.keys(data[i]).length;
-      for (let j = 0; j < count; j++) {
+      cellPositionY = this.getCurCellHeight(0);
+      if (Object.keys(data) == 0) {
+        cellPositionY = this.getCurCellHeight(0);
+      } else {
+        for (let k = 0; k < Object.keys(data); k++) {
+          cellPositionY += this.getCurCellHeight(k);
+        }
+      }
+      i = Object.keys(data);
+      // let count = Object.keys(data[i])?.length;
+      let min = 0,
+        max = 0;
+      if (data[i]) {
+        min = Object.keys(data[i])[0] || 0;
+        max = Object.keys(data[i])[0] || 0;
+        Object.keys(data[i]).forEach((ele) => {
+          min = Math.min(min, ele);
+          max = Math.max(max, ele);
+        });
+      }
+
+      for (let j = 0; j <= max && min != max; j++) {
         let currProperties = data[i][j]?.properties;
-        let colorPos = this.getPos(currProperties, "*", 1);
-        let fontColor = currProperties.slice(colorPos[0] + 1, colorPos[1]);
+        if (currProperties) {
+          let colorPos = this.getPos(currProperties, "*", 1);
+          let fontColor = currProperties?.slice(colorPos[0] + 1, colorPos[1]);
 
-        let fontStylePos = this.getPos(currProperties, "*", 2);
-        let fontStyle = currProperties.slice(
-          fontStylePos[0] + 1,
-          fontStylePos[1]
-        );
+          let fontStylePos = this.getPos(currProperties, "*", 2);
+          let fontStyle = currProperties?.slice(
+            fontStylePos[0] + 1,
+            fontStylePos[1]
+          );
 
-        let fontWeightPos = this.getPos(currProperties, "*", 3);
-        let fontWeight = currProperties.slice(
-          fontWeightPos[0] + 1,
-          fontWeightPos[1]
-        );
+          let fontWeightPos = this.getPos(currProperties, "*", 3);
+          let fontWeight = currProperties?.slice(
+            fontWeightPos[0] + 1,
+            fontWeightPos[1]
+          );
 
-        let fontSizePos = this.getPos(currProperties, "*", 4);
-        let fontSize =
-          currProperties.slice(fontSizePos[0] + 1, fontSizePos[1]) || "12pt";
+          let fontSizePos = this.getPos(currProperties, "*", 4);
+          let fontSize =
+            currProperties?.slice(fontSizePos[0] + 1, fontSizePos[1]) || "12pt";
 
-        let fontFamPos = this.getPos(currProperties, "*", 5);
-        let fontFam = currProperties.slice(fontFamPos[0] + 1, fontFamPos[1]) || "calibri";
+          let fontFamPos = this.getPos(currProperties, "*", 5);
+          let fontFam =
+            currProperties?.slice(fontFamPos[0] + 1, fontFamPos[1]) ||
+            "calibri";
 
-        this.mainCtx.save();
-        this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
-        this.mainCtx.fillStyle = fontColor;
-        this.mainCtx.fillText(
-          data[i][j]?.data,
-          cellPositionX + 4,
-          cellPositionY - 2
-        );
-        this.mainCtx.clip();
-        this.mainCtx.restore();
-
+          this.mainCtx.save();
+          this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
+          this.mainCtx.fillStyle = fontColor;
+          this.mainCtx.fillText(
+            data[i][j]?.data,
+            cellPositionX + 4,
+            cellPositionY - 4
+          );
+          this.mainCtx.clip();
+          this.mainCtx.restore();
+        }
         cellPositionX += this.getCurCellWidth(j);
       }
       i++;
     });
   }
 
-  getPos(str, subStr, i) {
+  getPos(str = "", subStr, i) {
     return [
       str.split(subStr, i).join(subStr).length,
       str.split(subStr, i + 1).join(subStr).length,
@@ -473,7 +557,6 @@ class newCanvas {
   trimData(data, i) {
     let cellwidth = this.getCurCellWidth(i);
     let textWidth = this.mainCtx.measureText(data).width;
-    console.log(cellwidth, textWidth);
   }
 
   drawColumns() {
@@ -682,6 +765,7 @@ class newCanvas {
       cancelAnimationFrame(this.animationFrameId);
       this.isAnimationRunning = true;
       this.startMarchingAntsAnimation();
+      this.copyToClipboard();
     } else if (e.shiftKey) {
       this.inputBox.style.display = "none";
       if (e.key === "ArrowDown") {
@@ -705,6 +789,8 @@ class newCanvas {
       this.selectedDimensionsMain = [startX, startY, endX, endY];
       this.highlightSelectedArea();
       this.drawGrid();
+      this.clearTopheader();
+      this.clearLeftHeader();
       this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
@@ -784,10 +870,34 @@ class newCanvas {
   }
 
   //----------------------Marching Ant Animation----------------------
+  copyToClipboard = () => {
+    console.log("copy");
+    const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
+
+    let textTocopy = "";
+    for (let j = startY; j <=endY; j++) {
+      const result = this.sheetData.find((item) => item[j]);
+      let temp = "";
+      
+      for (let i = startX; i <=endX; i++) {
+        let currentData = "";
+        if (result[j][i]) {
+          currentData = result[j][i];
+        }
+        temp = temp + "	" + (currentData.data || "");
+
+      }
+      textTocopy += temp.slice(1);
+      textTocopy += "\n"
+    }
+    console.log(textTocopy);
+    navigator.clipboard.writeText(textTocopy);
+    window.alert("Copied to Clipboard");
+  };
+
   startMarchingAntsAnimation() {
     if (this.isAnimationRunning == true) {
       const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
-      console.log(this.marchingAntsCoordinates);
       let x = 0;
       let y = 0;
       let width = 0;
@@ -851,6 +961,10 @@ class newCanvas {
   highlightSelectedArea() {
     this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     const [startX, startY, endX, endY] = this.selectedDimensionsMain;
+
+    const nameBoxInput = document.getElementById("nameBoxInput");
+    let currentCell = `${this.convertNumToChar(startX + 1)}${startY + 1}`;
+    nameBoxInput.value = currentCell;
 
     let x = 0;
     let y = 0;
