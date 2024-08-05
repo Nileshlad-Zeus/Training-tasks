@@ -1,5 +1,5 @@
 class newCanvas {
-  constructor(sheetName) {
+  constructor(sheetName, findText = "", replaceText = "") {
     this.sheetName = sheetName;
     this.inputBox = document.getElementById("canvasinput");
 
@@ -10,6 +10,7 @@ class newCanvas {
     // });
     this.createNewCanvas();
     this.initialVariables();
+
     this.highlightSelectedAreaEvents();
     this.scrollFunction();
     this.resizeGridEvents();
@@ -17,13 +18,35 @@ class newCanvas {
     this.inputBoxPosition();
     this.inputBox.style.display = "none";
     document.addEventListener("keydown", (event) => {
-      this.keyBoardEvents(event);
+      const editingSectionModal = document.querySelector(
+        ".editingSectionModal"
+      );
+      if (
+        editingSectionModal.style.display == "" ||
+        editingSectionModal.style.display == "none"
+      ) {
+        this.keyBoardEvents(event);
+      }
     });
     this.drawGrid();
     this.highlightHeaders();
     this.renderLeftHeader();
     this.renderTopHeader();
     this.changeFontStyle();
+
+    // if(findText!="" && replaceText!=""){
+    //   console.log(findText, replaceText);
+    //   this.findAndReplace(findText, replaceText);
+    // }
+
+    const findtextInput = document.querySelector("#findtextInput");
+    const replacetextInput = document.querySelector("#replacetextInput");
+    const replaceAllFun = document.querySelector("#replaceAllFun");
+    replaceAllFun.addEventListener("click", () => {
+      let findText = findtextInput.value;
+      let replaceText = replacetextInput.value;
+      this.findAndReplace(findText, replaceText);
+    });
 
     const topleft = document.getElementById("topleft");
     topleft.addEventListener("click", () => {
@@ -122,7 +145,7 @@ class newCanvas {
     this.isAnimationRunning = false;
     this.animateFullColumn = false;
     this.animateFullRow = false;
-    this.alreadyCopy = 0; //0: ctrl+c on animation not running  1:ctrl+c on animation already running
+    this.alreadyCopy = 0; //0: ctrl+c on animation not running  1:ctr    l+c on animation already running
 
     this.colFlag = false;
     this.rowFlag = false;
@@ -276,6 +299,38 @@ class newCanvas {
     }px`;
   }
 
+  findAndReplace(findText, replaceText) {
+    console.log("FindAnd Replace");
+    let index = 0;
+    this.sheetData.forEach((data) => {
+      let i = Object.keys(data);
+      let min = 0,
+        max = 0;
+      if (data[i]) {
+        min = Object.keys(data[i])[0] || 0;
+        max = Object.keys(data[i])[0] || 0;
+        Object.keys(data[i]).forEach((ele) => {
+          min = Math.min(min, ele);
+          max = Math.max(max, ele);
+        });
+      }
+      let result = this.sheetData.find((item) => item[i]);
+      if (result) {
+        for (let j = 0; j <= max && min != max; j++) {
+          let currData = data[i][j]?.data;
+          if (currData == findText) {
+            result[i][j].data = replaceText;
+          }
+        }
+      }
+      index++;
+    });
+    this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+    this.highlightSelectedArea();
+    this.drawGrid();
+    // this.renderData();
+  }
+
   changeFontColor() {
     var value = colorSelector.value;
     const [startX, startY] = this.selectedDimensionsMain;
@@ -291,7 +346,6 @@ class newCanvas {
     } else {
       newValue = properties.replace(oldVal, value);
     }
-    console.log(newValue);
     // this.sheetData[startY][startY][startX]["properties"] = newValue;
 
     result[startY][startX].properties = newValue;
@@ -524,6 +578,7 @@ class newCanvas {
       i++;
     });
   };
+
   drawGrid() {
     this.drawRows();
     this.drawColumns();
@@ -753,6 +808,7 @@ class newCanvas {
     this.alreadyCopy = 0;
     let startX, startY, endX, endY;
     if ((e.ctrlKey && e.key === "c") || (e.ctrlKey && e.key === "C")) {
+      // this.findAndReplace("Nilesh","lad2");
       this.marchingAntsCoordinates = this.selectedDimensionsMain;
 
       if (this.isColSelected) {
@@ -892,14 +948,12 @@ class newCanvas {
       textTocopy += temp.slice(1);
       textTocopy += "\n";
     }
-    console.log(textTocopy);
     navigator.clipboard.writeText(textTocopy);
   };
 
   pasteToSheet = async () => {
     if (this.isAnimationRunning) {
       const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
-      console.log("paste");
       this.selectedDimensionsMain = [
         this.x1CellIndex,
         this.y1CellIndex,
@@ -950,9 +1004,8 @@ class newCanvas {
         }
         y++;
       }
-      console.log(this.sheetData);
+
       this.renderData();
-      console.log(copiedText);
     }
   };
 
@@ -1761,73 +1814,6 @@ class newCanvas {
   }
 }
 
-new newCanvas("sheet-1");
+// new newCanvas("sheet-1");
 
-let arrayOfSheets = ["Sheet1"];
-const addNewSheet = document.getElementById("addNewSheet");
-const sheets = document.getElementById("sheets");
-const sheetListModal = document.getElementById("sheetListModal");
-
-addNewSheet.addEventListener("click", () => {
-  sheetListModal.style.display = "none";
-  let numberOfSheet = arrayOfSheets.length + 1;
-  arrayOfSheets.push(`Sheet${numberOfSheet}`);
-  localStorage.setItem("sheetlist", JSON.stringify(arrayOfSheets));
-
-  var btn = document.createElement("span");
-  btn.classList.add("sheetBtn");
-  btn.innerHTML = `<div id=sheet-${numberOfSheet} class="sheetBtn1">Sheet${numberOfSheet}</div>`;
-  sheets.appendChild(btn);
-
-  var li = document.createElement("span");
-  li.classList.add("sheetLi");
-  li.innerText = `Sheet${numberOfSheet}`;
-  sheetListModal.appendChild(li);
-});
-
-const main = document.querySelectorAll("#main canvas");
-
-let current = "sheet-1";
-let createdCanvas = ["sheet-1"];
-sheets.addEventListener("click", (e) => {
-  if (e.target.closest(".sheetBtn")) {
-    selectCurrSheet(e);
-  }
-});
-
-var canvases = document.querySelectorAll(".canvas");
-var topHeaderCanvas = document.querySelectorAll(".topHeaderCanvas");
-var leftHeaderCanvas = document.querySelectorAll(".leftHeaderCanvas");
-
-const selectCurrSheet = (e) => {
-  var sheetBtn1 = document.querySelectorAll(".sheetBtn1");
-  sheetBtn1.forEach((btn) => btn.classList.remove("selected"));
-  e.target.classList.add("selected");
-
-  if (!createdCanvas.includes(e.target.id)) {
-    createdCanvas.push(e.target.id);
-    new newCanvas(e.target.id);
-  }
-
-  current = e.target.id;
-
-  canvases.forEach((canvas) => (canvas.style.display = "none"));
-  document.getElementById(`${e.target.id}`).style.display = "block";
-
-  topHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
-  document.getElementById(`topHeader-${e.target.id}`).style.display = "block";
-
-  leftHeaderCanvas.forEach((canvas) => (canvas.style.display = "none"));
-  document.getElementById(`leftHeader-${e.target.id}`).style.display = "block";
-};
-
-const sheetListModalBtn = document.getElementById("sheetListModalBtn");
-const sheetList = JSON.parse(localStorage.getItem("sheetlist"));
-
-sheetListModalBtn.addEventListener("click", () => {
-  if (sheetListModal.style.display == "flex") {
-    sheetListModal.style.display = "none";
-  } else {
-    sheetListModal.style.display = "flex";
-  }
-});
+export { newCanvas };

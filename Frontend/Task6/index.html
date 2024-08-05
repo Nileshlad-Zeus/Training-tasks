@@ -16,7 +16,7 @@
   </head>
   <body>
     <div class="toolsSection">
-      <div class="fontSection">
+      <div class="fontSection tool">
         <div class="fontFamilySize">
           <div class="fontFamily">
             <select name="fontfamily" id="fontfamily">
@@ -55,7 +55,10 @@
           <span class="material-symbols-outlined italic icon" id="fontitalic">
             format_italic
           </span>
-          <span class="material-symbols-outlined underline icon" id="fontunderline">
+          <span
+            class="material-symbols-outlined underline icon"
+            id="fontunderline"
+          >
             format_underlined
           </span>
           <div class="fontColor">
@@ -68,12 +71,53 @@
         </div>
         <span class="toolNameHeading">Font</span>
       </div>
+
+      <div class="editingSection tool">
+        <div class="findIcon">
+          <span class="material-symbols-outlined icon" id="findIcon">
+            search
+          </span>
+          <label for="findIcon">Find</label>
+        </div>
+        <div class="findAndReplaceIcon">
+          <span class="material-symbols-outlined icon" id="replaceIcon">
+            published_with_changes
+          </span>
+          <label for="replaceIcon">Replace</label>
+        </div>
+
+        <span class="toolNameHeading">Editing</span>
+      </div>
+    </div>
+
+    <div class="editingSectionModal">
+      <div class="modal">
+        <h2>Find and Replace</h2>
+        <div class="inputSection">
+          <label for="findtextInput">Find</label>
+          <input type="text" id="findtextInput" placeholder="Insert Text" />
+        </div>
+        <div class="inputSection">
+          <label for="replacetextInput">Replace with</label>
+          <input type="text" id="replacetextInput" placeholder="Insert Text" />
+        </div>
+
+        <div class="btnSection">
+          <button id="replaceAllFun">Replace all</button>
+        </div>
+
+        <div class="closeModal" id="closeEditingModal"> 
+          <span class="material-symbols-outlined">
+            close
+            </span>
+        </div>
+      </div>
     </div>
 
     <div class="toolsSection2Main">
       <div class="toolsSection2">
-        <div class="nameBox" >
-          <input type="text" id="nameBoxInput"/>
+        <div class="nameBox">
+          <input type="text" id="nameBoxInput" />
           <i class="fa-solid fa-chevron-down"></i>
         </div>
         <div class="insertFormulaDiv">
@@ -159,7 +203,8 @@
       </div>
     </div>
 
-    <script src="./appMain.js"></script>
-    <script src="./toolsFunctions.js"></script>
+    <script src="./appMain.js" type="module"></script>
+    <script src="./appMain2.js" type="module"></script>
+    <!-- <script src="./toolsFunctions.js"></script> -->
   </body>
 </html>
