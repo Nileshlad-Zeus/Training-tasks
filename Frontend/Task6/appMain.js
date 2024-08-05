@@ -455,14 +455,7 @@ class newCanvas {
   }
 
   //----------------------draw grid----------------------
-  drawGrid() {
-    this.mainCtx.save();
-    // this.mainCtx.fillStyle="#ffffff"
-    // this.mainCtx.fillRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
-    this.mainCtx.restore();
-    this.drawRows();
-    this.drawColumns();
-
+  renderData = () => {
     let i;
     let cellPositionY = 0;
     this.sheetData.forEach((data) => {
@@ -530,7 +523,20 @@ class newCanvas {
       }
       i++;
     });
+  };
+  drawGrid() {
+    this.drawRows();
+    this.drawColumns();
+    this.renderData();
   }
+
+  /**
+   *
+   * @param {String} str
+   * @param {String} subStr
+   * @param {number} i
+   * @returns
+   */
 
   getPos(str = "", subStr, i) {
     return [
@@ -766,6 +772,8 @@ class newCanvas {
       this.isAnimationRunning = true;
       this.startMarchingAntsAnimation();
       this.copyToClipboard();
+    } else if ((e.ctrlKey && e.key === "v") || (e.ctrlKey && e.key === "V")) {
+      this.pasteToSheet();
     } else if (e.shiftKey) {
       this.inputBox.style.display = "none";
       if (e.key === "ArrowDown") {
@@ -871,28 +879,81 @@ class newCanvas {
 
   //----------------------Marching Ant Animation----------------------
   copyToClipboard = () => {
-    console.log("copy");
     const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
-
     let textTocopy = "";
-    for (let j = startY; j <=endY; j++) {
+    for (let j = startY; j <= endY; j++) {
       const result = this.sheetData.find((item) => item[j]);
       let temp = "";
-      
-      for (let i = startX; i <=endX; i++) {
-        let currentData = "";
-        if (result[j][i]) {
-          currentData = result[j][i];
-        }
-        temp = temp + "	" + (currentData.data || "");
 
+      for (let i = startX; i <= endX; i++) {
+        let currentData = result ? result[j][i] : "";
+        temp = temp + "	" + (currentData ? currentData.data : "");
       }
       textTocopy += temp.slice(1);
-      textTocopy += "\n"
+      textTocopy += "\n";
     }
     console.log(textTocopy);
     navigator.clipboard.writeText(textTocopy);
-    window.alert("Copied to Clipboard");
+  };
+
+  pasteToSheet = async () => {
+    if (this.isAnimationRunning) {
+      const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
+      console.log("paste");
+      this.selectedDimensionsMain = [
+        this.x1CellIndex,
+        this.y1CellIndex,
+        this.x1CellIndex + (endX - startX),
+        this.y1CellIndex + (endY - startY),
+      ];
+
+      this.highlightSelectedArea();
+
+      let copiedText = await navigator.clipboard.readText();
+
+      let x = startX;
+      let y = startY;
+      let a = 0;
+      let b = 0;
+      for (
+        let i = this.y1CellIndex;
+        i <= this.y1CellIndex + (endY - startY);
+        i++
+      ) {
+        x = startX;
+        let result = this.sheetData.find((item) => item[i]);
+        if (!result) {
+          this.sheetData.push({
+            [i]: {},
+          });
+        }
+        result = this.sheetData.find((item) => item[i]);
+        let newData = copiedText.split("\r\n");
+        let currData = newData[a].split("\t");
+        a++;
+        b = 0;
+        for (
+          let j = this.x1CellIndex;
+          j <= this.x1CellIndex + (endX - startX);
+          j++
+        ) {
+          if (!result[i][j]) {
+            result[i][j] = {
+              data: currData[b],
+              properties: "*****",
+            };
+          } else {
+            result[i][j].data = currData[b];
+          }
+          b++;
+          x++;
+        }
+        y++;
+      }
+      console.log(this.sheetData);
+      this.renderData();
+      console.log(copiedText);
+    }
   };
 
   startMarchingAntsAnimation() {
