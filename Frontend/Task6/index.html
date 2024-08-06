@@ -11,6 +11,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
     <link rel="stylesheet" href="./style.css" />
     <title>Document</title>
   </head>
@@ -88,6 +89,16 @@
 
         <span class="toolNameHeading">Editing</span>
       </div>
+
+      <div class="chartSection tool">
+        <div class="chartType">
+          <span class="material-symbols-outlined icon" id="barGraph">
+            bar_chart
+            </span>
+            <label for="barGraph">Column</label>
+        </div>
+       <span class="toolNameHeading">charts</span>
+      </div>
     </div>
 
     <div class="editingSectionModal">
@@ -106,10 +117,8 @@
           <button id="replaceAllFun">Replace all</button>
         </div>
 
-        <div class="closeModal" id="closeEditingModal"> 
-          <span class="material-symbols-outlined">
-            close
-            </span>
+        <div class="closeModal" id="closeEditingModal">
+          <span class="material-symbols-outlined"> close </span>
         </div>
       </div>
     </div>
@@ -191,6 +200,7 @@
         <p>Workbook Statistics</p>
       </div>
       <div class="footer2-right">
+        <div class="mathsCalculation" id="mathsCalculation"></div>
         <i class="fa-solid fa-chevron-down"></i>
         <i class="fa-regular fa-keyboard"></i>
         <i class="fa-regular fa-circle-question"></i>

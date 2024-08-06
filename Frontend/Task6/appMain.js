@@ -68,9 +68,15 @@ class newCanvas {
       this.renderLeftHeader();
       this.renderTopHeader();
     });
+
+    const barGraph = document.getElementById("barGraph");
+    barGraph.addEventListener("click", () => {
+      this.barChart();
+    });
   }
 
   initialVariables() {
+    this.drawGraph = false;
     //height and width of cell
     this.defaultCellHeight = 21;
     this.defaultCellWidth = 100;
@@ -152,53 +158,420 @@ class newCanvas {
 
     //data store
     //color, font style, bold, font size, font family
+    // this.sheetData = [
+    //   {
+    //     0: {
+    //       0: {
+    //         data: "Nilesh",
+    //         properties: "*****",
+    //       },
+    //       2: {
+    //         data: "Lad",
+    //         properties: "*****",
+    //       },
+    //     },
+    //   },
+    //   {
+    //     1: {
+    //       0: {
+    //         data: "Jhon",
+    //         properties: "*****",
+    //       },
+    //       1: {
+    //         data: "Cena",
+    //         properties: "*****",
+    //       },
+    //     },
+    //   },
+    //   {
+    //     5: {
+    //       0: {
+    //         data: "Jhon",
+    //         properties: "*****",
+    //       },
+    //       6: {
+    //         data: "Cena",
+    //         properties: "*****",
+    //       },
+    //     },
+    //   },
+    //   {
+    //     3: {
+    //       5: {
+    //         data: "Harsh",
+    //         properties: "*****",
+    //       },
+    //       0: {
+    //         data: "Cena",
+    //         properties: "*****",
+    //       },
+    //     },
+    //   },
+    // ];
+
     this.sheetData = [
       {
         0: {
-          0: {
-            data: "Nilesh",
-            properties: "*****",
-          },
-          2: {
-            data: "Lad",
-            properties: "*****",
-          },
+          0: { data: "name", properties: "*****" },
+          1: { data: "Country", properties: "*****" },
+          2: { data: "City", properties: "*****" },
+          3: { data: "telephone_number", properties: "*****" },
+          4: { data: "DOB", properties: "*****" },
+          5: { data: "FY2019-20", properties: "*****" },
+          6: { data: "FY2020-21", properties: "*****" },
+          7: { data: "FY2021-22", properties: "*****" },
+          8: { data: "FY2022-23", properties: "*****" },
+          9: { data: "FY2023-24", properties: "*****" },
         },
       },
       {
         1: {
-          0: {
-            data: "Jhon",
-            properties: "*****",
-          },
-          1: {
-            data: "Cena",
-            properties: "*****",
-          },
+          0: { data: "Emily FQbt6", properties: "*****" },
+          1: { data: "Australia", properties: "*****" },
+          2: { data: "Houston", properties: "*****" },
+          3: { data: "5457952956", properties: "*****" },
+          4: { data: "1/10/1988", properties: "*****" },
+          5: { data: "71987", properties: "*****" },
+          6: { data: "74470", properties: "*****" },
+          7: { data: "118674", properties: "*****" },
+          8: { data: "111997", properties: "*****" },
+          9: { data: "52402", properties: "*****" },
         },
       },
       {
-        5: {
-          0: {
-            data: "Jhon",
-            properties: "*****",
-          },
-          6: {
-            data: "Cena",
-            properties: "*****",
-          },
+        2: {
+          0: { data: "Jane OZUPM", properties: "*****" },
+          1: { data: "Germany", properties: "*****" },
+          2: { data: "New York", properties: "*****" },
+          3: { data: "3553305164", properties: "*****" },
+          4: { data: "4/15/1987", properties: "*****" },
+          5: { data: "137336", properties: "*****" },
+          6: { data: "41923", properties: "*****" },
+          7: { data: "80143", properties: "*****" },
+          8: { data: "87229", properties: "*****" },
+          9: { data: "73409", properties: "*****" },
         },
       },
       {
         3: {
-          5: {
-            data: "Harsh",
-            properties: "*****",
-          },
-          0: {
-            data: "Cena",
-            properties: "*****",
-          },
+          0: { data: "Katie HyTYR", properties: "*****" },
+          1: { data: "UK", properties: "*****" },
+          2: { data: "Chicago", properties: "*****" },
+          3: { data: "669768290", properties: "*****" },
+          4: { data: "4/6/1957", properties: "*****" },
+          5: { data: "140482", properties: "*****" },
+          6: { data: "92176", properties: "*****" },
+          7: { data: "73337", properties: "*****" },
+          8: { data: "66622", properties: "*****" },
+          9: { data: "147714", properties: "*****" },
+        },
+      },
+      {
+        4: {
+          0: { data: "Katie aJetY", properties: "*****" },
+          1: { data: "UK", properties: "*****" },
+          2: { data: "Los Angeles", properties: "*****" },
+          3: { data: "8141480576", properties: "*****" },
+          4: { data: "5/16/1951", properties: "*****" },
+          5: { data: "140968", properties: "*****" },
+          6: { data: "116895", properties: "*****" },
+          7: { data: "145380", properties: "*****" },
+          8: { data: "75615", properties: "*****" },
+          9: { data: "122402", properties: "*****" },
+        },
+      },
+      {
+        5: {
+          0: { data: "Jane jGX3L", properties: "*****" },
+          1: { data: "Germany", properties: "*****" },
+          2: { data: "New York", properties: "*****" },
+          3: { data: "353482959", properties: "*****" },
+          4: { data: "11/6/1974", properties: "*****" },
+          5: { data: "75468", properties: "*****" },
+          6: { data: "58173", properties: "*****" },
+          7: { data: "133088", properties: "*****" },
+          8: { data: "146254", properties: "*****" },
+          9: { data: "94909", properties: "*****" },
+        },
+      },
+      {
+        6: {
+          0: { data: "Chris 9Rdzx", properties: "*****" },
+          1: { data: "USA", properties: "*****" },
+          2: { data: "New York", properties: "*****" },
+          3: { data: "4041565147", properties: "*****" },
+          4: { data: "10/14/1976", properties: "*****" },
+          5: { data: "51297", properties: "*****" },
+          6: { data: "76342", properties: "*****" },
+          7: { data: "52802", properties: "*****" },
+          8: { data: "41781", properties: "*****" },
+          9: { data: "148994", properties: "*****" },
+        },
+      },
+      {
+        7: {
+          0: { data: "Katie X3Gx5", properties: "*****" },
+          1: { data: "UK", properties: "*****" },
+          2: { data: "Phoenix", properties: "*****" },
+          3: { data: "3469563819", properties: "*****" },
+          4: { data: "2/16/1972", properties: "*****" },
+          5: { data: "82928", properties: "*****" },
+          6: { data: "75816", properties: "*****" },
+          7: { data: "61833", properties: "*****" },
+          8: { data: "65611", properties: "*****" },
+          9: { data: "50962", properties: "*****" },
+        },
+      },
+      {
+        8: {
+          0: { data: "Katie Bktxk", properties: "*****" },
+          1: { data: "Australia", properties: "*****" },
+          2: { data: "Los Angeles", properties: "*****" },
+          3: { data: "2712084976", properties: "*****" },
+          4: { data: "1/20/1999", properties: "*****" },
+          5: { data: "144688", properties: "*****" },
+          6: { data: "38226", properties: "*****" },
+          7: { data: "139676", properties: "*****" },
+          8: { data: "83774", properties: "*****" },
+          9: { data: "64938", properties: "*****" },
+        },
+      },
+      {
+        9: {
+          0: { data: "Emily LPuzu", properties: "*****" },
+          1: { data: "Germany", properties: "*****" },
+          2: { data: "Phoenix", properties: "*****" },
+          3: { data: "9893149547", properties: "*****" },
+          4: { data: "12/27/1973", properties: "*****" },
+          5: { data: "63291", properties: "*****" },
+          6: { data: "76657", properties: "*****" },
+          7: { data: "69692", properties: "*****" },
+          8: { data: "105696", properties: "*****" },
+          9: { data: "70419", properties: "*****" },
+        },
+      },
+      {
+        10: {
+          0: { data: "Jane zngX4", properties: "*****" },
+          1: { data: "USA", properties: "*****" },
+          2: { data: "Houston", properties: "*****" },
+          3: { data: "273436682", properties: "*****" },
+          4: { data: "8/28/1984", properties: "*****" },
+          5: { data: "133321", properties: "*****" },
+          6: { data: "114253", properties: "*****" },
+          7: { data: "111180", properties: "*****" },
+          8: { data: "141386", properties: "*****" },
+          9: { data: "71835", properties: "*****" },
+        },
+      },
+      {
+        11: {
+          0: { data: "Alex kXRmf", properties: "*****" },
+          1: { data: "UK", properties: "*****" },
+          2: { data: "Houston", properties: "*****" },
+          3: { data: "2148165184", properties: "*****" },
+          4: { data: "11/17/1972", properties: "*****" },
+          5: { data: "88439", properties: "*****" },
+          6: { data: "44598", properties: "*****" },
+          7: { data: "112272", properties: "*****" },
+          8: { data: "39311", properties: "*****" },
+          9: { data: "83349", properties: "*****" },
+        },
+      },
+      {
+        12: {
+          0: { data: "Emily 9kjPw", properties: "*****" },
+          1: { data: "USA", properties: "*****" },
+          2: { data: "Houston", properties: "*****" },
+          3: { data: "1313221870", properties: "*****" },
+          4: { data: "1/10/1997", properties: "*****" },
+          5: { data: "137643", properties: "*****" },
+          6: { data: "67790", properties: "*****" },
+          7: { data: "88627", properties: "*****" },
+          8: { data: "124546", properties: "*****" },
+          9: { data: "44625", properties: "*****" },
+        },
+      },
+      {
+        13: {
+          0: { data: "Emily va43C", properties: "*****" },
+          1: { data: "USA", properties: "*****" },
+          2: { data: "Chicago", properties: "*****" },
+          3: { data: "7089910029", properties: "*****" },
+          4: { data: "10/28/1991", properties: "*****" },
+          5: { data: "108629", properties: "*****" },
+          6: { data: "59682", properties: "*****" },
+          7: { data: "47352", properties: "*****" },
+          8: { data: "140016", properties: "*****" },
+          9: { data: "45580", properties: "*****" },
+        },
+      },
+      {
+        14: {
+          0: { data: "Chris P8cHX", properties: "*****" },
+          1: { data: "Australia", properties: "*****" },
+          2: { data: "Phoenix", properties: "*****" },
+          3: { data: "8052835565", properties: "*****" },
+          4: { data: "3/29/1973", properties: "*****" },
+          5: { data: "69460", properties: "*****" },
+          6: { data: "138752", properties: "*****" },
+          7: { data: "95032", properties: "*****" },
+          8: { data: "119769", properties: "*****" },
+          9: { data: "66099", properties: "*****" },
+        },
+      },
+      {
+        15: {
+          0: { data: "Chris TeV18", properties: "*****" },
+          1: { data: "USA", properties: "*****" },
+          2: { data: "New York", properties: "*****" },
+          3: { data: "1284070085", properties: "*****" },
+          4: { data: "1/9/1989", properties: "*****" },
+          5: { data: "146852", properties: "*****" },
+          6: { data: "94918", properties: "*****" },
+          7: { data: "102026", properties: "*****" },
+          8: { data: "82699", properties: "*****" },
+          9: { data: "91803", properties: "*****" },
+        },
+      },
+      {
+        16: {
+          0: { data: "Katie 0LpNB", properties: "*****" },
+          1: { data: "Germany", properties: "*****" },
+          2: { data: "Los Angeles", properties: "*****" },
+          3: { data: "3148045878", properties: "*****" },
+          4: { data: "2/19/1951", properties: "*****" },
+          5: { data: "50021", properties: "*****" },
+          6: { data: "135559", properties: "*****" },
+          7: { data: "98509", properties: "*****" },
+          8: { data: "34825", properties: "*****" },
+          9: { data: "120590", properties: "*****" },
+        },
+      },
+      {
+        17: {
+          0: { data: "Katie csnVg", properties: "*****" },
+          1: { data: "Canada", properties: "*****" },
+          2: { data: "New York", properties: "*****" },
+          3: { data: "3777400485", properties: "*****" },
+          4: { data: "3/3/1992", properties: "*****" },
+          5: { data: "105875", properties: "*****" },
+          6: { data: "133601", properties: "*****" },
+          7: { data: "133361", properties: "*****" },
+          8: { data: "35466", properties: "*****" },
+          9: { data: "45354", properties: "*****" },
+        },
+      },
+      {
+        18: {
+          0: { data: "Emily wB02d", properties: "*****" },
+          1: { data: "Australia", properties: "*****" },
+          2: { data: "New York", properties: "*****" },
+          3: { data: "2166261664", properties: "*****" },
+          4: { data: "9/29/1997", properties: "*****" },
+          5: { data: "48985", properties: "*****" },
+          6: { data: "82031", properties: "*****" },
+          7: { data: "149330", properties: "*****" },
+          8: { data: "48564", properties: "*****" },
+          9: { data: "88813", properties: "*****" },
+        },
+      },
+      {
+        19: {
+          0: { data: "Alex Yl4Br", properties: "*****" },
+          1: { data: "Germany", properties: "*****" },
+          2: { data: "Phoenix", properties: "*****" },
+          3: { data: "1807641952", properties: "*****" },
+          4: { data: "12/21/1971", properties: "*****" },
+          5: { data: "44762", properties: "*****" },
+          6: { data: "107977", properties: "*****" },
+          7: { data: "86407", properties: "*****" },
+          8: { data: "142413", properties: "*****" },
+          9: { data: "107080", properties: "*****" },
+        },
+      },
+      {
+        20: {
+          0: { data: "Jane SviWc", properties: "*****" },
+          1: { data: "Australia", properties: "*****" },
+          2: { data: "New York", properties: "*****" },
+          3: { data: "5823155588", properties: "*****" },
+          4: { data: "1/4/1982", properties: "*****" },
+          5: { data: "71502", properties: "*****" },
+          6: { data: "69496", properties: "*****" },
+          7: { data: "45688", properties: "*****" },
+          8: { data: "32109", properties: "*****" },
+          9: { data: "51437", properties: "*****" },
+        },
+      },
+      {
+        21: {
+          0: { data: "John 2avKM", properties: "*****" },
+          1: { data: "Australia", properties: "*****" },
+          2: { data: "Houston", properties: "*****" },
+          3: { data: "2810470697", properties: "*****" },
+          4: { data: "9/18/1967", properties: "*****" },
+          5: { data: "112105", properties: "*****" },
+          6: { data: "147949", properties: "*****" },
+          7: { data: "80028", properties: "*****" },
+          8: { data: "124944", properties: "*****" },
+          9: { data: "130148", properties: "*****" },
+        },
+      },
+      {
+        22: {
+          0: { data: "John 7uHEq", properties: "*****" },
+          1: { data: "Canada", properties: "*****" },
+          2: { data: "Houston", properties: "*****" },
+          3: { data: "2570504167", properties: "*****" },
+          4: { data: "5/22/1964", properties: "*****" },
+          5: { data: "59496", properties: "*****" },
+          6: { data: "59145", properties: "*****" },
+          7: { data: "47781", properties: "*****" },
+          8: { data: "48746", properties: "*****" },
+          9: { data: "131767", properties: "*****" },
+        },
+      },
+      {
+        23: {
+          0: { data: "John xYSuW", properties: "*****" },
+          1: { data: "UK", properties: "*****" },
+          2: { data: "Chicago", properties: "*****" },
+          3: { data: "8436891984", properties: "*****" },
+          4: { data: "11/5/1993", properties: "*****" },
+          5: { data: "84744", properties: "*****" },
+          6: { data: "87399", properties: "*****" },
+          7: { data: "50861", properties: "*****" },
+          8: { data: "90180", properties: "*****" },
+          9: { data: "113477", properties: "*****" },
+        },
+      },
+      {
+        24: {
+          0: { data: "Alex gA8Rf", properties: "*****" },
+          1: { data: "Germany", properties: "*****" },
+          2: { data: "Chicago", properties: "*****" },
+          3: { data: "8629339455", properties: "*****" },
+          4: { data: "7/28/1978", properties: "*****" },
+          5: { data: "58677", properties: "*****" },
+          6: { data: "104221", properties: "*****" },
+          7: { data: "119337", properties: "*****" },
+          8: { data: "96312", properties: "*****" },
+          9: { data: "98264", properties: "*****" },
+        },
+      },
+      {
+        25: {
+          0: { data: "Emily BpTl3", properties: "*****" },
+          1: { data: "UK", properties: "*****" },
+          2: { data: "Chicago", properties: "*****" },
+          3: { data: "9285496787", properties: "*****" },
+          4: { data: "12/28/1977", properties: "*****" },
+          5: { data: "132803", properties: "*****" },
+          6: { data: "69595", properties: "*****" },
+          7: { data: "50743", properties: "*****" },
+          8: { data: "62194", properties: "*****" },
+          9: { data: "76466", properties: "*****" },
         },
       },
     ];
@@ -300,8 +673,6 @@ class newCanvas {
   }
 
   findAndReplace(findText, replaceText) {
-    console.log("FindAnd Replace");
-    let index = 0;
     this.sheetData.forEach((data) => {
       let i = Object.keys(data);
       let min = 0,
@@ -323,12 +694,10 @@ class newCanvas {
           }
         }
       }
-      index++;
     });
     this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     this.highlightSelectedArea();
     this.drawGrid();
-    // this.renderData();
   }
 
   changeFontColor() {
@@ -509,21 +878,26 @@ class newCanvas {
   }
 
   //----------------------draw grid----------------------
+  trimData(data, j, fontSize) {
+    let cellwidth = this.getCurCellWidth(j);
+    let length = data.length;
+    let textWidth = this.mainCtx.measureText(data).width;
+    let newfontSize = fontSize.slice(0, -2);
+    let length2 = (textWidth - cellwidth) / (newfontSize - 2);
+    data = data.slice(0, length - length2 - 2);
+    return data;
+  }
   renderData = () => {
     let i;
     let cellPositionY = 0;
     this.sheetData.forEach((data) => {
       let cellPositionX = 0;
-      cellPositionY = this.getCurCellHeight(0);
-      if (Object.keys(data) == 0) {
-        cellPositionY = this.getCurCellHeight(0);
-      } else {
-        for (let k = 0; k < Object.keys(data); k++) {
-          cellPositionY += this.getCurCellHeight(k);
-        }
+      cellPositionY = 21;
+      for (let k = 0; k < Object.keys(data); k++) {
+        cellPositionY += this.getCurCellHeight(k);
       }
       i = Object.keys(data);
-      // let count = Object.keys(data[i])?.length;
+
       let min = 0,
         max = 0;
       if (data[i]) {
@@ -561,15 +935,11 @@ class newCanvas {
           let fontFam =
             currProperties?.slice(fontFamPos[0] + 1, fontFamPos[1]) ||
             "calibri";
-
           this.mainCtx.save();
           this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
+          let newData = this.trimData(data[i][j]?.data, j, fontSize);
           this.mainCtx.fillStyle = fontColor;
-          this.mainCtx.fillText(
-            data[i][j]?.data,
-            cellPositionX + 4,
-            cellPositionY - 4
-          );
+          this.mainCtx.fillText(newData, cellPositionX + 4, cellPositionY - 4);
           this.mainCtx.clip();
           this.mainCtx.restore();
         }
@@ -613,11 +983,6 @@ class newCanvas {
       this.mainCtx.stroke();
       this.mainCtx.restore();
     }
-  }
-
-  trimData(data, i) {
-    let cellwidth = this.getCurCellWidth(i);
-    let textWidth = this.mainCtx.measureText(data).width;
   }
 
   drawColumns() {
@@ -1004,7 +1369,7 @@ class newCanvas {
         }
         y++;
       }
-
+      console.log(this.sheetData);
       this.renderData();
     }
   };
@@ -1069,6 +1434,96 @@ class newCanvas {
         this.startMarchingAntsAnimation()
       );
     }
+  }
+
+  //----------------------Charts----------------------
+  barChart() {
+    const [startX, startY, endX, endY] = this.selectedDimensionsMain;
+    if (!this.drawGraph) {
+      const main = document.getElementById("main");
+      let chartDiv = document.createElement("div");
+      chartDiv.setAttribute("class", "chartDiv");
+      chartDiv.setAttribute("id", "chartDiv");
+      let canvas = document.createElement("canvas");
+      canvas.setAttribute("class", "chartCanvas");
+      canvas.setAttribute("id", "chartCanvasBar");
+      chartDiv.appendChild(canvas);
+      main.appendChild(chartDiv);
+      this.drawGraph = true;
+      let dataArray = [];
+      let tempArray = [];
+      let xValues = [];
+      let count = 0;
+      for (let j = startY; j <= endY; j++) {
+        const result = this.sheetData.find((item) => item[j]);
+        if(startX==endX){
+          for (let i = startX; i <= endX; i++) {
+            xValues.push(count++);
+            let currentData = result ? result[j][i] : "";
+            if (!isNaN(currentData.data)) {
+              dataArray.push(Number(currentData.data));
+            }
+          }
+        }else{
+          tempArray=[];
+          for (let i = startX; i <= endX; i++) {
+            let currentData = result ? result[j][i] : "";
+            if (!isNaN(currentData.data)) {
+              tempArray.push(Number(currentData.data));
+            }
+          }
+          dataArray.push(tempArray)
+        }
+      }
+
+      for(let i = 0;i<=endX-startX;i++){
+        xValues.push(i);
+       }
+      
+      let dataSet = [];
+      if(startX!=endX){
+        dataArray.forEach((d)=>{
+          dataSet.push(
+            {
+              data: d,
+              backgroundColor: `skyblue`,
+              borderColor: "red",
+              fill: true
+            }
+          )
+        })
+      }else{
+        dataSet = dataArray
+      }
+
+      
+  
+      if(startX==endX){
+        new Chart("chartCanvasBar", {
+          type: "bar",
+          data: {
+          labels: xValues,
+          datasets: [
+            {
+              backgroundColor: `skyblue`,
+              data: dataSet,
+            },
+          ],
+        },          
+        });
+
+      }else{
+        new Chart("chartCanvasBar", {
+          type: "bar",
+          data: {
+            labels: xValues,
+            datasets: dataSet
+          },
+        });
+      }
+   
+    }
+  
   }
 
   //----------------------Highlight Selected Area----------------------
@@ -1383,6 +1838,42 @@ class newCanvas {
 
   highlightAreaPointerUp(e) {
     this.isAreaSelected = false;
+    const [startX, startY, endX, endY] = this.selectedDimensionsMain;
+    let sum = 0,
+      max = Number.MIN_VALUE,
+      min = Number.MAX_VALUE,
+      avg = 0,
+      count = 0,
+      numerical_count = 0;
+    for (let j = startY; j <= endY; j++) {
+      const result = this.sheetData.find((item) => item[j]);
+      for (let i = startX; i <= endX; i++) {
+        let currentData = result ? result[j][i] : "";
+        count++;
+        if (!isNaN(Number(currentData.data))) {
+          sum += Number(currentData.data);
+          max = Math.max(max, currentData.data);
+          min = Math.min(min, currentData.data);
+          numerical_count++;
+        }
+        avg = sum / numerical_count;
+      }
+    }
+    const mathsCalculation = document.getElementById("mathsCalculation");
+    if (numerical_count == 0 || count <= 1) {
+      mathsCalculation.innerHTML = `
+      <p>Count: ${count}</p>
+      `;
+    } else {
+      mathsCalculation.innerHTML = `
+    <p>Average: ${avg.toFixed(2)}</p>
+    <p>Count: ${count}</p>
+    <p>Numerical Count: ${numerical_count}</p>
+    <p>Min: ${min}</p>
+    <p>Max: ${max}</p>
+    <p>Sum: ${sum}</p>
+    `;
+    }
   }
 
   //----------------------Resize Grid Columns and rows----------------------
@@ -1813,7 +2304,5 @@ class newCanvas {
     return res;
   }
 }
-
-// new newCanvas("sheet-1");
 
 export { newCanvas };

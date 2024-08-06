@@ -87,9 +87,9 @@ replaceIcon.addEventListener("click", () => {
 closeEditingModal.addEventListener("click",()=>{
     editingSectionModal.style.display = "none";
 })
-const replaceAllFun = document.querySelector("#replaceAllFun");
-replaceAllFun.addEventListener("click",()=>{
-    let findText = findtextInput.value;
-    let replaceText = replacetextInput.value;
-    new newCanvas("sheet-1",findText, replaceText);
-})
+// const replaceAllFun = document.querySelector("#replaceAllFun");
+// replaceAllFun.addEventListener("click",()=>{
+//     let findText = findtextInput.value;
+//     let replaceText = replacetextInput.value;
+//     new newCanvas("sheet-1",findText, replaceText);
+// })

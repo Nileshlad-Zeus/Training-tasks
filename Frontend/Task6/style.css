@@ -143,23 +143,23 @@ body {
 .toolsSection .fontSection .fontStyle .fontColor .colorSelector {
   display: none;
 }
-.toolsSection .editingSection {
+.toolsSection .editingSection, .toolsSection .chartSection {
   position: relative;
   display: flex;
   gap: 20px;
   justify-content: center;
   padding: 0 15px;
 }
-.toolsSection .editingSection div {
+.toolsSection .editingSection div, .toolsSection .chartSection div {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.toolsSection .editingSection div label {
+.toolsSection .editingSection div label, .toolsSection .chartSection div label {
   font-size: 14px;
   color: rgb(95, 88, 88);
 }
-.toolsSection .editingSection .icon {
+.toolsSection .editingSection .icon, .toolsSection .chartSection .icon {
   cursor: pointer;
   font-size: 30px;
   color: rgb(95, 88, 88);
@@ -324,7 +324,7 @@ body {
 }
 
 #main {
-  height: calc(100vh - 185px);
+  height: calc(100vh - 190px);
   margin-left: 40px;
   overflow: auto;
   top: 24px;
@@ -346,7 +346,7 @@ body {
   left: 0;
   margin-top: 24px;
   top: 0;
-  height: calc(100vh - 185px);
+  height: calc(100vh - 190px);
 }
 
 .canvasinput {
@@ -489,6 +489,12 @@ canvas {
   gap: 15px;
   align-items: center;
 }
+.footer2 .footer2-right .mathsCalculation {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  color: gray;
+}
 .footer2 .footer2-right span {
   display: flex;
   align-items: center;
@@ -499,4 +505,14 @@ canvas {
 }
 .footer2 .footer2-right span i {
   font-size: 12px;
+}
+
+.chartDiv {
+  position: absolute;
+  padding: 10px;
+  top: 20px;
+  left: 20px;
+  width: 450px;
+  height: 250px;
+  background-color: white;
 }/*# sourceMappingURL=style.css.map */
