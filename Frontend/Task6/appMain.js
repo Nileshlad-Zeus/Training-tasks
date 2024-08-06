@@ -27,7 +27,7 @@ class newCanvas {
       }
     });
     this.drawGrid();
-    this.highlightHeaders();
+    // this.highlightHeaders();
     this.renderLeftHeader();
     this.renderTopHeader();
     this.changeFontStyle();
@@ -57,7 +57,7 @@ class newCanvas {
       this.selectedDimensionsMain = [0, 0, 200, 200];
       this.highlightSelectedArea();
       this.drawGrid();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderLeftHeader();
       this.renderTopHeader();
     });
@@ -578,12 +578,11 @@ class newCanvas {
     mainCanvas.setAttribute("id", this.sheetName);
     mainCanvas.setAttribute("class", "canvas");
     mainCanvas.width = Math.floor(2100 * this.scale);
-    mainCanvas.height = Math.floor(1200 * this.scale);;
+    mainCanvas.height = Math.floor(1200 * this.scale);
     main.appendChild(mainCanvas);
     this.mainCanvas = mainCanvas;
     this.mainCtx = this.mainCanvas.getContext("2d");
     this.mainCtx.scale(this.scale, this.scale);
-    
 
     //topheader canvas
     const topHeader = document.getElementById("topHeader");
@@ -613,13 +612,13 @@ class newCanvas {
 
     const topleftDiv = document.getElementById("topleftDiv");
 
-    main.style.top = `${24*this.scale}px`
-    main.style.marginLeft = `${40*this.scale}px`
-    topHeader.style.height = `${24*this.scale}px`
-    topHeader.style.marginLeft = `${40*this.scale}px`
-    leftHeader.style.marginTop = `${24*this.scale}px`
-    topleftDiv.style.width = `${40*this.scale}px`
-    topleftDiv.style.height = `${24*this.scale}px`
+    main.style.top = `${24 * this.scale}px`;
+    main.style.marginLeft = `${40 * this.scale}px`;
+    topHeader.style.height = `${24 * this.scale}px`;
+    topHeader.style.marginLeft = `${40 * this.scale}px`;
+    leftHeader.style.marginTop = `${24 * this.scale}px`;
+    topleftDiv.style.width = `${40 * this.scale}px`;
+    topleftDiv.style.height = `${24 * this.scale}px`;
   }
 
   clearCanvas() {
@@ -657,14 +656,16 @@ class newCanvas {
 
   inputBoxPosition() {
     this.inputBox.style.display = "block";
-    this.inputBox.style.top = `${(this.cellPositionTop - 0.5)*this.scale}px`;
+    this.inputBox.style.top = `${(this.cellPositionTop + 0.6) * this.scale}px`;
     0;
-    this.inputBox.style.left = `${(this.cellPositionLeft - 0.5)*this.scale}px`;
+    this.inputBox.style.left = `${
+      (this.cellPositionLeft + 0.6) * this.scale
+    }px`;
     this.inputBox.style.height = `${
-      (this.getCurCellHeight(this.y1CellIndex) + 1)*this.scale
+      (this.getCurCellHeight(this.y1CellIndex) - 1.2) * this.scale
     }px`;
     this.inputBox.style.width = `${
-      (this.getCurCellWidth(this.x1CellIndex) + 1)*this.scale
+      (this.getCurCellWidth(this.x1CellIndex) - 1.2) * this.scale
     }px`;
   }
 
@@ -997,8 +998,19 @@ class newCanvas {
 
   renderTopHeader() {
     let cellPosition = 0;
+    this.topHeaderCtx.save();
+    this.topHeaderCtx.beginPath();
+
+    this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
+    this.topHeaderCtx.moveTo(0, 24 - 0.5);
+    this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24 - 0.5);
+    this.topHeaderCtx.stroke();
+    this.topHeaderCtx.restore();
+    this.highlightTopHeader();
+
     this.topHeaderCtx.font = "11pt Arial";
     this.topHeaderCtx.textAlign = "center";
+
     for (let i = 0; i <= this.numCols; i++) {
       cellPosition += this.getCurCellWidth(i);
       this.topHeaderCtx.save();
@@ -1022,7 +1034,11 @@ class newCanvas {
       }
       this.topHeaderCtx.stroke();
       this.topHeaderCtx.restore();
+    }
 
+    cellPosition = 0;
+    for (let i = 0; i <= this.numCols; i++) {
+      cellPosition += this.getCurCellWidth(i);
       this.topHeaderCtx.save();
       let text = this.convertNumToChar(i + 1);
       let xPosition = cellPosition - this.getCurCellWidth(i) / 2;
@@ -1059,25 +1075,22 @@ class newCanvas {
         cellPosition - this.columnLeftOfDrag >= 20
       ) {
         this.resizeLineVertical.style.top = 0;
-        this.resizeLineVertical.style.left = `${cellPosition}px`;
+        this.resizeLineVertical.style.left = `${cellPosition * this.scale}px`;
       }
     }
-
-    this.topHeaderCtx.save();
-    this.topHeaderCtx.beginPath();
-
-    this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
-    this.topHeaderCtx.moveTo(0, 24 - 0.5);
-    this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24 - 0.5);
-    this.topHeaderCtx.stroke();
-    this.topHeaderCtx.restore();
-
-    // this.currSelectedCol = null;
   }
 
   renderLeftHeader() {
+    this.leftHeaderCtx.save();
+    this.leftHeaderCtx.beginPath();
+    this.leftHeaderCtx.moveTo(40 - 0.5, 0);
+    this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
+    this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
+    this.leftHeaderCtx.stroke();
+    this.leftHeaderCtx.restore();
+    this.highlightLeftHeaders();
+
     let cellPosition = 0;
-    this.leftHeaderCtx.font = "14px Arial";
     for (let i = 0; i <= this.numRows; i++) {
       cellPosition += this.getCurCellHeight(i);
       this.leftHeaderCtx.save();
@@ -1102,6 +1115,12 @@ class newCanvas {
 
       this.leftHeaderCtx.stroke();
       this.leftHeaderCtx.restore();
+    }
+
+    cellPosition = 0;
+    this.leftHeaderCtx.font = "14px Arial";
+    for (let i = 0; i <= this.numRows; i++) {
+      cellPosition += this.getCurCellHeight(i);
 
       this.leftHeaderCtx.save();
       let text = (i + 1).toString();
@@ -1134,18 +1153,10 @@ class newCanvas {
       this.leftHeaderCtx.restore();
 
       if (i == this.rowIndex2 && cellPosition - this.rowTopOfDrag > 10) {
-        this.resizeLineHorizontal.style.top = `${cellPosition}px`;
+        this.resizeLineHorizontal.style.top = `${cellPosition * this.scale}px`;
         this.resizeLineHorizontal.style.left = 0;
       }
     }
-
-    this.leftHeaderCtx.save();
-    this.leftHeaderCtx.beginPath();
-    this.leftHeaderCtx.moveTo(40 - 0.5, 0);
-    this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
-    this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
-    this.leftHeaderCtx.stroke();
-    this.leftHeaderCtx.restore();
 
     // this.currSelectedRow = null;
   }
@@ -1214,7 +1225,7 @@ class newCanvas {
       this.drawGrid();
       this.clearTopheader();
       this.clearLeftHeader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
     } else if (e.key == "Enter" || e.key == "ArrowDown") {
@@ -1242,7 +1253,7 @@ class newCanvas {
       this.highlightSelectedArea();
       this.drawGrid();
       this.clearTopheader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
       this.inputBox.focus();
@@ -1286,7 +1297,7 @@ class newCanvas {
       this.drawGrid();
       this.clearTopheader();
       this.clearLeftHeader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
     }
@@ -1411,7 +1422,7 @@ class newCanvas {
       this.drawGrid();
       this.clearLeftHeader();
       this.clearTopheader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
 
@@ -1608,11 +1619,16 @@ class newCanvas {
     this.mainCtx.lineWidth = 2;
     this.mainCtx.strokeStyle = this.strokeColor;
     if (this.isColSelected) {
-      this.mainCtx.strokeRect(x - 0.5, -0.5, width + 1, this.mainCtx.canvas.height);
+      this.mainCtx.strokeRect(
+        x - 0.5,
+        -0.5,
+        width + 1,
+        this.mainCtx.canvas.height
+      );
     } else if (this.isRowSelected) {
       this.mainCtx.strokeRect(-1, y - 1, this.mainCtx.canvas.width, height + 2);
     } else {
-      this.mainCtx.strokeRect(x-0.5, y-0.5, width+1, height+1);
+      this.mainCtx.strokeRect(x - 0.5, y - 0.5, width + 1, height + 1);
     }
 
     this.mainCtx.restore();
@@ -1621,18 +1637,24 @@ class newCanvas {
   }
 
   highlightHeaders() {
-    const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
     this.topHeaderCtx.save();
     this.topHeaderCtx.beginPath();
-    // this.topHeaderCtx.fillStyle = this.headerBgColor;
-    // this.topHeaderCtx.fillRect(0, 0, this.topHeaderCtx.canvas.width, 24);
+
+    this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
+    this.topHeaderCtx.moveTo(0, 24 - 0.5);
+    this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24 - 0.5);
+    this.topHeaderCtx.stroke();
     this.topHeaderCtx.restore();
+
     this.leftHeaderCtx.save();
     this.leftHeaderCtx.beginPath();
-    // this.leftHeaderCtx.fillStyle = this.headerBgColor;
-    // this.leftHeaderCtx.fillRect(0, 0, 44, this.leftHeaderCtx.canvas.height);
+    this.leftHeaderCtx.moveTo(40 - 0.5, 0);
+    this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
+    this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
+    this.leftHeaderCtx.stroke();
     this.leftHeaderCtx.restore();
 
+    const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
     let x = 0;
     let y = 0;
     let width = 0;
@@ -1734,6 +1756,138 @@ class newCanvas {
     }
   }
 
+  highlightLeftHeaders() {
+    this.leftHeaderCtx.save();
+    this.leftHeaderCtx.beginPath();
+    this.leftHeaderCtx.moveTo(40 - 0.5, 0);
+    this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
+    this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
+    this.leftHeaderCtx.stroke();
+    this.leftHeaderCtx.restore();
+
+    const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
+    let x = 0;
+    let y = 0;
+    let width = 0;
+    let height = 0;
+    for (let i = 0; i < startX; i++) {
+      x += this.getCurCellWidth(i);
+    }
+    for (let i = 0; i < startY; i++) {
+      y += this.getCurCellHeight(i);
+    }
+    for (let i = startX; i <= endX; i++) {
+      width += this.getCurCellWidth(i);
+    }
+    for (let i = startY; i <= endY; i++) {
+      height += this.getCurCellHeight(i);
+    }
+
+    if (this.isColSelected && this.isRowSelected) {
+      this.leftHeaderCtx.save();
+      this.leftHeaderCtx.beginPath();
+      this.leftHeaderCtx.fillStyle = this.strokeColor;
+      this.leftHeaderCtx.fillRect(0, 0, 44, this.leftHeaderCtx.canvas.height);
+      this.leftHeaderCtx.restore();
+    } else if (this.isColSelected) {
+      //left Header
+      this.leftHeaderCtx.save();
+      this.leftHeaderCtx.beginPath();
+      this.leftHeaderCtx.moveTo(39, 0);
+      this.leftHeaderCtx.lineTo(39, this.leftHeaderCtx.canvas.height);
+      this.leftHeaderCtx.fillStyle = this.headersHighlightColor;
+      this.leftHeaderCtx.fillRect(0, 0, 44, this.leftHeaderCtx.canvas.height);
+      this.leftHeaderCtx.lineWidth = 2;
+      this.leftHeaderCtx.strokeStyle = this.strokeColor;
+      this.leftHeaderCtx.stroke();
+      this.leftHeaderCtx.restore();
+    } else if (this.isRowSelected) {
+      //Left Header
+      this.leftHeaderCtx.save();
+      this.leftHeaderCtx.beginPath();
+      this.leftHeaderCtx.fillStyle = this.strokeColor;
+      this.leftHeaderCtx.fillRect(
+        0,
+        y - 2,
+        this.leftHeaderCtx.canvas.width,
+        height + 4
+      );
+      this.leftHeaderCtx.restore();
+    } else {
+      this.leftHeaderCtx.save();
+      this.leftHeaderCtx.beginPath();
+      this.leftHeaderCtx.moveTo(39, y - 2);
+      this.leftHeaderCtx.lineTo(39, y + height + 3);
+      this.leftHeaderCtx.fillStyle = this.headersHighlightColor;
+      this.leftHeaderCtx.fillRect(0, y, 40, height);
+      this.leftHeaderCtx.lineWidth = 2;
+      this.leftHeaderCtx.strokeStyle = this.strokeColor;
+      this.leftHeaderCtx.stroke();
+      this.leftHeaderCtx.restore();
+    }
+  }
+
+  highlightTopHeader() {
+    const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
+    let x = 0;
+    let y = 0;
+    let width = 0;
+    let height = 0;
+    for (let i = 0; i < startX; i++) {
+      x += this.getCurCellWidth(i);
+    }
+    for (let i = 0; i < startY; i++) {
+      y += this.getCurCellHeight(i);
+    }
+    for (let i = startX; i <= endX; i++) {
+      width += this.getCurCellWidth(i);
+    }
+    for (let i = startY; i <= endY; i++) {
+      height += this.getCurCellHeight(i);
+    }
+    if (this.isColSelected && this.isRowSelected) {
+      this.topHeaderCtx.save();
+      this.topHeaderCtx.beginPath();
+      this.topHeaderCtx.fillStyle = this.strokeColor;
+      this.topHeaderCtx.fillRect(0, 0, this.topHeaderCtx.canvas.width, 24);
+      this.topHeaderCtx.restore();
+    } else if (this.isColSelected) {
+      //Top Header
+      this.topHeaderCtx.save();
+      this.topHeaderCtx.beginPath();
+      this.topHeaderCtx.fillStyle = this.strokeColor;
+      this.topHeaderCtx.fillRect(
+        x - 2,
+        0,
+        width + 4,
+        this.topHeaderCtx.canvas.height
+      );
+      this.topHeaderCtx.restore();
+    } else if (this.isRowSelected) {
+      this.topHeaderCtx.save();
+      this.topHeaderCtx.beginPath();
+      this.topHeaderCtx.moveTo(0, 23);
+      this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 23);
+      this.topHeaderCtx.fillStyle = this.headersHighlightColor;
+      this.topHeaderCtx.fillRect(0, 0, this.topHeaderCtx.canvas.width, 26);
+      this.topHeaderCtx.lineWidth = 2;
+      this.topHeaderCtx.strokeStyle = this.strokeColor;
+      this.topHeaderCtx.stroke();
+      this.topHeaderCtx.restore();
+    } else {
+      this.topHeaderCtx.save();
+      this.topHeaderCtx.beginPath();
+      this.topHeaderCtx.fillStyle = this.headersHighlightColor;
+      this.topHeaderCtx.fillRect(x, 0, width, 24);
+      this.topHeaderCtx.moveTo(x - 2, 23);
+      this.topHeaderCtx.lineTo(x + width + 2.5, 23);
+      this.topHeaderCtx.lineWidth = 2;
+      this.topHeaderCtx.strokeStyle = this.strokeColor;
+      this.topHeaderCtx.stroke();
+      this.topHeaderCtx.restore();
+    }
+  }
+
   highlightSelectedAreaEvents() {
     this.mainCtx.canvas.addEventListener("dblclick", (e) => {
       this.inputBoxPosition();
@@ -1772,8 +1926,8 @@ class newCanvas {
 
     const rect = this.mainCtx.canvas.getBoundingClientRect();
     this.isAreaSelected = true;
-    const clickX = (e.clientX - rect.left)/this.scale;
-    const clickY = (e.clientY - rect.top)/this.scale;
+    const clickX = (e.clientX - rect.left) / this.scale;
+    const clickY = (e.clientY - rect.top) / this.scale;
 
     const colIndex = this.getCurColumnIndex(clickX);
     const rowIndex = this.getCurRowIndex(clickY);
@@ -1806,7 +1960,7 @@ class newCanvas {
     this.drawGrid();
     this.clearLeftHeader();
     this.clearTopheader();
-    this.highlightHeaders();
+    // this.highlightHeaders();
     this.renderLeftHeader();
     this.renderTopHeader();
   }
@@ -1814,8 +1968,8 @@ class newCanvas {
   highlightAreaPointerMove(e) {
     if (this.isAreaSelected) {
       const rect = this.mainCtx.canvas.getBoundingClientRect();
-      const clickX = (e.clientX - rect.left)/this.scale;
-      const clickY = (e.clientY - rect.top)/this.scale;
+      const clickX = (e.clientX - rect.left) / this.scale;
+      const clickY = (e.clientY - rect.top) / this.scale;
 
       const colIndex = this.getCurColumnIndex(clickX);
       const rowIndex = this.getCurRowIndex(clickY);
@@ -1832,7 +1986,7 @@ class newCanvas {
       this.drawGrid();
       this.clearTopheader();
       this.clearLeftHeader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderLeftHeader();
       this.renderTopHeader();
     }
@@ -1912,8 +2066,8 @@ class newCanvas {
 
     let rect = header.getBoundingClientRect();
 
-    const clickX = (e.clientX - rect.left)/this.scale;
-    const clickY = (e.clientY - rect.top)/this.scale;
+    const clickX = (e.clientX - rect.left) / this.scale;
+    const clickY = (e.clientY - rect.top) / this.scale;
     let columnIndex = this.getCurColumnIndex(clickX);
     let rowIndex = this.getCurRowIndex(clickY);
 
@@ -1967,7 +2121,7 @@ class newCanvas {
       this.highlightSelectedArea();
       this.drawGrid();
 
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
     } else if (
@@ -1993,7 +2147,7 @@ class newCanvas {
       this.highlightSelectedArea();
       this.drawGrid();
 
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderLeftHeader();
       this.renderTopHeader();
     }
@@ -2023,9 +2177,9 @@ class newCanvas {
       this.mainCtx.strokeStyle = this.strokeColor;
       this.columnLeftOfDrag = columnLeft;
       this.mainCtx.strokeRect(
-        columnLeft,
-        -1,
-        width,
+        columnLeft - 0.5,
+        -2,
+        width + 1,
         this.mainCtx.canvas.height
       );
       this.mainCtx.restore();
@@ -2037,7 +2191,12 @@ class newCanvas {
       this.mainCtx.save();
       this.mainCtx.lineWidth = 2;
       this.mainCtx.strokeStyle = this.strokeColor;
-      this.mainCtx.strokeRect(-1, rowTop, this.mainCtx.canvas.width, height);
+      this.mainCtx.strokeRect(
+        -2,
+        rowTop - 0.5,
+        this.mainCtx.canvas.width,
+        height + 1
+      );
       this.mainCtx.restore();
     }
   }
@@ -2047,8 +2206,8 @@ class newCanvas {
     this.resizeLineHorizontal = document.getElementById("resizeLineHorizontal");
 
     let rect = header.getBoundingClientRect();
-    const clickX = (e.clientX - rect.left)/this.scale;
-    const clickY = (e.clientY - rect.top)/this.scale;
+    const clickX = (e.clientX - rect.left) / this.scale;
+    const clickY = (e.clientY - rect.top) / this.scale;
     let columnIndex = this.getCurColumnIndex(clickX);
     let rowIndex = this.getCurRowIndex(clickY);
     let iscolPointDraggable = this.isColPointDraggable(clickX);
@@ -2076,7 +2235,7 @@ class newCanvas {
       this.columnIndex2 = this.getCurColumnIndex(clickX - 10);
       this.clearTopheader();
       this.clearLeftHeader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.topHeaderCanvas.style.cursor = "ew-resize";
       this.mainCanvas.style.cursor = "ew-resize";
       this.resizeLineVertical.style.cursor = "ew-resize";
@@ -2109,7 +2268,7 @@ class newCanvas {
       this.drawGrid();
       this.clearTopheader();
       this.clearLeftHeader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
     }
@@ -2119,7 +2278,7 @@ class newCanvas {
 
       this.clearLeftHeader();
       this.clearTopheader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.leftHeaderCanvas.style.cursor = "ns-resize";
       this.resizeLineHorizontal.style.cursor = "ns-resize";
 
@@ -2152,7 +2311,7 @@ class newCanvas {
       this.drawGrid();
       this.clearTopheader();
       this.clearLeftHeader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
     }
@@ -2199,7 +2358,7 @@ class newCanvas {
       this.drawGrid();
       this.clearTopheader();
       this.clearLeftHeader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
 
@@ -2217,7 +2376,7 @@ class newCanvas {
       this.drawGrid();
       this.clearLeftHeader();
       this.clearTopheader();
-      this.highlightHeaders();
+      // this.highlightHeaders();
       this.renderTopHeader();
       this.renderLeftHeader();
       this.isDraggingLeft = false;

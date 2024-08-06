@@ -352,7 +352,7 @@ body {
 .canvasinput {
   display: none;
   position: absolute;
-  border: 2px solid rgb(16, 124, 65);
+  border: none;
   z-index: 10;
   outline: none;
   padding-left: 2px;
