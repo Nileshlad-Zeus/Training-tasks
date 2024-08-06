@@ -323,7 +323,7 @@ body {
   border-right: 15px solid rgb(183, 183, 183);
 }
 
-#main {
+.mainSection {
   height: calc(100vh - 190px);
   margin-left: 40px;
   overflow: auto;

@@ -1,12 +1,10 @@
 class newCanvas {
-  constructor(sheetName, findText = "", replaceText = "") {
+  constructor(sheetName) {
     this.sheetName = sheetName;
     this.inputBox = document.getElementById("canvasinput");
-
-    this.scale = 1;
-    // document.addEventListener("resize", () => {
-    //   this.scale = window.devicePixelRatio;
-    //   this.createNewCanvas();
+    this.scale = window.devicePixelRatio;
+    // window.addEventListener("resize", () => {
+    //   console.log("scale",this.scale);
     // });
     this.createNewCanvas();
     this.initialVariables();
@@ -33,11 +31,6 @@ class newCanvas {
     this.renderLeftHeader();
     this.renderTopHeader();
     this.changeFontStyle();
-
-    // if(findText!="" && replaceText!=""){
-    //   console.log(findText, replaceText);
-    //   this.findAndReplace(findText, replaceText);
-    // }
 
     const findtextInput = document.querySelector("#findtextInput");
     const replacetextInput = document.querySelector("#replacetextInput");
@@ -585,14 +578,12 @@ class newCanvas {
     mainCanvas.setAttribute("id", this.sheetName);
     mainCanvas.setAttribute("class", "canvas");
     mainCanvas.width = Math.floor(2100 * this.scale);
-    mainCanvas.height = Math.floor(1200 * this.scale);
-
-    // mainCanvas.width = 2100;
-    // mainCanvas.height = 1200;
+    mainCanvas.height = Math.floor(1200 * this.scale);;
     main.appendChild(mainCanvas);
     this.mainCanvas = mainCanvas;
     this.mainCtx = this.mainCanvas.getContext("2d");
     this.mainCtx.scale(this.scale, this.scale);
+    
 
     //topheader canvas
     const topHeader = document.getElementById("topHeader");
@@ -601,8 +592,6 @@ class newCanvas {
     topHeaderCanvas.setAttribute("class", "topHeaderCanvas");
     topHeaderCanvas.width = Math.floor(2100 * this.scale);
     topHeaderCanvas.height = Math.floor(24 * this.scale);
-    // topHeaderCanvas.width = 2100;
-    // topHeaderCanvas.height = 24;
     topHeader.appendChild(topHeaderCanvas);
     this.topHeaderCanvas = topHeaderCanvas;
     this.topHeaderCtx = this.topHeaderCanvas.getContext("2d");
@@ -615,15 +604,22 @@ class newCanvas {
     leftHeaderCanvas.setAttribute("class", "leftHeaderCanvas");
     leftHeaderCanvas.width = Math.floor(40 * this.scale);
     leftHeaderCanvas.height = Math.floor(1200 * this.scale);
-
-    // leftHeaderCanvas.width = 40;
-    // leftHeaderCanvas.height = 1200;
     leftHeader.appendChild(leftHeaderCanvas);
     this.leftHeaderCanvas = leftHeaderCanvas;
     this.leftHeaderCtx = this.leftHeaderCanvas.getContext("2d");
     this.leftHeaderCtx.scale(this.scale, this.scale);
 
     this.mainCanvas.style.cursor = "cell";
+
+    const topleftDiv = document.getElementById("topleftDiv");
+
+    main.style.top = `${24*this.scale}px`
+    main.style.marginLeft = `${40*this.scale}px`
+    topHeader.style.height = `${24*this.scale}px`
+    topHeader.style.marginLeft = `${40*this.scale}px`
+    leftHeader.style.marginTop = `${24*this.scale}px`
+    topleftDiv.style.width = `${40*this.scale}px`
+    topleftDiv.style.height = `${24*this.scale}px`
   }
 
   clearCanvas() {
@@ -661,14 +657,14 @@ class newCanvas {
 
   inputBoxPosition() {
     this.inputBox.style.display = "block";
-    this.inputBox.style.top = `${this.cellPositionTop - 2}px`;
+    this.inputBox.style.top = `${(this.cellPositionTop - 0.5)*this.scale}px`;
     0;
-    this.inputBox.style.left = `${this.cellPositionLeft - 2}px`;
+    this.inputBox.style.left = `${(this.cellPositionLeft - 0.5)*this.scale}px`;
     this.inputBox.style.height = `${
-      this.getCurCellHeight(this.y1CellIndex) + 5
+      (this.getCurCellHeight(this.y1CellIndex) + 1)*this.scale
     }px`;
     this.inputBox.style.width = `${
-      this.getCurCellWidth(this.x1CellIndex) + 5
+      (this.getCurCellWidth(this.x1CellIndex) + 1)*this.scale
     }px`;
   }
 
@@ -722,6 +718,7 @@ class newCanvas {
     this.highlightSelectedArea();
     this.drawGrid();
   }
+
   changeFontStyle() {
     const fontsize = document.getElementById("fontsize");
     const fontfamily = document.getElementById("fontfamily");
@@ -1108,9 +1105,6 @@ class newCanvas {
 
       this.leftHeaderCtx.save();
       let text = (i + 1).toString();
-      let textWidth = this.leftHeaderCtx.measureText(text).width;
-      let xPosition = this.leftHeaderCtx.canvas.width - textWidth - 10;
-      // let xPosition = this.leftHeaderCtx.canvas.width - 10;
       let yPosition = cellPosition - this.getCurCellHeight(i) / 2;
 
       this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
@@ -1136,7 +1130,7 @@ class newCanvas {
       } else {
         this.leftHeaderCtx.fillStyle = this.blackColor;
       }
-      this.leftHeaderCtx.fillText(text, xPosition, yPosition + 4);
+      this.leftHeaderCtx.fillText(text, 20, yPosition + 4);
       this.leftHeaderCtx.restore();
 
       if (i == this.rowIndex2 && cellPosition - this.rowTopOfDrag > 10) {
@@ -1437,6 +1431,23 @@ class newCanvas {
   }
 
   //----------------------Charts----------------------
+  rotateMatrix(array) {
+    const rows = array.length;
+    const cols = array[0].length;
+    const rotated = [];
+
+    for (let i = 0; i < cols; i++) {
+      rotated[i] = [];
+    }
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        rotated[j][rows - 1 - i] = array[i][j];
+      }
+    }
+
+    return rotated;
+  }
+
   barChart() {
     const [startX, startY, endX, endY] = this.selectedDimensionsMain;
     if (!this.drawGraph) {
@@ -1449,81 +1460,72 @@ class newCanvas {
       canvas.setAttribute("id", "chartCanvasBar");
       chartDiv.appendChild(canvas);
       main.appendChild(chartDiv);
+
       this.drawGraph = true;
       let dataArray = [];
       let tempArray = [];
       let xValues = [];
-      let count = 0;
+      let i = 0;
       for (let j = startY; j <= endY; j++) {
+        xValues.push(i++);
         const result = this.sheetData.find((item) => item[j]);
-        if(startX==endX){
+        if (startX == endX) {
           for (let i = startX; i <= endX; i++) {
-            xValues.push(count++);
             let currentData = result ? result[j][i] : "";
             if (!isNaN(currentData.data)) {
               dataArray.push(Number(currentData.data));
             }
           }
-        }else{
-          tempArray=[];
+        } else {
+          tempArray = [];
           for (let i = startX; i <= endX; i++) {
             let currentData = result ? result[j][i] : "";
             if (!isNaN(currentData.data)) {
               tempArray.push(Number(currentData.data));
             }
           }
-          dataArray.push(tempArray)
+          dataArray.push(tempArray);
         }
       }
 
-      for(let i = 0;i<=endX-startX;i++){
-        xValues.push(i);
-       }
-      
       let dataSet = [];
-      if(startX!=endX){
-        dataArray.forEach((d)=>{
-          dataSet.push(
-            {
-              data: d,
-              backgroundColor: `skyblue`,
-              borderColor: "red",
-              fill: true
-            }
-          )
-        })
-      }else{
-        dataSet = dataArray
+      if (startX != endX) {
+        dataArray = this.rotateMatrix(dataArray);
+        dataArray.forEach((d) => {
+          dataSet.push({
+            data: d,
+            backgroundColor: `skyblue`,
+            borderColor: "red",
+            fill: true,
+          });
+        });
+      } else {
+        dataSet = dataArray;
       }
 
-      
-  
-      if(startX==endX){
-        new Chart("chartCanvasBar", {
-          type: "bar",
-          data: {
-          labels: xValues,
-          datasets: [
-            {
-              backgroundColor: `skyblue`,
-              data: dataSet,
-            },
-          ],
-        },          
-        });
-
-      }else{
+      if (startX == endX) {
         new Chart("chartCanvasBar", {
           type: "bar",
           data: {
             labels: xValues,
-            datasets: dataSet
+            datasets: [
+              {
+                backgroundColor: `skyblue`,
+                data: dataSet,
+              },
+            ],
+          },
+        });
+      } else {
+        new Chart("chartCanvasBar", {
+          type: "bar",
+          data: {
+            labels: xValues,
+            datasets: dataSet,
           },
         });
       }
-   
     }
-  
   }
 
   //----------------------Highlight Selected Area----------------------
@@ -1606,11 +1608,11 @@ class newCanvas {
     this.mainCtx.lineWidth = 2;
     this.mainCtx.strokeStyle = this.strokeColor;
     if (this.isColSelected) {
-      this.mainCtx.strokeRect(x - 1, -2, width + 3, this.mainCtx.canvas.height);
+      this.mainCtx.strokeRect(x - 0.5, -0.5, width + 1, this.mainCtx.canvas.height);
     } else if (this.isRowSelected) {
       this.mainCtx.strokeRect(-1, y - 1, this.mainCtx.canvas.width, height + 2);
     } else {
-      this.mainCtx.strokeRect(x - 1, y - 1, width + 3, height + 3);
+      this.mainCtx.strokeRect(x-0.5, y-0.5, width+1, height+1);
     }
 
     this.mainCtx.restore();
@@ -1770,8 +1772,8 @@ class newCanvas {
 
     const rect = this.mainCtx.canvas.getBoundingClientRect();
     this.isAreaSelected = true;
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = (e.clientX - rect.left)/this.scale;
+    const clickY = (e.clientY - rect.top)/this.scale;
 
     const colIndex = this.getCurColumnIndex(clickX);
     const rowIndex = this.getCurRowIndex(clickY);
@@ -1812,8 +1814,8 @@ class newCanvas {
   highlightAreaPointerMove(e) {
     if (this.isAreaSelected) {
       const rect = this.mainCtx.canvas.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
+      const clickX = (e.clientX - rect.left)/this.scale;
+      const clickY = (e.clientY - rect.top)/this.scale;
 
       const colIndex = this.getCurColumnIndex(clickX);
       const rowIndex = this.getCurRowIndex(clickY);
@@ -1850,7 +1852,7 @@ class newCanvas {
       for (let i = startX; i <= endX; i++) {
         let currentData = result ? result[j][i] : "";
         count++;
-        if (!isNaN(Number(currentData.data))) {
+        if (!isNaN(Number(currentData?.data))) {
           sum += Number(currentData.data);
           max = Math.max(max, currentData.data);
           min = Math.min(min, currentData.data);
@@ -1910,8 +1912,8 @@ class newCanvas {
 
     let rect = header.getBoundingClientRect();
 
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = (e.clientX - rect.left)/this.scale;
+    const clickY = (e.clientY - rect.top)/this.scale;
     let columnIndex = this.getCurColumnIndex(clickX);
     let rowIndex = this.getCurRowIndex(clickY);
 
@@ -2045,8 +2047,8 @@ class newCanvas {
     this.resizeLineHorizontal = document.getElementById("resizeLineHorizontal");
 
     let rect = header.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = (e.clientX - rect.left)/this.scale;
+    const clickY = (e.clientY - rect.top)/this.scale;
     let columnIndex = this.getCurColumnIndex(clickX);
     let rowIndex = this.getCurRowIndex(clickY);
     let iscolPointDraggable = this.isColPointDraggable(clickX);
