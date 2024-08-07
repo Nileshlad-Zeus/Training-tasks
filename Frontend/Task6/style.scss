@@ -148,7 +148,8 @@ body {
       }
     }
   }
-  .editingSection , .chartSection{
+  .editingSection,
+  .chartSection {
     position: relative;
     display: flex;
     gap: 20px;
@@ -164,10 +165,20 @@ body {
         color: rgb(95, 88, 88);
       }
     }
+
     .icon {
       cursor: pointer;
       font-size: 30px;
       color: rgb(95, 88, 88);
+    }
+  }
+
+  .chartSection {
+    .chart {
+      cursor: pointer;
+      img {
+        width: 40px;
+      }
     }
   }
 }
@@ -538,13 +549,14 @@ canvas {
   }
 }
 
-.chartDiv{
-  // display: none;
-  position: absolute;
-  padding: 10px;
-  top: 20px;
-  left: 20px;
-  width: 450px;
-  height: 250px;
-  background-color: white;
+// .chartDiv{
+//   position: absolute;
+//   padding: 10px;
+//   width: 450px;
+//   height: 250px;
+//   background-color: white;
+// }
+
+#horizontalBar{
+  transform: rotate(90deg);
 }

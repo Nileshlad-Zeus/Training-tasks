@@ -3,9 +3,9 @@ class newCanvas {
     this.sheetName = sheetName;
     this.inputBox = document.getElementById("canvasinput");
     this.scale = window.devicePixelRatio;
-    // window.addEventListener("resize", () => {
-    //   console.log("scale",this.scale);
-    // });
+    window.addEventListener("resize", () => {
+      location.reload();
+    });
     this.createNewCanvas();
     this.initialVariables();
 
@@ -62,9 +62,12 @@ class newCanvas {
       this.renderTopHeader();
     });
 
-    const barGraph = document.getElementById("barGraph");
-    barGraph.addEventListener("click", () => {
-      this.barChart();
+    var charts = document.querySelectorAll(".chart");
+    this.chartArray = [];
+    Array.from(charts).forEach((chart) => {
+      chart.addEventListener("click", (e) => {
+        this.barChart(e.target.id);
+      });
     });
   }
 
@@ -1354,6 +1357,7 @@ class newCanvas {
         result = this.sheetData.find((item) => item[i]);
         let newData = copiedText.split("\r\n");
         let currData = newData[a].split("\t");
+        console.log(result, newData, currData);
         a++;
         b = 0;
         for (
@@ -1374,7 +1378,6 @@ class newCanvas {
         }
         y++;
       }
-      console.log(this.sheetData);
       this.renderData();
     }
   };
@@ -1459,84 +1462,120 @@ class newCanvas {
     return rotated;
   }
 
-  barChart() {
-    const [startX, startY, endX, endY] = this.selectedDimensionsMain;
-    if (!this.drawGraph) {
-      const main = document.getElementById("main");
-      let chartDiv = document.createElement("div");
-      chartDiv.setAttribute("class", "chartDiv");
-      chartDiv.setAttribute("id", "chartDiv");
-      let canvas = document.createElement("canvas");
-      canvas.setAttribute("class", "chartCanvas");
-      canvas.setAttribute("id", "chartCanvasBar");
-      chartDiv.appendChild(canvas);
-      main.appendChild(chartDiv);
+  makeitDraggable(chartDiv) {
+    let rect = this.mainCanvas.getBoundingClientRect();
+    this.draggableChart = false;
 
-      this.drawGraph = true;
-      let dataArray = [];
-      let tempArray = [];
-      let xValues = [];
-      let i = 0;
-      for (let j = startY; j <= endY; j++) {
-        xValues.push(i++);
-        const result = this.sheetData.find((item) => item[j]);
-        if (startX == endX) {
-          for (let i = startX; i <= endX; i++) {
-            let currentData = result ? result[j][i] : "";
-            if (!isNaN(currentData.data)) {
-              dataArray.push(Number(currentData.data));
-            }
-          }
-        } else {
-          tempArray = [];
-          for (let i = startX; i <= endX; i++) {
-            let currentData = result ? result[j][i] : "";
-            if (!isNaN(currentData.data)) {
-              tempArray.push(Number(currentData.data));
-            }
-          }
-          dataArray.push(tempArray);
+    chartDiv.addEventListener("pointerdown", (e) => {
+      this.draggableChart = true;
+    });
+    chartDiv.addEventListener("pointermove", (e) => {
+      chartDiv.style.cursor = "move";
+      let clickX = (e.clientX - rect.left) / this.scale;
+      let clickY = (e.clientY - rect.top) / this.scale;
+      if (this.draggableChart) {
+        chartDiv.style.top = `${clickY - 50}px`;
+        chartDiv.style.left = `${clickX - 225}px`;
+      }
+    });
+    chartDiv.addEventListener("pointerup", (e) => {
+      this.draggableChart = false;
+    });
+  }
+
+  barChart(chartType) {
+    const [startX, startY, endX, endY] = this.selectedDimensionsMain;
+    if (startX == 0 && startY == 0 && endX == 0 && endY == 0) {
+      return;
+    }
+    const main = document.getElementById("main");
+    let chartDiv = document.createElement("div");
+
+    let canvas = document.createElement("canvas");
+    chartDiv.appendChild(canvas);
+    main.appendChild(chartDiv);
+
+    let dataArray = [];
+    let tempArray = [];
+    let xValues = [];
+    let i = 1;
+    for (let j = startY; j <= endY; j++) {
+      const result = this.sheetData.find((item) => item[j]);
+      tempArray = [];
+      for (let i = startX; i <= endX; i++) {
+        let currentData = result ? result[j][i] : "";
+        if (currentData && currentData != "" && !isNaN(currentData.data)) {
+          tempArray.push(Number(currentData.data));
         }
       }
-
-      let dataSet = [];
-      if (startX != endX) {
-        dataArray = this.rotateMatrix(dataArray);
-        dataArray.forEach((d) => {
-          dataSet.push({
-            data: d,
-            backgroundColor: `skyblue`,
-            borderColor: "red",
-            fill: true,
-          });
-        });
-      } else {
-        dataSet = dataArray;
-      }
-
-      if (startX == endX) {
-        new Chart("chartCanvasBar", {
-          type: "bar",
-          data: {
-            labels: xValues,
-            datasets: [
-              {
-                backgroundColor: `skyblue`,
-                data: dataSet,
-              },
-            ],
-          },
-        });
-      } else {
-        new Chart("chartCanvasBar", {
-          type: "bar",
-          data: {
-            labels: xValues,
-            datasets: dataSet,
-          },
-        });
+      if (tempArray.length > 0) {
+        xValues.push(i++);
+        dataArray.push(tempArray);
       }
     }
+    if (dataArray.length <= 0) {
+      return;
+    }
+    chartDiv.style.position = "absolute";
+    chartDiv.style.border = "1px solid gray";
+    chartDiv.style.top = "50px";
+    chartDiv.style.left = "50px";
+    chartDiv.style.width = "450px";
+    chartDiv.style.padding = "10px";
+    chartDiv.style.backgroundColor = "white";
+
+    let dataSet = [];
+    let backgroundColor = [
+      "#4472C4",
+      "#ED7D31",
+      "#A5A5A5",
+      "#FFC000",
+      "#5B9BD5",
+      "#F4B400",
+      "#D3A7A1",
+      "#009B77",
+      "#6D6E71",
+      "#FF6F61",
+      "#C2C2C2",
+      "#F2C6A1",
+      "#2E8B57",
+      "#FFC107",
+      "#4F81BD",
+    ];
+
+    dataArray = this.rotateMatrix(dataArray);
+
+    dataArray.forEach((d, index) => {
+      if (chartType != "pie" || (chartType == "pie" && index == 0)) {
+        dataSet.push({
+          label: `Series${index}`,
+          axis: "y",
+          backgroundColor:
+            chartType == "pie" || chartType == "doughnut"
+              ? backgroundColor
+              : backgroundColor[index],
+          borderColor:
+            chartType == "pie" || chartType == "doughnut"
+              ? "white"
+              : backgroundColor[index],
+          fill: false,
+          data: d,
+        });
+      }
+    });
+
+    new Chart(canvas, {
+      type: chartType,
+      data: {
+        labels: xValues,
+        datasets: dataSet,
+      },
+      options: {
+        indexAxis: "y",
+        cutoutPercentage: chartType == "doughnut" ? 80 : 0,
+      },
+    });
+    this.makeitDraggable(chartDiv);
   }
 
   //----------------------Highlight Selected Area----------------------

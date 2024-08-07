@@ -143,26 +143,36 @@ body {
 .toolsSection .fontSection .fontStyle .fontColor .colorSelector {
   display: none;
 }
-.toolsSection .editingSection, .toolsSection .chartSection {
+.toolsSection .editingSection,
+.toolsSection .chartSection {
   position: relative;
   display: flex;
   gap: 20px;
   justify-content: center;
   padding: 0 15px;
 }
-.toolsSection .editingSection div, .toolsSection .chartSection div {
+.toolsSection .editingSection div,
+.toolsSection .chartSection div {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.toolsSection .editingSection div label, .toolsSection .chartSection div label {
+.toolsSection .editingSection div label,
+.toolsSection .chartSection div label {
   font-size: 14px;
   color: rgb(95, 88, 88);
 }
-.toolsSection .editingSection .icon, .toolsSection .chartSection .icon {
+.toolsSection .editingSection .icon,
+.toolsSection .chartSection .icon {
   cursor: pointer;
   font-size: 30px;
   color: rgb(95, 88, 88);
+}
+.toolsSection .chartSection .chart {
+  cursor: pointer;
+}
+.toolsSection .chartSection .chart img {
+  width: 40px;
 }
 
 .editingSectionModal {
@@ -507,12 +517,6 @@ canvas {
   font-size: 12px;
 }
 
-.chartDiv {
-  position: absolute;
-  padding: 10px;
-  top: 20px;
-  left: 20px;
-  width: 450px;
-  height: 250px;
-  background-color: white;
+#horizontalBar {
+  transform: rotate(90deg);
 }/*# sourceMappingURL=style.css.map */
