@@ -1,4 +1,4 @@
-import { newCanvas } from "./appMain.js";
+import { newCanvas } from "./ConvertIntoClasses.js";
 
 new newCanvas("sheet-1");
 
@@ -24,9 +24,6 @@ addNewSheet.addEventListener("click", () => {
   sheetListModal.appendChild(li);
 });
 
-const main = document.querySelectorAll("#main canvas");
-
-let current = "sheet-1";
 let createdCanvas = ["sheet-1"];
 sheets.addEventListener("click", (e) => {
   if (e.target.closest(".sheetBtn")) {
@@ -74,9 +71,7 @@ sheetListModalBtn.addEventListener("click", () => {
 //find and replace function
 const replaceIcon = document.querySelector("#replaceIcon");
 const editingSectionModal = document.querySelector(".editingSectionModal");
-const findtextInput = document.querySelector("#findtextInput");
-const replacetextInput = document.querySelector("#replacetextInput");
-const closeEditingModal = document.querySelector("#closeEditingModal")
+const closeEditingModal = document.querySelector("#closeEditingModal");
 replaceIcon.addEventListener("click", () => {
   if (editingSectionModal.style.display == "none") {
     editingSectionModal.style.display = "flex";
@@ -84,12 +79,7 @@ replaceIcon.addEventListener("click", () => {
     editingSectionModal.style.display = "none";
   }
 });
-closeEditingModal.addEventListener("click",()=>{
-    editingSectionModal.style.display = "none";
-})
-// const replaceAllFun = document.querySelector("#replaceAllFun");
-// replaceAllFun.addEventListener("click",()=>{
-//     let findText = findtextInput.value;
-//     let replaceText = replacetextInput.value;
-//     new newCanvas("sheet-1",findText, replaceText);
-// })
+closeEditingModal.addEventListener("click", () => {
+  editingSectionModal.style.display = "none";
+});
+

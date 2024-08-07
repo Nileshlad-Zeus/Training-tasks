@@ -11,30 +11,6 @@ body {
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-#scroller {
-  visibility: hidden;
-  position: absolute;
-  height: 100%;
-  width: 90%;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
 .toolsSection {
   position: sticky;
   height: 100px;
@@ -50,6 +26,7 @@ body {
     border-left: 1px solid rgba(128, 128, 128, 0.411);
     border-right: 1px solid rgba(128, 128, 128, 0.411);
   }
+
   .toolNameHeading {
     position: absolute;
     bottom: 0;
@@ -63,6 +40,7 @@ body {
       Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
       sans-serif;
   }
+
   .fontSection {
     position: relative;
     width: 250px;
@@ -148,6 +126,7 @@ body {
       }
     }
   }
+
   .editingSection,
   .chartSection {
     position: relative;
@@ -179,9 +158,13 @@ body {
       img {
         width: 40px;
       }
+      #horizontalBar {
+        transform: rotate(90deg);
+      }
     }
   }
 }
+
 .editingSectionModal {
   display: none;
   position: absolute;
@@ -325,65 +308,69 @@ body {
 
 .mainSheet {
   position: relative;
-}
-.topleftDiv {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 40px;
-  height: 24px;
-  background-color: rgb(245, 245, 245);
-  border: 1px solid #d5cece;
-  border-top: none;
-  border-left: none;
-  z-index: 10;
-  cursor: cell;
-
-  .topleft {
+  .topleftDiv {
     position: absolute;
-    right: 4px;
-    bottom: 4px;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 24px;
+    background-color: rgb(245, 245, 245);
+    border: 1px solid #d5cece;
+    border-top: none;
+    border-left: none;
+    z-index: 10;
+    cursor: cell;
 
-    width: 0;
-    height: 0;
-    border-top: 15px solid transparent;
-    border-right: 15px solid rgb(183, 183, 183);
+    .topleft {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+
+      width: 0;
+      height: 0;
+      border-top: 15px solid transparent;
+      border-right: 15px solid rgb(183, 183, 183);
+    }
   }
-}
-.mainSection {
-  height: calc(100vh - 190px);
-  margin-left: 40px;
-  // margin-top: 24px;
-  overflow: auto;
-  top: 24px;
-  position: relative;
-  background-color: #ffffff;
-}
-.topHeader {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 24px;
-  margin-left: 40px;
-  overflow: hidden;
-}
-.leftHeader {
-  position: absolute;
-  left: 0;
-  margin-top: 24px;
-  top: 0;
-  height: calc(100vh - 190px);
-}
 
-.canvasinput {
-  display: none;
-  position: absolute;
-  // border: 2px solid rgb(16, 124, 65);
-  // border: 1px solid red;
-  border: none;
-  z-index: 10;
-  outline: none;
-  padding-left: 2px;
+  .topHeader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 24px;
+    margin-left: 40px;
+    overflow: hidden;
+  }
+  .leftHeader {
+    position: absolute;
+    left: 0;
+    margin-top: 24px;
+    top: 0;
+    height: calc(100vh - 190px);
+  }
+
+  .mainSection {
+    height: calc(100vh - 190px);
+    margin-left: 40px;
+    // margin-top: 24px;
+    overflow: auto;
+    top: 24px;
+    position: relative;
+    background-color: #ffffff;
+
+    .resizeLineHorizontal {
+      display: none;
+      position: absolute;
+      height: 3px;
+      border-top: dashed rgb(16, 124, 65);
+    }
+    .resizeLineVertical {
+      display: none;
+      position: absolute;
+      width: 3px;
+      border-left: dashed rgb(16, 124, 65);
+    }
+  }
 }
 
 .footer {
@@ -474,34 +461,6 @@ body {
   }
 }
 
-canvas {
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -o-crisp-edges;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  -ms-interpolation-mode: nearest-neighbor;
-}
-
-.resizeLineHorizontal {
-  display: none;
-  position: absolute;
-  height: 3px;
-  border-top: dashed rgb(16, 124, 65);
-}
-.resizeLineVertical {
-  display: none;
-  position: absolute;
-  width: 3px;
-  border-left: dashed rgb(16, 124, 65);
-}
-
-.displayNone {
-  display: none;
-}
-.displayBlock {
-  display: block;
-}
-
 .footer2 {
   position: relative;
   height: 25px;
@@ -549,14 +508,39 @@ canvas {
   }
 }
 
-// .chartDiv{
-//   position: absolute;
-//   padding: 10px;
-//   width: 450px;
-//   height: 250px;
-//   background-color: white;
-// }
-
-#horizontalBar{
-  transform: rotate(90deg);
+#scroller {
+  visibility: hidden;
+  position: absolute;
+  height: 100%;
+  width: 90%;
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.canvasinput {
+  display: none;
+  position: absolute;
+  border: none;
+  z-index: 10;
+  outline: none;
+  padding-left: 2px;
+}
+
+
+

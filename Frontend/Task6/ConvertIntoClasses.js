@@ -1,3 +1,5 @@
+import { MakeChart } from "./JavaScriptModule/Chart.js";
+import { GetValues } from "./JavaScriptModule/GetValues.js";
 class newCanvas {
   constructor(sheetName) {
     this.sheetName = sheetName;
@@ -7,8 +9,12 @@ class newCanvas {
       location.reload();
     });
 
+    
+
+
     this.createNewCanvas();
     this.initialVariables();
+    this.valueInst = new GetValues(this.numCols,this.numRows, this.cellHeight, this.cellWidths);
 
     this.highlightSelectedAreaEvents();
     this.scrollFunction();
@@ -27,6 +33,8 @@ class newCanvas {
         this.keyBoardEvents(event);
       }
     });
+
+
     this.drawGrid();
     // this.highlightHeaders();
     this.renderLeftHeader();
@@ -63,16 +71,24 @@ class newCanvas {
       this.renderTopHeader();
     });
 
+   
+
+    //charts
     var charts = document.querySelectorAll(".chart");
+    this.chartInst = new MakeChart(this.mainCanvas, this.sheetData);
     this.chartArray = [];
     Array.from(charts).forEach((chart) => {
       chart.addEventListener("click", (e) => {
-        this.barChart(e.target.id);
+        this.chartInst.barChart(e.target.id, this.selectedDimensionsMain);
       });
     });
   }
 
   initialVariables() {
+    // this.cellHeight = new Map();
+    // this.cellWidths = new Map();
+
+
     this.drawGraph = false;
     //height and width of cell
     this.defaultCellHeight = 21;
@@ -152,59 +168,6 @@ class newCanvas {
 
     this.colFlag = false;
     this.rowFlag = false;
-
-    //data store
-    //color, font style, bold, font size, font family
-    // this.sheetData = [
-    //   {
-    //     0: {
-    //       0: {
-    //         data: "Nilesh",
-    //         properties: "*****",
-    //       },
-    //       2: {
-    //         data: "Lad",
-    //         properties: "*****",
-    //       },
-    //     },
-    //   },
-    //   {
-    //     1: {
-    //       0: {
-    //         data: "Jhon",
-    //         properties: "*****",
-    //       },
-    //       1: {
-    //         data: "Cena",
-    //         properties: "*****",
-    //       },
-    //     },
-    //   },
-    //   {
-    //     5: {
-    //       0: {
-    //         data: "Jhon",
-    //         properties: "*****",
-    //       },
-    //       6: {
-    //         data: "Cena",
-    //         properties: "*****",
-    //       },
-    //     },
-    //   },
-    //   {
-    //     3: {
-    //       5: {
-    //         data: "Harsh",
-    //         properties: "*****",
-    //       },
-    //       0: {
-    //         data: "Cena",
-    //         properties: "*****",
-    //       },
-    //     },
-    //   },
-    // ];
 
     this.sheetData = [
       {
@@ -666,10 +629,10 @@ class newCanvas {
       (this.cellPositionLeft + 0.6) * this.scale
     }px`;
     this.inputBox.style.height = `${
-      (this.getCurCellHeight(this.y1CellIndex) - 1.2) * this.scale
+      (this.valueInst.getCurCellHeight(this.y1CellIndex) - 1.2) * this.scale
     }px`;
     this.inputBox.style.width = `${
-      (this.getCurCellWidth(this.x1CellIndex) - 1.2) * this.scale
+      (this.valueInst.getCurCellWidth(this.x1CellIndex) - 1.2) * this.scale
     }px`;
   }
 
@@ -881,7 +844,7 @@ class newCanvas {
 
   //----------------------draw grid----------------------
   trimData(data, j, fontSize) {
-    let cellwidth = this.getCurCellWidth(j);
+    let cellwidth = this.valueInst.getCurCellWidth(j);
     let length = data.length;
     let textWidth = this.mainCtx.measureText(data).width;
     let newfontSize = fontSize.slice(0, -2);
@@ -896,7 +859,7 @@ class newCanvas {
       let cellPositionX = 0;
       cellPositionY = 21;
       for (let k = 0; k < Object.keys(data); k++) {
-        cellPositionY += this.getCurCellHeight(k);
+        cellPositionY += this.valueInst.getCurCellHeight(k);
       }
       i = Object.keys(data);
 
@@ -945,7 +908,7 @@ class newCanvas {
           this.mainCtx.clip();
           this.mainCtx.restore();
         }
-        cellPositionX += this.getCurCellWidth(j);
+        cellPositionX += this.valueInst.getCurCellWidth(j);
       }
       i++;
     });
@@ -975,7 +938,7 @@ class newCanvas {
   drawRows() {
     let cellPosition = 0;
     for (let i = 0; i <= this.numRows; i++) {
-      cellPosition += this.getCurCellHeight(i);
+      cellPosition += this.valueInst.getCurCellHeight(i);
       this.mainCtx.beginPath();
       this.mainCtx.save();
       this.mainCtx.moveTo(0, cellPosition + 0.5);
@@ -990,7 +953,7 @@ class newCanvas {
   drawColumns() {
     let cellPosition = 0;
     for (let i = 0; i <= this.numCols; i++) {
-      cellPosition += this.getCurCellWidth(i);
+      cellPosition += this.valueInst.getCurCellWidth(i);
       this.mainCtx.beginPath();
       this.mainCtx.moveTo(cellPosition + 0.5, 0);
       this.mainCtx.lineTo(cellPosition + 0.5, this.mainCtx.canvas.height);
@@ -1016,7 +979,7 @@ class newCanvas {
     this.topHeaderCtx.textAlign = "center";
 
     for (let i = 0; i <= this.numCols; i++) {
-      cellPosition += this.getCurCellWidth(i);
+      cellPosition += this.valueInst.getCurCellWidth(i);
       this.topHeaderCtx.save();
       this.topHeaderCtx.beginPath();
       this.topHeaderCtx.moveTo(cellPosition + 0.5, 0);
@@ -1042,10 +1005,10 @@ class newCanvas {
 
     cellPosition = 0;
     for (let i = 0; i <= this.numCols; i++) {
-      cellPosition += this.getCurCellWidth(i);
+      cellPosition += this.valueInst.getCurCellWidth(i);
       this.topHeaderCtx.save();
-      let text = this.convertNumToChar(i + 1);
-      let xPosition = cellPosition - this.getCurCellWidth(i) / 2;
+      let text = this.valueInst.convertNumToChar(i + 1);
+      let xPosition = cellPosition - this.valueInst.getCurCellWidth(i) / 2;
       let yPosition = 15;
 
       this.topHeaderCtx.fillStyle = this.gridStrokeColor;
@@ -1096,7 +1059,7 @@ class newCanvas {
 
     let cellPosition = 0;
     for (let i = 0; i <= this.numRows; i++) {
-      cellPosition += this.getCurCellHeight(i);
+      cellPosition += this.valueInst.getCurCellHeight(i);
       this.leftHeaderCtx.save();
       this.leftHeaderCtx.beginPath();
       this.leftHeaderCtx.moveTo(2, cellPosition + 0.5);
@@ -1124,11 +1087,11 @@ class newCanvas {
     cellPosition = 0;
     this.leftHeaderCtx.font = "14px Arial";
     for (let i = 0; i <= this.numRows; i++) {
-      cellPosition += this.getCurCellHeight(i);
+      cellPosition += this.valueInst.getCurCellHeight(i);
 
       this.leftHeaderCtx.save();
       let text = (i + 1).toString();
-      let yPosition = cellPosition - this.getCurCellHeight(i) / 2;
+      let yPosition = cellPosition - this.valueInst.getCurCellHeight(i) / 2;
 
       this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
       if (Array.isArray(this.currSelectedRow)) {
@@ -1233,16 +1196,16 @@ class newCanvas {
       this.renderTopHeader();
       this.renderLeftHeader();
     } else if (e.key == "Enter" || e.key == "ArrowDown") {
-      this.cellPositionTop += this.getCurCellHeight(this.y1CellIndex);
+      this.cellPositionTop += this.valueInst.getCurCellHeight(this.y1CellIndex);
       this.y1CellIndex = this.y1CellIndex + 1;
     } else if (e.key == "ArrowUp" && this.y1CellIndex >= 1) {
-      this.cellPositionTop -= this.getCurCellHeight(this.y1CellIndex - 1);
+      this.cellPositionTop -= this.valueInst.getCurCellHeight(this.y1CellIndex - 1);
       this.y1CellIndex = this.y1CellIndex - 1;
     } else if (e.key == "Tab" || e.key == "ArrowRight") {
-      this.cellPositionLeft += this.getCurCellWidth(this.x1CellIndex);
+      this.cellPositionLeft += this.valueInst.getCurCellWidth(this.x1CellIndex);
       this.x1CellIndex = this.x1CellIndex + 1;
     } else if (e.key == "ArrowLeft" && this.x1CellIndex >= 1) {
-      this.cellPositionLeft -= this.getCurCellWidth(this.x1CellIndex - 1);
+      this.cellPositionLeft -= this.valueInst.getCurCellWidth(this.x1CellIndex - 1);
       this.x1CellIndex = this.x1CellIndex - 1;
     } else if (
       (e.key >= "a" && e.key <= "z") ||
@@ -1358,7 +1321,6 @@ class newCanvas {
         result = this.sheetData.find((item) => item[i]);
         let newData = copiedText.split("\r\n");
         let currData = newData[a].split("\t");
-        console.log(result, newData, currData);
         a++;
         b = 0;
         for (
@@ -1392,16 +1354,16 @@ class newCanvas {
       let height = 0;
 
       for (let i = 0; i < startX; i++) {
-        x += this.getCurCellWidth(i);
+        x += this.valueInst.getCurCellWidth(i);
       }
       for (let i = 0; i < startY; i++) {
-        y += this.getCurCellHeight(i);
+        y += this.valueInst.getCurCellHeight(i);
       }
       for (let i = startX; i <= endX; i++) {
-        width += this.getCurCellWidth(i);
+        width += this.valueInst.getCurCellWidth(i);
       }
       for (let i = startY; i <= endY; i++) {
-        height += this.getCurCellHeight(i);
+        height += this.valueInst.getCurCellHeight(i);
       }
 
       if (this.animateFullColumn) {
@@ -1445,147 +1407,13 @@ class newCanvas {
     }
   }
 
-  //----------------------Charts----------------------
-  rotateMatrix(array) {
-    const rows = array.length;
-    const cols = array[0].length;
-    const rotated = [];
-
-    for (let i = 0; i < cols; i++) {
-      rotated[i] = [];
-    }
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        rotated[j][rows - 1 - i] = array[i][j];
-      }
-    }
-
-    return rotated;
-  }
-
-  makeitDraggable(chartDiv) {
-    let rect = this.mainCanvas.getBoundingClientRect();
-    this.draggableChart = false;
-
-    chartDiv.addEventListener("pointerdown", (e) => {
-      this.draggableChart = true;
-    });
-    chartDiv.addEventListener("pointermove", (e) => {
-      chartDiv.style.cursor = "move";
-      let clickX = (e.clientX - rect.left) / this.scale;
-      let clickY = (e.clientY - rect.top) / this.scale;
-      if (this.draggableChart) {
-        chartDiv.style.top = `${clickY - 50}px`;
-        chartDiv.style.left = `${clickX - 225}px`;
-      }
-    });
-    chartDiv.addEventListener("pointerup", (e) => {
-      this.draggableChart = false;
-    });
-  }
-
-  barChart(chartType) {
-    const [startX, startY, endX, endY] = this.selectedDimensionsMain;
-    if (startX == 0 && startY == 0 && endX == 0 && endY == 0) {
-      return;
-    }
-    const main = document.getElementById("main");
-    let chartDiv = document.createElement("div");
-
-    let canvas = document.createElement("canvas");
-    chartDiv.appendChild(canvas);
-    main.appendChild(chartDiv);
-
-    let dataArray = [];
-    let tempArray = [];
-    let xValues = [];
-    let i = 1;
-    for (let j = startY; j <= endY; j++) {
-      const result = this.sheetData.find((item) => item[j]);
-      tempArray = [];
-      for (let i = startX; i <= endX; i++) {
-        let currentData = result ? result[j][i] : "";
-        if (currentData && currentData != "" && !isNaN(currentData.data)) {
-          tempArray.push(Number(currentData.data));
-        }
-      }
-      if (tempArray.length > 0) {
-        xValues.push(i++);
-        dataArray.push(tempArray);
-      }
-    }
-    if (dataArray.length <= 0) {
-      return;
-    }
-    chartDiv.style.position = "absolute";
-    chartDiv.style.border = "1px solid gray";
-    chartDiv.style.top = "50px";
-    chartDiv.style.left = "50px";
-    chartDiv.style.width = "450px";
-    chartDiv.style.padding = "10px";
-    chartDiv.style.backgroundColor = "white";
-
-    let dataSet = [];
-    let backgroundColor = [
-      "#4472C4",
-      "#ED7D31",
-      "#A5A5A5",
-      "#FFC000",
-      "#5B9BD5",
-      "#F4B400",
-      "#D3A7A1",
-      "#009B77",
-      "#6D6E71",
-      "#FF6F61",
-      "#C2C2C2",
-      "#F2C6A1",
-      "#2E8B57",
-      "#FFC107",
-      "#4F81BD",
-    ];
-
-    dataArray = this.rotateMatrix(dataArray);
-
-    dataArray.forEach((d, index) => {
-      if (chartType != "pie" || (chartType == "pie" && index == 0)) {
-        dataSet.push({
-          label: `Series${index}`,
-          axis: "y",
-          backgroundColor:
-            chartType == "pie" || chartType == "doughnut"
-              ? backgroundColor
-              : backgroundColor[index],
-          borderColor:
-            chartType == "pie" || chartType == "doughnut"
-              ? "white"
-              : backgroundColor[index],
-          fill: false,
-          data: d,
-        });
-      }
-    });
-
-    new Chart(canvas, {
-      type: chartType,
-      data: {
-        labels: xValues,
-        datasets: dataSet,
-      },
-      options: {
-        indexAxis: "y",
-        cutoutPercentage: chartType == "doughnut" ? 80 : 0,
-      },
-    });
-    this.makeitDraggable(chartDiv);
-  }
-
   //----------------------Highlight Selected Area----------------------
   highlightSelectedArea() {
     this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     const [startX, startY, endX, endY] = this.selectedDimensionsMain;
-
     const nameBoxInput = document.getElementById("nameBoxInput");
-    let currentCell = `${this.convertNumToChar(startX + 1)}${startY + 1}`;
+    // let currentCell = `${this.valueInst.convertNumToChar(startX+1)}${startY + 1}`;
+    let currentCell = `${startX+1}${startY + 1}`;
     nameBoxInput.value = currentCell;
 
     let x = 0;
@@ -1593,16 +1421,16 @@ class newCanvas {
     let width = 0;
     let height = 0;
     for (let i = 0; i < startX; i++) {
-      x += this.getCurCellWidth(i);
+      x += this.valueInst.getCurCellWidth(i);
     }
     for (let i = 0; i < startY; i++) {
-      y += this.getCurCellHeight(i);
+      y += this.valueInst.getCurCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
-      width += this.getCurCellWidth(i);
+      width += this.valueInst.getCurCellWidth(i);
     }
     for (let i = startY; i <= endY; i++) {
-      height += this.getCurCellHeight(i);
+      height += this.valueInst.getCurCellHeight(i);
     }
 
     this.cellPositionLeft = 0;
@@ -1614,10 +1442,10 @@ class newCanvas {
     }
 
     for (let i = 0; i < this.x1CellIndex; i++) {
-      this.cellPositionLeft += this.getCurCellWidth(i);
+      this.cellPositionLeft += this.valueInst.getCurCellWidth(i);
     }
     for (let i = 0; i < this.y1CellIndex; i++) {
-      this.cellPositionTop += this.getCurCellHeight(i);
+      this.cellPositionTop += this.valueInst.getCurCellHeight(i);
     }
     this.mainCtx.save();
 
@@ -1652,8 +1480,8 @@ class newCanvas {
     this.mainCtx.fillRect(
       this.cellPositionLeft,
       this.cellPositionTop,
-      this.getCurCellWidth(this.x1CellIndex),
-      this.getCurCellHeight(this.y1CellIndex)
+      this.valueInst.getCurCellWidth(this.x1CellIndex),
+      this.valueInst.getCurCellHeight(this.y1CellIndex)
     );
 
     this.mainCtx.lineWidth = 2;
@@ -1700,16 +1528,16 @@ class newCanvas {
     let width = 0;
     let height = 0;
     for (let i = 0; i < startX; i++) {
-      x += this.getCurCellWidth(i);
+      x += this.valueInst.getCurCellWidth(i);
     }
     for (let i = 0; i < startY; i++) {
-      y += this.getCurCellHeight(i);
+      y += this.valueInst.getCurCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
-      width += this.getCurCellWidth(i);
+      width += this.valueInst.getCurCellWidth(i);
     }
     for (let i = startY; i <= endY; i++) {
-      height += this.getCurCellHeight(i);
+      height += this.valueInst.getCurCellHeight(i);
     }
 
     if (this.isColSelected && this.isRowSelected) {
@@ -1811,16 +1639,16 @@ class newCanvas {
     let width = 0;
     let height = 0;
     for (let i = 0; i < startX; i++) {
-      x += this.getCurCellWidth(i);
+      x += this.valueInst.getCurCellWidth(i);
     }
     for (let i = 0; i < startY; i++) {
-      y += this.getCurCellHeight(i);
+      y += this.valueInst.getCurCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
-      width += this.getCurCellWidth(i);
+      width += this.valueInst.getCurCellWidth(i);
     }
     for (let i = startY; i <= endY; i++) {
-      height += this.getCurCellHeight(i);
+      height += this.valueInst.getCurCellHeight(i);
     }
 
     if (this.isColSelected && this.isRowSelected) {
@@ -1874,16 +1702,16 @@ class newCanvas {
     let width = 0;
     let height = 0;
     for (let i = 0; i < startX; i++) {
-      x += this.getCurCellWidth(i);
+      x += this.valueInst.getCurCellWidth(i);
     }
     for (let i = 0; i < startY; i++) {
-      y += this.getCurCellHeight(i);
+      y += this.valueInst.getCurCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
-      width += this.getCurCellWidth(i);
+      width += this.valueInst.getCurCellWidth(i);
     }
     for (let i = startY; i <= endY; i++) {
-      height += this.getCurCellHeight(i);
+      height += this.valueInst.getCurCellHeight(i);
     }
     if (this.isColSelected && this.isRowSelected) {
       this.topHeaderCtx.save();
@@ -1968,26 +1796,25 @@ class newCanvas {
     this.isAreaSelected = true;
     const clickX = (e.clientX - rect.left) / this.scale;
     const clickY = (e.clientY - rect.top) / this.scale;
-
-    const colIndex = this.getCurColumnIndex(clickX);
-    const rowIndex = this.getCurRowIndex(clickY);
+    const colIndex = this.valueInst.getCurColumnIndex(clickX);
+    const rowIndex = this.valueInst.getCurRowIndex(clickY);
     this.startingIndex = [
-      this.getCurColumnIndex(clickX),
-      this.getCurRowIndex(clickY),
+      this.valueInst.getCurColumnIndex(clickX),
+      this.valueInst.getCurRowIndex(clickY),
     ];
 
     this.cellPositionLeft = 0;
     this.cellPositionTop = 0;
-    this.x1CellIndex = this.getCurColumnIndex(clickX);
-    this.y1CellIndex = this.getCurRowIndex(clickY);
-    this.x2CellIndex = this.getCurColumnIndex(clickX);
-    this.y2CellIndex = this.getCurRowIndex(clickY);
+    this.x1CellIndex = this.valueInst.getCurColumnIndex(clickX);
+    this.y1CellIndex = this.valueInst.getCurRowIndex(clickY);
+    this.x2CellIndex = this.valueInst.getCurColumnIndex(clickX);
+    this.y2CellIndex = this.valueInst.getCurRowIndex(clickY);
 
     for (let i = 0; i < this.x1CellIndex; i++) {
-      this.cellPositionLeft += this.getCurCellWidth(i);
+      this.cellPositionLeft += this.valueInst.getCurCellWidth(i);
     }
     for (let i = 0; i < this.y1CellIndex; i++) {
-      this.cellPositionTop += this.getCurCellHeight(i);
+      this.cellPositionTop += this.valueInst.getCurCellHeight(i);
     }
 
     const startX = Math.min(this.startingIndex[0], colIndex);
@@ -2011,8 +1838,8 @@ class newCanvas {
       const clickX = (e.clientX - rect.left) / this.scale;
       const clickY = (e.clientY - rect.top) / this.scale;
 
-      const colIndex = this.getCurColumnIndex(clickX);
-      const rowIndex = this.getCurRowIndex(clickY);
+      const colIndex = this.valueInst.getCurColumnIndex(clickX);
+      const rowIndex = this.valueInst.getCurRowIndex(clickY);
 
       // Determine dimensions of selection
       const startX = Math.max(0, Math.min(this.startingIndex[0], colIndex));
@@ -2058,17 +1885,17 @@ class newCanvas {
     const mathsCalculation = document.getElementById("mathsCalculation");
     if (numerical_count == 0 || count <= 1) {
       mathsCalculation.innerHTML = `
-      <p>Count: ${count}</p>
-      `;
+        <p>Count: ${count}</p>
+        `;
     } else {
       mathsCalculation.innerHTML = `
-    <p>Average: ${avg.toFixed(2)}</p>
-    <p>Count: ${count}</p>
-    <p>Numerical Count: ${numerical_count}</p>
-    <p>Min: ${min}</p>
-    <p>Max: ${max}</p>
-    <p>Sum: ${sum}</p>
-    `;
+      <p>Average: ${avg.toFixed(2)}</p>
+      <p>Count: ${count}</p>
+      <p>Numerical Count: ${numerical_count}</p>
+      <p>Min: ${min}</p>
+      <p>Max: ${max}</p>
+      <p>Sum: ${sum}</p>
+      `;
     }
   }
 
@@ -2108,33 +1935,33 @@ class newCanvas {
 
     const clickX = (e.clientX - rect.left) / this.scale;
     const clickY = (e.clientY - rect.top) / this.scale;
-    let columnIndex = this.getCurColumnIndex(clickX);
-    let rowIndex = this.getCurRowIndex(clickY);
+    let columnIndex = this.valueInst.getCurColumnIndex(clickX);
+    let rowIndex = this.valueInst.getCurRowIndex(clickY);
 
-    let iscolPointDraggable = this.isColPointDraggable(clickX);
-    let isrowPointDraggable = this.isRowPointDraggable(clickY);
+    let iscolPointDraggable = this.valueInst.isColPointDraggable(clickX);
+    let isrowPointDraggable = this.valueInst.isRowPointDraggable(clickY);
 
     if (!iscolPointDraggable) {
       this.startingIndexTop = [
-        this.getCurColumnIndex(clickX),
-        this.getCurRowIndex(clickY),
+        this.valueInst.getCurColumnIndex(clickX),
+        this.valueInst.getCurRowIndex(clickY),
       ];
     }
 
     if (!isrowPointDraggable) {
       this.startingIndexLeft = [
-        this.getCurColumnIndex(clickX),
-        this.getCurRowIndex(clickY),
+        this.valueInst.getCurColumnIndex(clickX),
+        this.valueInst.getCurRowIndex(clickY),
       ];
     }
 
     let columnLeft = 0;
     let rowTop = 0;
     for (let i = 0; i < columnIndex; i++) {
-      columnLeft += this.getCurCellWidth(i);
+      columnLeft += this.valueInst.getCurCellWidth(i);
     }
     for (let i = 0; i < rowIndex; i++) {
-      rowTop += this.getCurCellHeight(i);
+      rowTop += this.valueInst.getCurCellHeight(i);
     }
 
     if (
@@ -2195,20 +2022,20 @@ class newCanvas {
       this.isDraggingTop = true;
       this.resizeColIndex = columnIndex;
       this.resizeColTop = clickX;
-      this.resizeColWidth = this.getCurCellWidth(columnIndex);
+      this.resizeColWidth = this.valueInst.getCurCellWidth(columnIndex);
     }
 
     if (columnIndex == 0 && rowIndex !== -1 && isrowPointDraggable) {
       this.isDraggingLeft = true;
       this.resizeRowIndex = rowIndex;
       this.resizeRowTop = clickY;
-      this.resizeRowHeight = this.getCurCellHeight(rowIndex);
+      this.resizeRowHeight = this.valueInst.getCurCellHeight(rowIndex);
     }
 
-    this.rowIndex2 = this.getCurRowIndex(clickY - 5);
-    this.columnIndex2 = this.getCurColumnIndex(clickX - 10);
-    let width = this.getCurCellWidth(this.columnIndex2);
-    let height = this.getCurCellHeight(this.rowIndex2);
+    this.rowIndex2 = this.valueInst.getCurRowIndex(clickY - 5);
+    this.columnIndex2 = this.valueInst.getCurColumnIndex(clickX - 10);
+    let width = this.valueInst.getCurCellWidth(this.columnIndex2);
+    let height = this.valueInst.getCurCellHeight(this.rowIndex2);
 
     if (header == this.topHeaderCanvas && iscolPointDraggable) {
       this.mainCtx.beginPath();
@@ -2248,10 +2075,10 @@ class newCanvas {
     let rect = header.getBoundingClientRect();
     const clickX = (e.clientX - rect.left) / this.scale;
     const clickY = (e.clientY - rect.top) / this.scale;
-    let columnIndex = this.getCurColumnIndex(clickX);
-    let rowIndex = this.getCurRowIndex(clickY);
-    let iscolPointDraggable = this.isColPointDraggable(clickX);
-    let isrowPointDraggable = this.isRowPointDraggable(clickY);
+    let columnIndex = this.valueInst.getCurColumnIndex(clickX);
+    let rowIndex = this.valueInst.getCurRowIndex(clickY);
+    let iscolPointDraggable = this.valueInst.isColPointDraggable(clickX);
+    let isrowPointDraggable = this.valueInst.isRowPointDraggable(clickY);
 
     if (
       // rowIndex == 0 && columnIndex !== -1 &&
@@ -2272,7 +2099,7 @@ class newCanvas {
     }
 
     if (this.isDraggingTop) {
-      this.columnIndex2 = this.getCurColumnIndex(clickX - 10);
+      this.columnIndex2 = this.valueInst.getCurColumnIndex(clickX - 10);
       this.clearTopheader();
       this.clearLeftHeader();
       // this.highlightHeaders();
@@ -2314,7 +2141,7 @@ class newCanvas {
     }
 
     if (this.isDraggingLeft) {
-      this.rowIndex2 = this.getCurRowIndex(clickY - 5);
+      this.rowIndex2 = this.valueInst.getCurRowIndex(clickY - 5);
 
       this.clearLeftHeader();
       this.clearTopheader();
@@ -2423,87 +2250,238 @@ class newCanvas {
       this.resizeRowIndex = -1;
     }
   }
-
-  //----------------------Get Calculated Values----------------------
-  getCurColumnIndex(x) {
-    let cellPosition = 0;
-    for (let i = 0; i <= this.numCols; i++) {
-      if (
-        x >= cellPosition - 10 &&
-        x <= cellPosition + this.getCurCellWidth(i) + 10
-      ) {
-        return i;
-      }
-      cellPosition += this.getCurCellWidth(i);
-    }
-    return -1;
-  }
-
-  getCurRowIndex(x) {
-    let cellPosition = 0;
-    for (let i = 0; i <= this.numRows; i++) {
-      if (
-        x >= cellPosition - 5 &&
-        x <= cellPosition + this.getCurCellHeight(i) + 5
-      ) {
-        return i;
-      }
-      cellPosition += this.getCurCellHeight(i);
-    }
-    return -1;
-  }
-
-  isColPointDraggable(x) {
-    let cellPosition = 0;
-    for (let i = 0; i <= this.numCols; i++) {
-      if (
-        x >= cellPosition + 10 &&
-        x <= cellPosition + this.getCurCellWidth(i) - 10
-      ) {
-        return false;
-      }
-      cellPosition += this.getCurCellWidth(i);
-    }
-    return true;
-  }
-
-  isRowPointDraggable(x) {
-    let cellPosition = 0;
-    for (let i = 0; i <= this.numRows; i++) {
-      if (
-        x >= cellPosition + 5 &&
-        x <= cellPosition + this.getCurCellHeight(i) - 5
-      ) {
-        return false;
-      }
-      cellPosition += this.getCurCellHeight(i);
-    }
-    return true;
-  }
-
-  getCurCellWidth(i) {
-    return this.cellWidths.get(i) || this.defaultCellWidth;
-  }
-
-  getCurCellHeight(i) {
-    return this.cellHeight.get(i) || this.defaultCellHeight;
-  }
-
-  convertNumToChar(columnNumber) {
-    let res = "";
-    while (columnNumber > 0) {
-      let r = columnNumber % 26;
-      let q = parseInt(columnNumber / 26);
-      if (r === 0) {
-        r = 26;
-        q--;
-      }
-
-      res = String.fromCharCode(64 + r) + res;
-      columnNumber = q;
-    }
-    return res;
-  }
 }
+
+// class MakeChart {
+//   constructor(mainCanvas, sheetData) {
+//     this.mainCanvas = mainCanvas;
+//     this.sheetData = sheetData;
+//     this.scale = window.devicePixelRatio;
+//     this.draggableChart = false;
+//   }
+
+//   rotateMatrix(array) {
+//     const rows = array.length;
+//     const cols = array[0].length;
+//     const rotated = [];
+
+//     for (let i = 0; i < cols; i++) {
+//       rotated[i] = [];
+//     }
+//     for (let i = 0; i < rows; i++) {
+//       for (let j = 0; j < cols; j++) {
+//         rotated[j][rows - 1 - i] = array[i][j];
+//       }
+//     }
+
+//     return rotated;
+//   }
+
+//   makeitDraggable(chartDiv) {
+//     let rect = this.mainCanvas.getBoundingClientRect();
+//     this.draggableChart = false;
+
+//     chartDiv.addEventListener("pointerdown", (e) => {
+//       this.draggableChart = true;
+//     });
+//     chartDiv.addEventListener("pointermove", (e) => {
+//       chartDiv.style.cursor = "move";
+//       let clickX = (e.clientX - rect.left) / this.scale;
+//       let clickY = (e.clientY - rect.top) / this.scale;
+//       if (this.draggableChart) {
+//         chartDiv.style.top = `${clickY - 50}px`;
+//         chartDiv.style.left = `${clickX - 225}px`;
+//       }
+//     });
+//     chartDiv.addEventListener("pointerup", (e) => {
+//       this.draggableChart = false;
+//     });
+//   }
+
+//   barChart(chartType, selectedDimensionsMain) {
+//     const [startX, startY, endX, endY] = selectedDimensionsMain;
+//     if (startX == 0 && startY == 0 && endX == 0 && endY == 0) {
+//       return;
+//     }
+//     let main = document.getElementById("main");
+//     let chartDiv = document.createElement("div");
+//     let canvas = document.createElement("canvas");
+//     chartDiv.appendChild(canvas);
+//     main.appendChild(chartDiv);
+
+//     let dataArray = [];
+//     let tempArray = [];
+//     let xValues = [];
+//     let i = 1;
+//     for (let j = startY; j <= endY; j++) {
+//       const result = this.sheetData.find((item) => item[j]);
+//       tempArray = [];
+//       for (let i = startX; i <= endX; i++) {
+//         let currentData = result ? result[j][i] : "";
+//         if (currentData && currentData != "" && !isNaN(currentData.data)) {
+//           tempArray.push(Number(currentData.data));
+//         }
+//       }
+//       if (tempArray.length > 0) {
+//         xValues.push(i++);
+//         dataArray.push(tempArray);
+//       }
+//     }
+//     if (dataArray.length <= 0) {
+//       return;
+//     }
+//     chartDiv.style.position = "absolute";
+//     chartDiv.style.border = "1px solid gray";
+//     chartDiv.style.top = "50px";
+//     chartDiv.style.left = "50px";
+//     chartDiv.style.width = "450px";
+//     chartDiv.style.padding = "10px";
+//     chartDiv.style.backgroundColor = "white";
+
+//     let dataSet = [];
+//     let backgroundColor = [
+//       "#4472C4",
+//       "#ED7D31",
+//       "#A5A5A5",
+//       "#FFC000",
+//       "#5B9BD5",
+//       "#F4B400",
+//       "#D3A7A1",
+//       "#009B77",
+//       "#6D6E71",
+//       "#FF6F61",
+//       "#C2C2C2",
+//       "#F2C6A1",
+//       "#2E8B57",
+//       "#FFC107",
+//       "#4F81BD",
+//     ];
+
+//     dataArray = this.rotateMatrix(dataArray);
+
+//     dataArray.forEach((d, index) => {
+//       if (chartType != "pie" || (chartType == "pie" && index == 0)) {
+//         dataSet.push({
+//           label: `Series${index + 1}`,
+//           backgroundColor:
+//             chartType == "pie" || chartType == "doughnut"
+//               ? backgroundColor
+//               : backgroundColor[index],
+//           borderColor:
+//             chartType == "pie" || chartType == "doughnut"
+//               ? "white"
+//               : backgroundColor[index],
+//           fill: false,
+//           data: d,
+//         });
+//       }
+//     });
+
+//     new Chart(canvas, {
+//       type: chartType,
+//       data: {
+//         labels: xValues,
+//         datasets: dataSet,
+//       },
+//       options: {
+//         indexAxis: "y",
+//         cutoutPercentage: chartType == "doughnut" ? 80 : 0,
+//       },
+//     });
+//     this.makeitDraggable(chartDiv);
+//   }
+// }
+
+// class GetValues{
+//   constructor(numCols, numRows, cellHeight, cellWidths) {
+//     console.log(numCols, numRows);
+//     this.numCols = numCols;
+//     this.numRows = numRows;
+//     this.defaultCellWidth = 100;
+//     this.defaultCellHeight = 21;
+//     this.cellHeight = cellHeight;
+//     this.cellWidths = cellWidths;
+//   }
+
+//   getCurColumnIndex(x) {
+//     let cellPosition = 0;
+//     for (let i = 0; i <= this.numCols; i++) {
+//       if (
+//         x >= cellPosition - 10 &&
+//         x <= cellPosition + this.getCurCellWidth(i) + 10
+//       ) {
+//         return i;
+//       }
+//       cellPosition += this.getCurCellWidth(i);
+//     }
+//     return -1;
+//   }
+
+//   getCurRowIndex(x) {
+//     let cellPosition = 0;
+//     for (let i = 0; i <= this.numRows; i++) {
+//       if (
+//         x >= cellPosition - 5 &&
+//         x <= cellPosition + this.getCurCellHeight(i) + 5
+//       ) {
+//         return i;
+//       }
+//       cellPosition += this.getCurCellHeight(i);
+//     }
+//     return -1;
+//   }
+
+//   isColPointDraggable(x) {
+//     let cellPosition = 0;
+//     for (let i = 0; i <= this.numCols; i++) {
+//       if (
+//         x >= cellPosition + 10 &&
+//         x <= cellPosition + this.getCurCellWidth(i) - 10
+//       ) {
+//         return false;
+//       }
+//       cellPosition += this.getCurCellWidth(i);
+//     }
+//     return true;
+//   }
+
+//   isRowPointDraggable(x) {
+//     let cellPosition = 0;
+//     for (let i = 0; i <= this.numRows; i++) {
+//       if (
+//         x >= cellPosition + 5 &&
+//         x <= cellPosition + this.getCurCellHeight(i) - 5
+//       ) {
+//         return false;
+//       }
+//       cellPosition += this.getCurCellHeight(i);
+//     }
+//     return true;
+//   }
+
+//   getCurCellWidth(i) {
+//     return this.cellWidths.get(i) || this.defaultCellWidth;
+//   }
+
+//   getCurCellHeight(i) {
+//     return this.cellHeight.get(i) || this.defaultCellHeight;
+//   }
+
+//   convertNumToChar(columnNumber) {
+//     let res = "";
+//     while (columnNumber > 0) {
+//       let r = columnNumber % 26;
+//       let q = parseInt(columnNumber / 26);
+//       if (r === 0) {
+//         r = 26;
+//         q--;
+//       }
+
+//       res = String.fromCharCode(64 + r) + res;
+//       columnNumber = q;
+//     }
+//     return res;
+//   }
+// }
 
 export { newCanvas };

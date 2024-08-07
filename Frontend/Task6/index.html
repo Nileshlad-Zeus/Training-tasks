@@ -118,7 +118,11 @@
           <label for="radar">Radar</label>
         </div>
         <div class="chart">
-          <img src="./Images/Charts/barGraph.png" alt="horizontalBar" id="horizontalBar" />
+          <img
+            src="./Images/Charts/barGraph.png"
+            alt="horizontalBar"
+            id="horizontalBar"
+          />
           <label for="horizontalBar">Bar</label>
         </div>
         <span class="toolNameHeading">charts</span>
@@ -202,6 +206,7 @@
         <div class="resizeLineHorizontal" id="resizeLineHorizontal"></div>
       </div>
     </div>
+
     <div class="footer">
       <div class="arrowBtn">
         <i class="fa-solid fa-chevron-left"></i>
@@ -219,6 +224,7 @@
       </div>
       <i class="fa-solid fa-plus addNewSheet" id="addNewSheet"></i>
     </div>
+
     <div class="footer2">
       <div class="footer2-left">
         <p>Workbook Statistics</p>
@@ -228,17 +234,21 @@
         <i class="fa-solid fa-chevron-down"></i>
         <i class="fa-regular fa-keyboard"></i>
         <i class="fa-regular fa-circle-question"></i>
-        <i class="fa-solid fa-minus"></i>
+        <i class="fa-solid fa-minus" id="zoomOutCanvas"></i>
         <span>
           <p>100%</p>
           <i class="fa-solid fa-chevron-down"></i>
         </span>
-        <i class="fa-solid fa-plus"></i>
+        <i class="fa-solid fa-plus" id="zoomInCanvas"></i>
       </div>
     </div>
 
-    <script src="./appMain.js" type="module"></script>
+    <!-- <script src="./appMain.js" type="module"></script> -->
+
+    <script src="./ConvertIntoClasses.js" type="module"></script>
     <script src="./appMain2.js" type="module"></script>
+    <script src="./JavaScriptModule/Chart.js" type="module"></script>
+    <script src="./JavaScriptModule/GetValues.js" type="module"></script>
     <!-- <script src="./toolsFunctions.js"></script> -->
   </body>
 </html>
