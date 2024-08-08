@@ -1,4 +1,4 @@
-import { newCanvas } from "./ConvertIntoClasses.js";
+import { newCanvas } from "./main.js";
 
 new newCanvas("sheet-1");
 
@@ -82,4 +82,3 @@ replaceIcon.addEventListener("click", () => {
 closeEditingModal.addEventListener("click", () => {
   editingSectionModal.style.display = "none";
 });
-
