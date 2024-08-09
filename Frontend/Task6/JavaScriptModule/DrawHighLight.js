@@ -28,7 +28,8 @@ class DrawHighlight {
   }
 
   highlightSelectedArea() {
-    this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+    
+    // this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     const [startX, startY, endX, endY] = this.mainInst.selectedDimensionsMain;
 
     const nameBoxInput = document.getElementById("nameBoxInput");
@@ -68,7 +69,7 @@ class DrawHighlight {
     }
     for (
       let i = this.mainInst.scrollYvalue;
-      i < this.mainInst.scrollYvalue + this.mainInst.y1CellIndex;
+      i < this.mainInst.y1CellIndex;
       i++
     ) {
       this.mainInst.cellPositionTop += this.valueInst.getCurCellHeight(i);
@@ -77,6 +78,8 @@ class DrawHighlight {
 
     this.mainCtx.fillStyle = this.mainInst.areaHighlightColor;
     if (this.mainInst.isColSelected) {
+      console.log("col seleted");
+      
       this.mainInst.currSelectedCol = [startX, endX];
       if (this.mainInst.topheaderSelected && this.mainInst.leftheaderSelected) {
         this.mainInst.currSelectedRow = [0, 100];
@@ -122,6 +125,7 @@ class DrawHighlight {
     } else if (this.mainInst.isRowSelected) {
       this.mainCtx.strokeRect(-1, y - 1, this.mainCtx.canvas.width, height + 2);
     } else {
+      
       this.mainCtx.strokeRect(x - 0.5, y - 0.5, width + 1, height + 1);
     }
 
@@ -212,6 +216,7 @@ class DrawHighlight {
     let y = 0;
     let width = 0;
     let height = 0;
+    console.log(this.mainInst.headersHighlightCoordinate);
 
     for (let i = 0; i < startX; i++) {
       x += this.valueInst.getCurCellWidth(i);
@@ -338,11 +343,12 @@ class DrawHighlight {
     }
     for (
       let i = this.mainInst.scrollYvalue;
-      i < this.mainInst.scrollYvalue + this.mainInst.y1CellIndex;
+      i < this.mainInst.y1CellIndex;
       i++
     ) {
       this.mainInst.cellPositionTop += this.valueInst.getCurCellHeight(i);
     }
+    
 
     const startX = Math.min(this.mainInst.startingIndex[0], colIndex);
     const startY = Math.min(this.mainInst.startingIndex[1], rowIndex);
@@ -434,6 +440,8 @@ class DrawHighlight {
           <p>Sum: ${sum}</p>
           `;
     }
+    console.log(this.mainInst.selectedDimensionsMain);
+    
   }
 }
 

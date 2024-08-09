@@ -24,8 +24,6 @@ class newCanvas {
       this.cellWidths
     );
 
-    this.scrollFunction();
-
     this.inputBoxPosition();
     this.highlightInst = new DrawHighlight(
       this,
@@ -101,7 +99,6 @@ class newCanvas {
       this.selectedDimensionsMain = [0, 0, 200, 200];
       this.highlightInst.highlightSelectedArea();
       this.drawGrid();
-      // this.highlightHeaders();
       this.renderLeftHeader();
       this.renderTopHeader();
     });
@@ -117,6 +114,7 @@ class newCanvas {
         this.chartInst.barChart(chartType, this.selectedDimensionsMain);
       });
     });
+    this.scrollFunction();
   }
 
   initialVariables() {
@@ -592,7 +590,6 @@ class newCanvas {
     mainCanvas.setAttribute("class", "canvas");
 
     mainCanvas.width = Math.floor(2100 * this.scale);
-    // mainCanvas.height = Math.floor(1200 * this.scale);
     mainCanvas.height = (main.offsetHeight - 20) * this.scale;
     main.appendChild(mainCanvas);
     this.mainCanvas = mainCanvas;
@@ -631,6 +628,7 @@ class newCanvas {
     main.style.top = `${24 * this.scale}px`;
     main.style.marginLeft = `${40 * this.scale}px`;
     topHeader.style.height = `${24 * this.scale}px`;
+    topHeader.style.zIndex = 100;
     topHeader.style.marginLeft = `${40 * this.scale}px`;
     leftHeader.style.marginTop = `${24 * this.scale}px`;
     topleftDiv.style.width = `${40 * this.scale}px`;
@@ -723,72 +721,9 @@ class newCanvas {
     data = data.slice(0, length - length2 - 2);
     return data;
   }
-  renderData = () => {
-    let i;
-    let cellPositionY = 0;
-
-    for (let n = this.scrollYvalue; n < this.sheetData.length; n++) {
-      let cellPositionX = 0;
-      cellPositionY = 21;
-      let data = this.sheetData[n];
-
-      for (let k = this.scrollYvalue; k < Object.keys(data); k++) {
-        cellPositionY += this.valueInst.getCurCellHeight(k);
-      }
-      i = Object.keys(data);
-
-      let min = 0,
-        max = 0;
-      if (data[i]) {
-        min = Object.keys(data[i])[0] || 0;
-        max = Object.keys(data[i])[0] || 0;
-        Object.keys(data[i]).forEach((ele) => {
-          min = Math.min(min, ele);
-          max = Math.max(max, ele);
-        });
-      }
-
-      for (let j = 0; j <= max && min != max; j++) {
-        let currProperties = data[i][j]?.properties;
-        if (currProperties) {
-          let colorPos = this.getPos(currProperties, "*", 1);
-          let fontColor = currProperties?.slice(colorPos[0] + 1, colorPos[1]);
-
-          let fontStylePos = this.getPos(currProperties, "*", 2);
-          let fontStyle = currProperties?.slice(
-            fontStylePos[0] + 1,
-            fontStylePos[1]
-          );
-
-          let fontWeightPos = this.getPos(currProperties, "*", 3);
-          let fontWeight = currProperties?.slice(
-            fontWeightPos[0] + 1,
-            fontWeightPos[1]
-          );
-
-          let fontSizePos = this.getPos(currProperties, "*", 4);
-          let fontSize =
-            currProperties?.slice(fontSizePos[0] + 1, fontSizePos[1]) || "12pt";
-
-          let fontFamPos = this.getPos(currProperties, "*", 5);
-          let fontFam =
-            currProperties?.slice(fontFamPos[0] + 1, fontFamPos[1]) ||
-            "calibri";
-          this.mainCtx.save();
-          this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
-          let newData = this.trimData(data[i][j]?.data, j, fontSize);
-          this.mainCtx.fillStyle = fontColor;
-          this.mainCtx.fillText(newData, cellPositionX + 4, cellPositionY - 4);
-          this.mainCtx.clip();
-          this.mainCtx.restore();
-        }
-        cellPositionX += this.valueInst.getCurCellWidth(j);
-      }
-      i++;
-    }
-  };
-
   drawGrid() {
+    this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+    this.highlightInst.highlightSelectedArea();
     this.drawRows();
     this.drawColumns();
     this.renderData();
@@ -807,25 +742,6 @@ class newCanvas {
       str.split(subStr, i).join(subStr).length,
       str.split(subStr, i + 1).join(subStr).length,
     ];
-  }
-
-  drawRows() {
-    let cellPosition = 0;
-    for (
-      let i = this.scrollYvalue;
-      i <= this.scrollYvalue + this.numRows;
-      i++
-    ) {
-      cellPosition += this.valueInst.getCurCellHeight(i);
-      this.mainCtx.beginPath();
-      this.mainCtx.save();
-      this.mainCtx.moveTo(0, cellPosition + 0.5);
-      this.mainCtx.lineTo(this.mainCtx.canvas.width, cellPosition + 0.5);
-      this.mainCtx.lineWidth = 0.2;
-      this.mainCtx.strokeStyle = this.gridStrokeColor;
-      this.mainCtx.stroke();
-      this.mainCtx.restore();
-    }
   }
 
   drawColumns() {
@@ -853,7 +769,7 @@ class newCanvas {
     this.topHeaderCtx.restore();
     this.highlightInst.highlightTopHeader();
 
-    this.topHeaderCtx.font = "11pt Arial";
+    this.topHeaderCtx.font = "10pt Arial";
     this.topHeaderCtx.textAlign = "center";
 
     for (let i = 0; i <= this.numCols; i++) {
@@ -935,12 +851,12 @@ class newCanvas {
     this.leftHeaderCtx.restore();
     this.highlightInst.highlightLeftHeaders();
 
-    let cellPosition = 0;
-    for (
-      let i = this.scrollYvalue;
-      i <= this.scrollYvalue + this.numRows;
-      i++
-    ) {
+    const canvasHeight = this.mainCanvas.height;
+    const rowHeight = this.valueInst.getCurCellHeight(0);
+    const startRow = Math.floor(this.scrollYvalue / rowHeight);
+    const endRow = Math.ceil((this.scrollYvalue + canvasHeight) / rowHeight);
+    let cellPosition = -this.scrollYvalue % rowHeight;
+    for (let i = startRow; i <= endRow; i++) {
       cellPosition += this.valueInst.getCurCellHeight(i);
       this.leftHeaderCtx.save();
       this.leftHeaderCtx.beginPath();
@@ -966,13 +882,9 @@ class newCanvas {
       this.leftHeaderCtx.restore();
     }
 
-    cellPosition = 0;
+    cellPosition = -this.scrollYvalue % rowHeight;
     this.leftHeaderCtx.font = "14px Arial";
-    for (
-      let i = this.scrollYvalue;
-      i <= this.scrollYvalue + this.numRows;
-      i++
-    ) {
+    for (let i = startRow; i <= endRow; i++) {
       cellPosition += this.valueInst.getCurCellHeight(i);
       this.leftHeaderCtx.save();
       let text = (i + 1).toString();
@@ -1010,14 +922,106 @@ class newCanvas {
         this.resizeLineHorizontal.style.left = 0;
       }
     }
-
-    // this.currSelectedRow = null;
   }
 
   //----------------------Scroll Functionality----------------------
+
+  renderData() {
+    let i = 0;
+    const canvasHeight = this.mainCanvas.height;
+    const rowHeight = this.valueInst.getCurCellHeight(0);
+
+    const startRow = Math.floor(this.scrollYvalue / rowHeight);
+    const endRow = Math.min(
+      this.sheetData.length - 1,
+      Math.ceil((this.scrollYvalue + canvasHeight) / rowHeight)
+    );
+
+    let cellPositionY = -this.scrollYvalue % rowHeight;
+
+    for (let n = startRow; n <= endRow; n++) {
+      let cellPositionX = 0;
+      let data = this.sheetData[n];
+      cellPositionY += this.valueInst.getCurCellHeight(n);
+      i = Object.keys(data);
+
+      let min = 0,
+        max = 0;
+      if (data[i]) {
+        min = Object.keys(data[i])[0] || 0;
+        max = Object.keys(data[i])[0] || 0;
+        Object.keys(data[i]).forEach((ele) => {
+          min = Math.min(min, ele);
+          max = Math.max(max, ele);
+        });
+      }
+
+      for (let j = 0; j <= max && min != max; j++) {
+        let currProperties = data[i][j]?.properties;
+        if (currProperties) {
+          let colorPos = this.getPos(currProperties, "*", 1);
+          let fontColor = currProperties?.slice(colorPos[0] + 1, colorPos[1]);
+
+          let fontStylePos = this.getPos(currProperties, "*", 2);
+          let fontStyle = currProperties?.slice(
+            fontStylePos[0] + 1,
+            fontStylePos[1]
+          );
+
+          let fontWeightPos = this.getPos(currProperties, "*", 3);
+          let fontWeight = currProperties?.slice(
+            fontWeightPos[0] + 1,
+            fontWeightPos[1]
+          );
+
+          let fontSizePos = this.getPos(currProperties, "*", 4);
+          let fontSize =
+            currProperties?.slice(fontSizePos[0] + 1, fontSizePos[1]) || "12pt";
+
+          let fontFamPos = this.getPos(currProperties, "*", 5);
+          let fontFam =
+            currProperties?.slice(fontFamPos[0] + 1, fontFamPos[1]) ||
+            "calibri";
+          this.mainCtx.save();
+          this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
+          let newData = this.trimData(data[i][j]?.data, j, fontSize);
+          this.mainCtx.fillStyle = `${fontColor}`;
+          this.mainCtx.fillText(newData, cellPositionX + 4, cellPositionY - 4);
+          this.mainCtx.restore();
+        }
+        cellPositionX += this.valueInst.getCurCellWidth(j);
+      }
+      i++;
+    }
+  }
+
+  drawRows() {
+    const canvasHeight = this.mainCanvas.height;
+    const rowHeight = this.valueInst.getCurCellHeight(0);
+
+    const startRow = Math.floor(this.scrollYvalue / rowHeight);
+    const endRow = Math.ceil((this.scrollYvalue + canvasHeight) / rowHeight);
+
+    let cellPositionY = -this.scrollYvalue % rowHeight;
+
+    for (let i = startRow; i <= endRow; i++) {
+      cellPositionY += this.valueInst.getCurCellHeight(i);
+
+      this.mainCtx.beginPath();
+      // this.mainCtx.save();
+      this.mainCtx.moveTo(0, cellPositionY + 0.5);
+      this.mainCtx.lineTo(this.mainCanvas.width, cellPositionY + 0.5);
+      this.mainCtx.lineWidth = 0.2;
+      this.mainCtx.strokeStyle = this.gridStrokeColor;
+      this.mainCtx.stroke();
+      // this.mainCtx.restore();
+    }
+  }
+
   scrollFunction() {
     document.addEventListener("wheel", (e) => {
-      this.scrollYvalue = Math.max(0, this.scrollYvalue + e.deltaY / 100);
+      this.inputBox.style.display = "none";
+      this.scrollYvalue = Math.max(0, this.scrollYvalue + e.deltaY);
 
       this.mainCtx.clearRect(
         0,
@@ -1257,13 +1261,14 @@ class newCanvas {
       for (let i = 0; i < startX; i++) {
         x += this.valueInst.getCurCellWidth(i);
       }
-      for (let i = 0; i < startY; i++) {
+      for (let i = this.scrollYvalue; i < startY; i++) {
         y += this.valueInst.getCurCellHeight(i);
       }
       for (let i = startX; i <= endX; i++) {
         width += this.valueInst.getCurCellWidth(i);
       }
-      for (let i = startY; i <= endY; i++) {
+      let temp = Math.max(this.scrollYvalue, startY);
+      for (let i = temp; i <= endY; i++) {
         height += this.valueInst.getCurCellHeight(i);
       }
 

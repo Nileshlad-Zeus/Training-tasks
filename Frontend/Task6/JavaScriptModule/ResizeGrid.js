@@ -45,27 +45,24 @@ class ResizeGrid {
     const clickX = (e.clientX - rect.left) / this.scale;
     const clickY =
       (e.clientY - rect.top + this.mainInst.scrollYvalue * 21) / this.scale;
+
     let columnIndex = this.valueInst.getCurColumnIndex(clickX);
-    let rowIndex = this.valueInst.getCurRowIndex(
-      clickY + this.mainInst.scrollYvalue
-    );
+    let rowIndex = this.valueInst.getCurRowIndex(clickY);
 
     let iscolPointDraggable = this.valueInst.isColPointDraggable(clickX);
-    let isrowPointDraggable = this.valueInst.isRowPointDraggable(
-      clickY + this.mainInst.scrollYvalue
-    );
+    let isrowPointDraggable = this.valueInst.isRowPointDraggable(clickY);
 
     if (!iscolPointDraggable) {
       this.startingIndexTop = [
         this.valueInst.getCurColumnIndex(clickX),
-        this.valueInst.getCurRowIndex(clickY + this.mainInst.scrollYvalue),
+        this.valueInst.getCurRowIndex(clickY),
       ];
     }
 
     if (!isrowPointDraggable) {
       this.startingIndexLeft = [
         this.valueInst.getCurColumnIndex(clickX),
-        this.valueInst.getCurRowIndex(clickY + this.mainInst.scrollYvalue),
+        this.valueInst.getCurRowIndex(clickY),
       ];
     }
 
@@ -147,9 +144,7 @@ class ResizeGrid {
       this.mainInst.resizeRowHeight = this.valueInst.getCurCellHeight(rowIndex);
     }
 
-    this.mainInst.rowIndex2 = this.valueInst.getCurRowIndex(
-      clickY - 5 + this.mainInst.scrollYvalue
-    );
+    this.mainInst.rowIndex2 = this.valueInst.getCurRowIndex(clickY - 5);
     this.mainInst.columnIndex2 = this.valueInst.getCurColumnIndex(clickX - 10);
     let width = this.valueInst.getCurCellWidth(this.mainInst.columnIndex2);
     let height = this.valueInst.getCurCellHeight(this.mainInst.rowIndex2);
@@ -191,13 +186,9 @@ class ResizeGrid {
     const clickY =
       (e.clientY - rect.top + this.mainInst.scrollYvalue * 21) / this.scale;
     let columnIndex = this.valueInst.getCurColumnIndex(clickX);
-    let rowIndex = this.valueInst.getCurRowIndex(
-      clickY + this.mainInst.scrollYvalue
-    );
+    let rowIndex = this.valueInst.getCurRowIndex(clickY);
     let iscolPointDraggable = this.valueInst.isColPointDraggable(clickX);
-    let isrowPointDraggable = this.valueInst.isRowPointDraggable(
-      clickY + this.mainInst.scrollYvalue
-    );
+    let isrowPointDraggable = this.valueInst.isRowPointDraggable(clickY);
 
     if (
       // rowIndex == 0 && columnIndex !== -1 &&
@@ -267,9 +258,7 @@ class ResizeGrid {
     }
 
     if (this.mainInst.isDraggingLeft) {
-      this.mainInst.rowIndex2 = this.valueInst.getCurRowIndex(
-        clickY - 5 + this.mainInst.scrollYvalue
-      );
+      this.mainInst.rowIndex2 = this.valueInst.getCurRowIndex(clickY - 5);
 
       this.mainInst.clearLeftHeader();
       this.mainInst.clearTopHeader();
