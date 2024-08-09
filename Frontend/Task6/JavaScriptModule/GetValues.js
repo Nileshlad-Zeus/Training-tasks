@@ -1,5 +1,6 @@
 class GetValues {
-  constructor(numCols, numRows, cellHeight, cellWidths) {
+  constructor(mainIns, numCols, numRows, cellHeight, cellWidths) {
+    this.mainIns = mainIns;
     this.numCols = numCols;
     this.numRows = numRows;
     this.defaultCellWidth = 100;
@@ -23,8 +24,10 @@ class GetValues {
   }
 
   getCurRowIndex(x) {
+    // console.log(x);
+
     let cellPosition = 0;
-    for (let i = 0; i <= this.numRows; i++) {
+    for (let i = 0; i <= 10000; i++) {
       if (
         x >= cellPosition - 5 &&
         x <= cellPosition + this.getCurCellHeight(i) + 5
@@ -52,7 +55,11 @@ class GetValues {
 
   isRowPointDraggable(x) {
     let cellPosition = 0;
-    for (let i = 0; i <= this.numRows; i++) {
+    for (
+      let i = 0;
+      i <= 10000;
+      i++
+    ) {
       if (
         x >= cellPosition + 5 &&
         x <= cellPosition + this.getCurCellHeight(i) - 5

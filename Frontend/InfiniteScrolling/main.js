@@ -17,7 +17,6 @@ class newCanvas {
     this.createNewCanvas();
     this.initialVariables();
     this.valueInst = new GetValues(
-      this,
       this.numCols,
       this.numRows,
       this.cellHeight,
@@ -120,9 +119,6 @@ class newCanvas {
   }
 
   initialVariables() {
-    this.scrollYvalue = 0;
-    this.scrollTop = 0;
-    this.textWidth = 0;
     // this.cellHeight = new Map();
     // this.cellWidths = new Map();
 
@@ -590,10 +586,8 @@ class newCanvas {
     const mainCanvas = document.createElement("canvas");
     mainCanvas.setAttribute("id", this.sheetName);
     mainCanvas.setAttribute("class", "canvas");
-
     mainCanvas.width = Math.floor(2100 * this.scale);
-    // mainCanvas.height = Math.floor(1200 * this.scale);
-    mainCanvas.height = (main.offsetHeight - 20) * this.scale;
+    mainCanvas.height = Math.floor(1200 * this.scale);
     main.appendChild(mainCanvas);
     this.mainCanvas = mainCanvas;
     this.mainCtx = this.mainCanvas.getContext("2d");
@@ -617,8 +611,7 @@ class newCanvas {
     leftHeaderCanvas.setAttribute("id", `leftHeader-${this.sheetName}`);
     leftHeaderCanvas.setAttribute("class", "leftHeaderCanvas");
     leftHeaderCanvas.width = Math.floor(40 * this.scale);
-    // leftHeaderCanvas.height = Math.floor(1200 * this.scale);
-    leftHeaderCanvas.height = leftHeader.offsetHeight * this.scale;
+    leftHeaderCanvas.height = Math.floor(1200 * this.scale);
     leftHeader.appendChild(leftHeaderCanvas);
     this.leftHeaderCanvas = leftHeaderCanvas;
     this.leftHeaderCtx = this.leftHeaderCanvas.getContext("2d");
@@ -726,13 +719,10 @@ class newCanvas {
   renderData = () => {
     let i;
     let cellPositionY = 0;
-
-    for (let n = this.scrollYvalue; n < this.sheetData.length; n++) {
+    this.sheetData.forEach((data) => {
       let cellPositionX = 0;
       cellPositionY = 21;
-      let data = this.sheetData[n];
-
-      for (let k = this.scrollYvalue; k < Object.keys(data); k++) {
+      for (let k = 0; k < Object.keys(data); k++) {
         cellPositionY += this.valueInst.getCurCellHeight(k);
       }
       i = Object.keys(data);
@@ -785,7 +775,7 @@ class newCanvas {
         cellPositionX += this.valueInst.getCurCellWidth(j);
       }
       i++;
-    }
+    });
   };
 
   drawGrid() {
@@ -811,11 +801,7 @@ class newCanvas {
 
   drawRows() {
     let cellPosition = 0;
-    for (
-      let i = this.scrollYvalue;
-      i <= this.scrollYvalue + this.numRows;
-      i++
-    ) {
+    for (let i = 0; i <= this.numRows; i++) {
       cellPosition += this.valueInst.getCurCellHeight(i);
       this.mainCtx.beginPath();
       this.mainCtx.save();
@@ -936,11 +922,7 @@ class newCanvas {
     this.highlightInst.highlightLeftHeaders();
 
     let cellPosition = 0;
-    for (
-      let i = this.scrollYvalue;
-      i <= this.scrollYvalue + this.numRows;
-      i++
-    ) {
+    for (let i = 0; i <= this.numRows; i++) {
       cellPosition += this.valueInst.getCurCellHeight(i);
       this.leftHeaderCtx.save();
       this.leftHeaderCtx.beginPath();
@@ -968,11 +950,7 @@ class newCanvas {
 
     cellPosition = 0;
     this.leftHeaderCtx.font = "14px Arial";
-    for (
-      let i = this.scrollYvalue;
-      i <= this.scrollYvalue + this.numRows;
-      i++
-    ) {
+    for (let i = 0; i <= this.numRows; i++) {
       cellPosition += this.valueInst.getCurCellHeight(i);
       this.leftHeaderCtx.save();
       let text = (i + 1).toString();
@@ -1001,8 +979,7 @@ class newCanvas {
       } else {
         this.leftHeaderCtx.fillStyle = this.blackColor;
       }
-      this.leftHeaderCtx.textAlign = "right";
-      this.leftHeaderCtx.fillText(text, 35, yPosition + 4);
+      this.leftHeaderCtx.fillText(text, 20, yPosition + 4);
       this.leftHeaderCtx.restore();
 
       if (i == this.rowIndex2 && cellPosition - this.rowTopOfDrag > 10) {
@@ -1016,24 +993,12 @@ class newCanvas {
 
   //----------------------Scroll Functionality----------------------
   scrollFunction() {
-    document.addEventListener("wheel", (e) => {
-      this.scrollYvalue = Math.max(0, this.scrollYvalue + e.deltaY / 100);
-
-      this.mainCtx.clearRect(
-        0,
-        0,
-        this.mainCanvas.width,
-        this.mainCanvas.height
-      );
-      this.leftHeaderCtx.clearRect(
-        0,
-        0,
-        this.leftHeaderCanvas.width,
-        this.leftHeaderCanvas.height
-      );
-      this.highlightInst.highlightSelectedArea();
-      this.drawGrid();
-      this.renderLeftHeader();
+    const main = document.getElementById("main");
+    const topHeader = document.getElementById("topHeader");
+    const leftHeader = document.getElementById("leftHeader");
+    main.addEventListener("scroll", () => {
+      topHeader.style.left = `-${main.scrollLeft}px`;
+      leftHeader.style.top = `-${main.scrollTop}px`;
     });
   }
 
@@ -1308,5 +1273,4 @@ class newCanvas {
     }
   }
 }
-
-export { newCanvas };
+new newCanvas("sheet-1");

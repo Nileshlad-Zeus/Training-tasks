@@ -363,8 +363,8 @@ body {
     position: relative;
     background-color: #ffffff;
 
-    canvas {
-      position: fixed;
+    canvas{
+      position: sticky;
     }
 
     .resizeLineHorizontal {
@@ -372,14 +372,12 @@ body {
       position: absolute;
       height: 3px;
       border-top: dashed rgb(16, 124, 65);
-      z-index: 100;
     }
     .resizeLineVertical {
       display: none;
       position: absolute;
       width: 3px;
       border-left: dashed rgb(16, 124, 65);
-      z-index: 100;
     }
   }
 }
@@ -520,12 +518,11 @@ body {
 }
 
 #scroller {
-  // visibility: hidden;
+  visibility: hidden;
   position: absolute;
   overflow-y: scroll;
-  height: 5000px;
+  height: 50000000px;
   width: 50000000px;
-  z-index: 1000;
 }
 
 ::-webkit-scrollbar {
@@ -553,8 +550,4 @@ body {
   z-index: 10;
   outline: none;
   padding-left: 2px;
-}
-.canvasDiv1 {
-  height: 800px;
-  outline: auto;
 }

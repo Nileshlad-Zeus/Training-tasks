@@ -35,7 +35,7 @@ class MakeChart {
       let clickX = (e.clientX - rect.left) / this.scale;
       let clickY = (e.clientY - rect.top) / this.scale;
       if (this.draggableChart) {
-        chartDiv.style.top = `${clickY - 50}px`;
+        chartDiv.style.top = `${clickY - 25}px`;
         chartDiv.style.left = `${clickX - 225}px`;
       }
     });
@@ -45,6 +45,7 @@ class MakeChart {
   }
 
   barChart(chartType, selectedDimensionsMain) {
+    if (chartType == "") return;
     const [startX, startY, endX, endY] = selectedDimensionsMain;
     if (startX == 0 && startY == 0 && endX == 0 && endY == 0) {
       return;
@@ -81,27 +82,11 @@ class MakeChart {
     chartDiv.style.top = "50px";
     chartDiv.style.left = "50px";
     chartDiv.style.width = "450px";
+    chartDiv.style.height = "500px";
     chartDiv.style.padding = "10px";
     chartDiv.style.backgroundColor = "white";
 
     let dataSet = [];
-    let backgroundColor = [
-      "#4472C4",
-      "#ED7D31",
-      "#A5A5A5",
-      "#FFC000",
-      "#5B9BD5",
-      "#F4B400",
-      "#D3A7A1",
-      "#009B77",
-      "#6D6E71",
-      "#FF6F61",
-      "#C2C2C2",
-      "#F2C6A1",
-      "#2E8B57",
-      "#FFC107",
-      "#4F81BD",
-    ];
 
     dataArray = this.rotateMatrix(dataArray);
 
@@ -109,29 +94,22 @@ class MakeChart {
       if (chartType != "pie" || (chartType == "pie" && index == 0)) {
         dataSet.push({
           label: `Series${index + 1}`,
-          backgroundColor:
-            chartType == "pie" || chartType == "doughnut"
-              ? backgroundColor
-              : backgroundColor[index],
-          borderColor:
-            chartType == "pie" || chartType == "doughnut"
-              ? "white"
-              : backgroundColor[index],
           fill: false,
           data: d,
         });
       }
     });
-
+    let chartType2 = chartType == "horizontalBar" ? "bar" : chartType;
+    let barType = chartType == "horizontalBar" ? "y" : "x";
     new Chart(canvas, {
-      type: chartType,
+      type: chartType2,
       data: {
         labels: xValues,
         datasets: dataSet,
       },
       options: {
-        indexAxis: "y",
-        cutoutPercentage: chartType == "doughnut" ? 80 : 0,
+        indexAxis: barType,
+        cutoutPercentage: 0,
       },
     });
     this.makeitDraggable(chartDiv);

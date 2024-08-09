@@ -30,6 +30,7 @@ class DrawHighlight {
   highlightSelectedArea() {
     this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     const [startX, startY, endX, endY] = this.mainInst.selectedDimensionsMain;
+
     const nameBoxInput = document.getElementById("nameBoxInput");
     let currentCell = `${this.valueInst.convertNumToChar(startX + 1)}${
       startY + 1
@@ -43,15 +44,17 @@ class DrawHighlight {
     for (let i = 0; i < startX; i++) {
       x += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = 0; i < startY; i++) {
+    for (let i = this.mainInst.scrollYvalue; i < startY; i++) {
       y += this.valueInst.getCurCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
       width += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = startY; i <= endY; i++) {
+    let temp = Math.max(this.mainInst.scrollYvalue, startY);
+    for (let i = temp; i <= endY; i++) {
       height += this.valueInst.getCurCellHeight(i);
     }
+
     this.mainInst.cellPositionLeft = 0;
     this.mainInst.cellPositionTop = 0;
 
@@ -63,7 +66,11 @@ class DrawHighlight {
     for (let i = 0; i < this.mainInst.x1CellIndex; i++) {
       this.mainInst.cellPositionLeft += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = 0; i < this.mainInst.y1CellIndex; i++) {
+    for (
+      let i = this.mainInst.scrollYvalue;
+      i < this.mainInst.scrollYvalue + this.mainInst.y1CellIndex;
+      i++
+    ) {
       this.mainInst.cellPositionTop += this.valueInst.getCurCellHeight(i);
     }
     this.mainCtx.save();
@@ -134,6 +141,7 @@ class DrawHighlight {
 
     const [startX, startY, endX, endY] =
       this.mainInst.headersHighlightCoordinate;
+
     let x = 0;
     let y = 0;
     let width = 0;
@@ -141,13 +149,15 @@ class DrawHighlight {
     for (let i = 0; i < startX; i++) {
       x += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = 0; i < startY; i++) {
+    for (let i = this.mainInst.scrollYvalue; i < startY; i++) {
       y += this.valueInst.getCurCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
       width += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = startY; i <= endY; i++) {
+
+    let temp = Math.max(this.mainInst.scrollYvalue, startY);
+    for (let i = temp; i <= endY; i++) {
       height += this.valueInst.getCurCellHeight(i);
     }
 
@@ -202,16 +212,25 @@ class DrawHighlight {
     let y = 0;
     let width = 0;
     let height = 0;
+
     for (let i = 0; i < startX; i++) {
       x += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = 0; i < startY; i++) {
+    for (
+      let i = this.mainInst.scrollYvalue;
+      i < this.mainInst.scrollYvalue + startY;
+      i++
+    ) {
       y += this.valueInst.getCurCellHeight(i);
     }
     for (let i = startX; i <= endX; i++) {
       width += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = startY; i <= endY; i++) {
+    for (
+      let i = this.mainInst.scrollYvalue + startY;
+      i <= this.mainInst.scrollYvalue + endY;
+      i++
+    ) {
       height += this.valueInst.getCurCellHeight(i);
     }
     if (this.mainInst.isColSelected && this.mainInst.isRowSelected) {
@@ -296,9 +315,12 @@ class DrawHighlight {
     const rect = this.mainCtx.canvas.getBoundingClientRect();
     this.mainInst.isAreaSelected = true;
     const clickX = (e.clientX - rect.left) / this.scale;
-    const clickY = (e.clientY - rect.top) / this.scale;
+    const clickY =
+      (e.clientY - rect.top + this.mainInst.scrollYvalue * 21) / this.scale;
+
     const colIndex = this.valueInst.getCurColumnIndex(clickX);
     const rowIndex = this.valueInst.getCurRowIndex(clickY);
+
     this.mainInst.startingIndex = [
       this.valueInst.getCurColumnIndex(clickX),
       this.valueInst.getCurRowIndex(clickY),
@@ -314,7 +336,11 @@ class DrawHighlight {
     for (let i = 0; i < this.mainInst.x1CellIndex; i++) {
       this.mainInst.cellPositionLeft += this.valueInst.getCurCellWidth(i);
     }
-    for (let i = 0; i < this.mainInst.y1CellIndex; i++) {
+    for (
+      let i = this.mainInst.scrollYvalue;
+      i < this.mainInst.scrollYvalue + this.mainInst.y1CellIndex;
+      i++
+    ) {
       this.mainInst.cellPositionTop += this.valueInst.getCurCellHeight(i);
     }
 
@@ -337,7 +363,8 @@ class DrawHighlight {
     if (this.mainInst.isAreaSelected) {
       const rect = this.mainCtx.canvas.getBoundingClientRect();
       const clickX = (e.clientX - rect.left) / this.scale;
-      const clickY = (e.clientY - rect.top) / this.scale;
+      const clickY =
+        (e.clientY - rect.top + this.mainInst.scrollYvalue * 21) / this.scale;
 
       const colIndex = this.valueInst.getCurColumnIndex(clickX);
       const rowIndex = this.valueInst.getCurRowIndex(clickY);
@@ -374,7 +401,11 @@ class DrawHighlight {
       avg = 0,
       count = 0,
       numerical_count = 0;
-    for (let j = startY; j <= endY; j++) {
+    for (
+      let j = this.mainInst.scrollYvalue + startY;
+      j <= this.mainInst.scrollYvalue + endY;
+      j++
+    ) {
       const result = this.sheetData.find((item) => item[j]);
       for (let i = startX; i <= endX; i++) {
         let currentData = result ? result[j][i] : "";

@@ -27,6 +27,7 @@ addNewSheet.addEventListener("click", () => {
 let createdCanvas = ["sheet-1"];
 sheets.addEventListener("click", (e) => {
   if (e.target.closest(".sheetBtn")) {
+    console.log(e.target.id);
     selectCurrSheet(e);
   }
 });
@@ -45,7 +46,7 @@ const selectCurrSheet = (e) => {
     new newCanvas(e.target.id);
   }
 
-  current = e.target.id;
+  let current = e.target.id;
 
   canvases.forEach((canvas) => (canvas.style.display = "none"));
   document.getElementById(`${e.target.id}`).style.display = "block";
