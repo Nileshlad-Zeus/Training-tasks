@@ -77,13 +77,13 @@ class MakeChart {
     if (dataArray.length <= 0) {
       return;
     }
+    canvas.style.backgroundColor = "white";
+    canvas.style.padding = "10px";
+    canvas.style.border = "1px solid gray";
     chartDiv.style.position = "absolute";
-    chartDiv.style.border = "1px solid gray";
     chartDiv.style.top = "50px";
     chartDiv.style.left = "50px";
     chartDiv.style.width = "450px";
-    chartDiv.style.height = "500px";
-    chartDiv.style.padding = "10px";
     chartDiv.style.backgroundColor = "white";
 
     let dataSet = [];

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Training-tasks\\Backend\\Task1.2\\Backend\\Task1.csproj": {}
+    "D:\\Training-tasks\\Backend\\RabbitMQ\\consumer\\consumer.csproj": {}
   },
   "projects": {
-    "D:\\Training-tasks\\Backend\\Task1.2\\Backend\\Task1.csproj": {
+    "D:\\Training-tasks\\Backend\\RabbitMQ\\consumer\\consumer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Training-tasks\\Backend\\Task1.2\\Backend\\Task1.csproj",
-        "projectName": "Task1",
-        "projectPath": "D:\\Training-tasks\\Backend\\Task1.2\\Backend\\Task1.csproj",
+        "projectUniqueName": "D:\\Training-tasks\\Backend\\RabbitMQ\\consumer\\consumer.csproj",
+        "projectName": "consumer",
+        "projectPath": "D:\\Training-tasks\\Backend\\RabbitMQ\\consumer\\consumer.csproj",
         "packagesPath": "C:\\Users\\nilesh.lad\\.nuget\\packages\\",
-        "outputPath": "D:\\Training-tasks\\Backend\\Task1.2\\Backend\\obj\\",
+        "outputPath": "D:\\Training-tasks\\Backend\\RabbitMQ\\consumer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -46,25 +46,9 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Dapper": {
+            "RabbitMQ.Client": {
               "target": "Package",
-              "version": "[2.1.35, )"
-            },
-            "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[8.0.6, )"
-            },
-            "MySql.Data": {
-              "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "Swashbuckle.AspNetCore": {
-              "target": "Package",
-              "version": "[6.4.0, )"
-            },
-            "System.Data.SqlClient": {
-              "target": "Package",
-              "version": "[4.8.6, )"
+              "version": "[6.8.1, )"
             }
           },
           "imports": [
@@ -79,9 +63,6 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
-            "Microsoft.AspNetCore.App": {
-              "privateAssets": "none"
-            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }

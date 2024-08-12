@@ -44,7 +44,7 @@ class ResizeGrid {
 
     const clickX = (e.clientX - rect.left) / this.scale;
     const clickY =
-      (e.clientY - rect.top + this.mainInst.scrollYvalue * 21) / this.scale;
+      (e.clientY - rect.top + this.mainInst.scrollYvalue) / this.scale;
 
     let columnIndex = this.valueInst.getCurColumnIndex(clickX);
     let rowIndex = this.valueInst.getCurRowIndex(clickY);
@@ -184,7 +184,7 @@ class ResizeGrid {
     let rect = header.getBoundingClientRect();
     const clickX = (e.clientX - rect.left) / this.scale;
     const clickY =
-      (e.clientY - rect.top + this.mainInst.scrollYvalue * 21) / this.scale;
+      (e.clientY - rect.top + this.mainInst.scrollYvalue) / this.scale;
     let columnIndex = this.valueInst.getCurColumnIndex(clickX);
     let rowIndex = this.valueInst.getCurRowIndex(clickY);
     let iscolPointDraggable = this.valueInst.isColPointDraggable(clickX);
