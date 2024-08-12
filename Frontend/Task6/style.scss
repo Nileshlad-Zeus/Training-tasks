@@ -519,13 +519,12 @@ body {
   }
 }
 
-#scroller {
+.scroller {
   // visibility: hidden;
   position: absolute;
   overflow-y: scroll;
   height: 5000px;
   width: 50000000px;
-  z-index: 1000;
 }
 
 ::-webkit-scrollbar {

@@ -41,6 +41,7 @@ app.UseHttpsRedirection();
 string? connectionString = null;
 connectionString = "server=localhost;database=database1;uid=root;pwd=bAKU@#0919;";
 using var connection = new MySqlConnection(connectionString);
+Console.WriteLine(connection);
 await connection.OpenAsync();
 
 app.MapGet("/getalldata/{offset}", async (int offset) =>
@@ -120,7 +121,7 @@ app.MapDelete("/deleterow/{email}", async (string email) =>
 
 
 string csvFilePath = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv";
-
+Console.WriteLine(csvFilePath);
 app.MapPost("/uploadcsv", async () =>
 {
     string tableName = "employee_info";

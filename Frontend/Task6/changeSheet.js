@@ -1,6 +1,40 @@
 import { newCanvas } from "./main.js";
 
-new newCanvas("sheet-1");
+const fetchUserData = async () => {
+  // this.clearCanvas()
+
+  console.log("Before Await");
+  const response = await fetch(`http://localhost:5186/getalldata/${1}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await response.json();
+  console.log("after Await");
+  // this.sheetData = this.setData(data);
+  let sheetData = convertJsonData(data);
+  new newCanvas("sheet-1", sheetData);
+};
+
+fetchUserData();
+
+const convertJsonData = (data) => {
+  const result = [];
+  const keys = Object.keys(data[0]);
+  data.forEach((item, index) => {
+    const formattedItem = {};
+    keys.forEach((key, idx) => {
+      formattedItem[idx] = {
+        data: item[key],
+        properties: "*****",
+      };
+    });
+    result.push({ [index]: formattedItem });
+  });
+
+  return result;
+};
 
 let arrayOfSheets = ["Sheet1"];
 const addNewSheet = document.getElementById("addNewSheet");

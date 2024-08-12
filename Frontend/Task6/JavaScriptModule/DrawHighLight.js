@@ -25,13 +25,12 @@ class DrawHighlight {
     this.drawGrid = drawGrid;
     this.sheetData = sheetData;
     this.scale = window.devicePixelRatio;
+    
   }
 
   highlightSelectedArea() {
     // this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     const [startX, startY, endX, endY] = this.mainInst.selectedDimensionsMain;
-
-    console.log(this.mainInst.selectedDimensionsMain);
 
     const nameBoxInput = document.getElementById("nameBoxInput");
     let currentCell = `${this.valueInst.convertNumToChar(startX + 1)}${
@@ -62,7 +61,6 @@ class DrawHighlight {
     for (let i = temp; i <= endY; i++) {
       height += this.valueInst.getCurCellHeight(i);
     }
-    console.log(y);
     
     
     // y=y+startTop
@@ -95,7 +93,6 @@ class DrawHighlight {
 
     this.mainCtx.fillStyle = this.mainInst.areaHighlightColor;
     if (this.mainInst.isColSelected) {
-      console.log("col seleted");
 
       this.mainInst.currSelectedCol = [startX, endX];
       if (this.mainInst.topheaderSelected && this.mainInst.leftheaderSelected) {
@@ -346,8 +343,6 @@ class DrawHighlight {
     const colIndex = this.valueInst.getCurColumnIndex(clickX);
     const rowIndex = this.valueInst.getCurRowIndex(clickY);
 
-    console.log(rowIndex);
-
     this.mainInst.startingIndex = [
       this.valueInst.getCurColumnIndex(clickX),
       this.valueInst.getCurRowIndex(clickY),
@@ -422,7 +417,6 @@ class DrawHighlight {
   highlightAreaPointerUp(e) {
     this.mainInst.isAreaSelected = false;
     const [startX, startY, endX, endY] = this.mainInst.selectedDimensionsMain;
-    console.log(this.mainInst.selectedDimensionsMain);
 
     let sum = 0,
       max = Number.MIN_VALUE,
