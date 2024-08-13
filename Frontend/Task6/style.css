@@ -328,11 +328,8 @@ body {
   height: calc(100vh - 190px);
 }
 .mainSheet .mainSection {
-  background-color: red;
-  height: calc(100vh - 190px);
-  margin-left: 40px;
-  overflow: auto;
-  top: 24px;
+  height: 10000px;
+  width: 2000px;
   position: relative;
   background-color: #ffffff;
 }
@@ -474,28 +471,13 @@ body {
 }
 
 .scroller {
-  position: absolute;
-  overflow-y: scroll;
-  height: 5000px;
-  width: 50000000px;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  position: relative;
+  overflow: scroll;
+  background-color: red;
+  margin-left: 40px;
+  top: 24px;
+  height: calc(100vh - 220px);
+  margin-bottom: 27px;
 }
 
 .canvasinput {

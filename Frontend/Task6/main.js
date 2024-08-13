@@ -9,7 +9,7 @@ class newCanvas {
   constructor(sheetName, sheetData) {
     this.sheetData = sheetData;
     this.sheetName = sheetName;
-    
+
     this.inputBox = document.getElementById("canvasinput");
     this.scale = window.devicePixelRatio;
     window.addEventListener("resize", () => {
@@ -122,6 +122,8 @@ class newCanvas {
 
   initialVariables() {
     this.scrollYvalue = 0;
+    this.scrollXvalue = 0;
+
     this.scrollTop = 0;
     this.textWidth = 0;
     // this.cellHeight = new Map();
@@ -588,12 +590,18 @@ class newCanvas {
     //sheet canvas
 
     const main = document.getElementById("main");
+    const scroller = document.getElementById("scroller");
     const mainCanvas = document.createElement("canvas");
     mainCanvas.setAttribute("id", this.sheetName);
     mainCanvas.setAttribute("class", "canvas");
 
-    mainCanvas.width = Math.floor(2100 * this.scale);
-    mainCanvas.height = (main.offsetHeight - 20) * this.scale;
+    // mainCanvas.width = Math.floor(2100 * this.scale);
+    // mainCanvas.width = Math.floor(1200 * this.scale);
+    mainCanvas.height = (scroller.offsetHeight - 20) * this.scale;
+    mainCanvas.width = (scroller.offsetWidth - 20) * this.scale;
+    // mainCanvas.width = Math.floor(1200 * this.scale);
+    // mainCanvas.height = (500 - 20) * this.scale;
+    // mainCanvas.height = (main.offsetHeight - 20) * this.scale;
     main.appendChild(mainCanvas);
     this.mainCanvas = mainCanvas;
     this.mainCtx = this.mainCanvas.getContext("2d");
@@ -628,8 +636,8 @@ class newCanvas {
 
     const topleftDiv = document.getElementById("topleftDiv");
 
-    main.style.top = `${24 * this.scale}px`;
-    main.style.marginLeft = `${40 * this.scale}px`;
+    // main.style.top = `${24 * this.scale}px`;
+    // main.style.marginLeft = `${40 * this.scale}px`;
     topHeader.style.height = `${24 * this.scale}px`;
     topHeader.style.zIndex = 100;
     topHeader.style.marginLeft = `${40 * this.scale}px`;
@@ -750,21 +758,7 @@ class newCanvas {
     ];
   }
 
-  drawColumns() {
-    let cellPosition = 0;
-    for (let i = 0; i <= this.numCols; i++) {
-      cellPosition += this.valueInst.getCurCellWidth(i);
-      this.mainCtx.beginPath();
-      this.mainCtx.moveTo(cellPosition + 0.5, 0);
-      this.mainCtx.lineTo(cellPosition + 0.5, this.mainCtx.canvas.height);
-      this.mainCtx.lineWidth = 0.2;
-      this.mainCtx.strokeStyle = this.gridStrokeColor;
-      this.mainCtx.stroke();
-    }
-  }
-
   renderTopHeader() {
-    let cellPosition = 0;
     this.topHeaderCtx.save();
     this.topHeaderCtx.beginPath();
 
@@ -778,13 +772,21 @@ class newCanvas {
     this.topHeaderCtx.font = "10pt Arial";
     this.topHeaderCtx.textAlign = "center";
 
-    for (let i = 0; i <= this.numCols; i++) {
-      cellPosition += this.valueInst.getCurCellWidth(i);
+    const canvasHeight = this.mainCanvas.width;
+    const colWidth = 100;
+
+    const startCol = Math.floor(this.scrollXvalue / colWidth);
+    const endCol = Math.ceil((this.scrollXvalue + canvasHeight) / colWidth);
+
+    let cellPositionX = -this.scrollXvalue % colWidth;
+
+    for (let i = startCol; i <= endCol; i++) {
+      cellPositionX += this.valueInst.getCurCellWidth(i);
       this.topHeaderCtx.save();
       this.topHeaderCtx.beginPath();
-      this.topHeaderCtx.moveTo(cellPosition + 0.5, 0);
+      this.topHeaderCtx.moveTo(cellPositionX + 0.5, 0);
       this.topHeaderCtx.lineTo(
-        cellPosition + 0.5,
+        cellPositionX + 0.5,
         this.topHeaderCtx.canvas.height
       );
 
@@ -803,12 +805,12 @@ class newCanvas {
       this.topHeaderCtx.restore();
     }
 
-    cellPosition = 0;
-    for (let i = 0; i <= this.numCols; i++) {
-      cellPosition += this.valueInst.getCurCellWidth(i);
+    cellPositionX = -this.scrollXvalue % colWidth;
+    for (let i = startCol; i <= endCol; i++) {
+      cellPositionX += this.valueInst.getCurCellWidth(i);
       this.topHeaderCtx.save();
       let text = this.valueInst.convertNumToChar(i + 1);
-      let xPosition = cellPosition - this.valueInst.getCurCellWidth(i) / 2;
+      let xPosition = cellPositionX - this.valueInst.getCurCellWidth(i) / 2;
       let yPosition = 15;
 
       this.topHeaderCtx.fillStyle = this.gridStrokeColor;
@@ -839,10 +841,10 @@ class newCanvas {
 
       if (
         i == this.columnIndex2 &&
-        cellPosition - this.columnLeftOfDrag >= 20
+        cellPositionX - this.columnLeftOfDrag >= 20
       ) {
         this.resizeLineVertical.style.top = 0;
-        this.resizeLineVertical.style.left = `${cellPosition * this.scale}px`;
+        this.resizeLineVertical.style.left = `${cellPositionX * this.scale}px`;
       }
     }
   }
@@ -935,7 +937,10 @@ class newCanvas {
   renderData() {
     let i = 0;
     const canvasHeight = this.mainCanvas.height;
+    const canvasWidth = this.mainCanvas.width;
+
     const rowHeight = this.valueInst.getCurCellHeight(0);
+    const colWidth = 100;
 
     const startRow = Math.floor(this.scrollYvalue / rowHeight);
     const endRow = Math.min(
@@ -945,8 +950,11 @@ class newCanvas {
 
     let cellPositionY = -this.scrollYvalue % rowHeight;
 
+    const startCol = Math.floor(this.scrollXvalue / colWidth);
+    const endCol = Math.ceil((this.scrollXvalue + canvasWidth) / colWidth);
+
     for (let n = startRow; n <= endRow; n++) {
-      let cellPositionX = 0;
+      let cellPositionX = -this.scrollXvalue % colWidth;
       let data = this.sheetData[n];
       cellPositionY += this.valueInst.getCurCellHeight(n);
       i = Object.keys(data);
@@ -962,7 +970,7 @@ class newCanvas {
         });
       }
 
-      for (let j = 0; j <= max && min != max; j++) {
+      for (let j = startCol; j <= endCol; j++) {
         let currProperties = data[i][j]?.properties;
         if (currProperties) {
           let colorPos = this.getPos(currProperties, "*", 1);
@@ -1024,11 +1032,42 @@ class newCanvas {
     }
   }
 
+  drawColumns() {
+    const canvasHeight = this.mainCanvas.width;
+    const colWidth = 100;
+
+    const startCol = Math.floor(this.scrollXvalue / colWidth);
+    const endCol = Math.ceil((this.scrollXvalue + canvasHeight) / colWidth);
+
+    let cellPositionX = -this.scrollXvalue % colWidth;
+
+    for (let i = startCol; i <= endCol; i++) {
+      cellPositionX += this.valueInst.getCurCellWidth(i);
+      this.mainCtx.beginPath();
+      this.mainCtx.moveTo(cellPositionX + 0.5, 0);
+      this.mainCtx.lineTo(cellPositionX + 0.5, this.mainCtx.canvas.height);
+      this.mainCtx.lineWidth = 0.2;
+      this.mainCtx.strokeStyle = this.gridStrokeColor;
+      this.mainCtx.stroke();
+    }
+  }
+
   scrollFunction() {
     const scroller = document.getElementById("scroller");
-    document.addEventListener("wheel", (e) => {
+    const main = document.getElementById("main");
+    scroller.addEventListener("scroll", (e) => {
       this.inputBox.style.display = "none";
-      this.scrollYvalue = Math.max(0, this.scrollYvalue + e.deltaY);
+      this.scrollYvalue = Math.max(0, e.target.scrollTop);
+      this.scrollXvalue = Math.max(0, e.target.scrollLeft);
+
+      if (this.scrollYvalue > 9000) {
+        main.style.height = `${this.scrollYvalue + 1000}px`;
+      }
+
+      if (this.scrollXvalue > 100) {
+        main.style.width = `${this.scrollXvalue + 2000}px`;
+      }
+
       this.mainCtx.clearRect(
         0,
         0,
@@ -1041,10 +1080,39 @@ class newCanvas {
         this.leftHeaderCanvas.width,
         this.leftHeaderCanvas.height
       );
+      this.topHeaderCtx.clearRect(
+        0,
+        0,
+        this.topHeaderCanvas.width,
+        this.topHeaderCanvas.height
+      );
       this.highlightInst.highlightSelectedArea();
       this.drawGrid();
       this.renderLeftHeader();
+      this.renderTopHeader();
     });
+
+    // document.addEventListener("wheel", (e) => {
+    //   this.inputBox.style.display = "none";
+    //   this.scrollYvalue = Math.max(0, this.scrollYvalue + e.deltaY);
+    //   console.log(e.scrollTop);
+
+    //   this.mainCtx.clearRect(
+    //     0,
+    //     0,
+    //     this.mainCanvas.width,
+    //     this.mainCanvas.height
+    //   );
+    //   this.leftHeaderCtx.clearRect(
+    //     0,
+    //     0,
+    //     this.leftHeaderCanvas.width,
+    //     this.leftHeaderCanvas.height
+    //   );
+    //   this.highlightInst.highlightSelectedArea();
+    //   this.drawGrid();
+    //   this.renderLeftHeader();
+    // });
   }
 
   //----------------------keyboard Evenets----------------------
@@ -1264,16 +1332,25 @@ class newCanvas {
       let width = 0;
       let height = 0;
 
-      for (let i = 0; i < startX; i++) {
+      let cellPositionY = -this.scrollYvalue % this.valueInst.defaultCellHeight;
+      let startTop = this.valueInst.getCurRowIndex(this.scrollYvalue);
+
+      let cellPositionX = -this.scrollXvalue % this.valueInst.defaultCellWidth;
+      let startLeft = this.valueInst.getCurColumnIndex(this.scrollXvalue);
+
+      for (let i = startLeft; i < startX; i++) {
         x += this.valueInst.getCurCellWidth(i);
       }
-      for (let i = this.scrollYvalue; i < startY; i++) {
+      for (let i = startTop; i < startY; i++) {
         y += this.valueInst.getCurCellHeight(i);
       }
-      for (let i = startX; i <= endX; i++) {
+      y = y + cellPositionY;
+      x = x + cellPositionX;
+      let temp2 = Math.max(startLeft, startX);
+      for (let i = temp2; i <= endX; i++) {
         width += this.valueInst.getCurCellWidth(i);
       }
-      let temp = Math.max(this.scrollYvalue, startY);
+      let temp = Math.max(startTop, startY);
       for (let i = temp; i <= endY; i++) {
         height += this.valueInst.getCurCellHeight(i);
       }

@@ -11,7 +11,7 @@ class GetValues {
 
   getCurColumnIndex(x) {
     let cellPosition = 0;
-    for (let i = 0; i <= this.numCols; i++) {
+    for (let i = 0; i <= 10000; i++) {
       if (
         x >= cellPosition - 10 &&
         x <= cellPosition + this.getCurCellWidth(i) + 10

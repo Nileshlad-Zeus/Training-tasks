@@ -25,126 +25,6 @@ class DrawHighlight {
     this.drawGrid = drawGrid;
     this.sheetData = sheetData;
     this.scale = window.devicePixelRatio;
-    
-  }
-
-  highlightSelectedArea() {
-    // this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
-    const [startX, startY, endX, endY] = this.mainInst.selectedDimensionsMain;
-
-    const nameBoxInput = document.getElementById("nameBoxInput");
-    let currentCell = `${this.valueInst.convertNumToChar(startX + 1)}${
-      startY + 1
-    }`;
-    nameBoxInput.value = currentCell;
-
-    let x = 0;
-    let y = 0;
-    let width = 0;
-    let height = 0;
-
-    let cellPositionY =
-      -this.mainInst.scrollYvalue % this.valueInst.defaultCellHeight;
-    let startTop = this.valueInst.getCurRowIndex(this.mainInst.scrollYvalue);
-
-    for (let i = 0; i < startX; i++) {
-      x += this.valueInst.getCurCellWidth(i);
-    }
-    for (let i = startTop; i < startY; i++) {
-      y += this.valueInst.getCurCellHeight(i);
-    }
-    y = y + cellPositionY;
-    for (let i = startX; i <= endX; i++) {
-      width += this.valueInst.getCurCellWidth(i);
-    }
-    let temp = Math.max(startTop, startY);
-    for (let i = temp; i <= endY; i++) {
-      height += this.valueInst.getCurCellHeight(i);
-    }
-    
-    
-    // y=y+startTop
-
-    this.mainInst.cellPositionLeft = 0;
-    this.mainInst.cellPositionTop = 0;
-
-    if (this.mainInst.isColSelected || this.mainInst.isRowSelected) {
-      this.mainInst.x1CellIndex = startX;
-      this.mainInst.y1CellIndex = startY;
-    }
-
-    for (let i = 0; i < this.mainInst.x1CellIndex; i++) {
-      this.mainInst.cellPositionLeft += this.valueInst.getCurCellWidth(i);
-    }
-
-
-    // y = y + cellPositionY;
-    let cellPositionTop = 0;
-    for (
-      let i = startTop;
-      i < startY;
-      i++
-    ) {
-       cellPositionTop += this.valueInst.getCurCellHeight(i);
-    }
-    this.mainInst.cellPositionTop = (cellPositionTop+cellPositionY)
-    
-    this.mainCtx.save();
-
-    this.mainCtx.fillStyle = this.mainInst.areaHighlightColor;
-    if (this.mainInst.isColSelected) {
-
-      this.mainInst.currSelectedCol = [startX, endX];
-      if (this.mainInst.topheaderSelected && this.mainInst.leftheaderSelected) {
-        this.mainInst.currSelectedRow = [0, 100];
-      } else {
-        this.mainInst.currSelectedRow = "all";
-      }
-      this.mainCtx.fillRect(x, 0, width, this.mainCtx.canvas.height);
-    } else if (this.mainInst.isRowSelected) {
-      this.mainInst.currSelectedRow = [startY, endY];
-      this.mainInst.currSelectedCol = "all";
-      this.mainCtx.fillRect(0, y, this.mainCtx.canvas.width, height);
-    } else {
-      this.mainInst.currSelectedCol = [startX, endX];
-      this.mainInst.currSelectedRow = [startY, endY];
-      this.mainCtx.fillRect(x, y, width, height);
-    }
-
-    if (this.mainInst.isTopAreaSelected) {
-      this.mainInst.currSelectedCol = [startX, endX];
-    }
-
-    if (this.mainInst.isLeftAreaSelected) {
-      this.mainInst.currSelectedRow = [startY, endY];
-    }
-
-    this.mainCtx.fillStyle = this.mainInst.whiteColor;
-    this.mainCtx.fillRect(
-      this.mainInst.cellPositionLeft,
-      this.mainInst.cellPositionTop,
-      this.valueInst.getCurCellWidth(this.mainInst.x1CellIndex),
-      this.valueInst.getCurCellHeight(this.mainInst.y1CellIndex)
-    );
-
-    this.mainCtx.lineWidth = 2;
-    this.mainCtx.strokeStyle = this.mainInst.strokeColor;
-    if (this.mainInst.isColSelected) {
-      this.mainCtx.strokeRect(
-        x - 0.5,
-        -0.5,
-        width + 1,
-        this.mainCtx.canvas.height
-      );
-    } else if (this.mainInst.isRowSelected) {
-      this.mainCtx.strokeRect(-1, y - 1, this.mainCtx.canvas.width, height + 2);
-    } else {
-      this.mainCtx.strokeRect(x - 0.5, y - 0.5, width + 1, height + 1);
-    }
-
-    this.mainCtx.restore();
-
-    this.mainInst.headersHighlightCoordinate = [startX, startY, endX, endY];
   }
 
   highlightLeftHeaders() {
@@ -168,14 +48,22 @@ class DrawHighlight {
       -this.mainInst.scrollYvalue % this.valueInst.defaultCellHeight;
     let startTop = this.valueInst.getCurRowIndex(this.mainInst.scrollYvalue);
 
-    for (let i = 0; i < startX; i++) {
+    let cellPositionX =
+      -this.mainInst.scrollXvalue % this.valueInst.defaultCellWidth;
+    let startLeft = this.valueInst.getCurColumnIndex(
+      this.mainInst.scrollXvalue
+    );
+
+    for (let i = startLeft; i < startX; i++) {
       x += this.valueInst.getCurCellWidth(i);
     }
     for (let i = startTop; i < startY; i++) {
       y += this.valueInst.getCurCellHeight(i);
     }
     y = y + cellPositionY;
-    for (let i = startX; i <= endX; i++) {
+    x = x + cellPositionX;
+    let temp2 = Math.max(startLeft, startX);
+    for (let i = temp2; i <= endX; i++) {
       width += this.valueInst.getCurCellWidth(i);
     }
     let temp = Math.max(startTop, startY);
@@ -235,26 +123,33 @@ class DrawHighlight {
     let width = 0;
     let height = 0;
 
-    for (let i = 0; i < startX; i++) {
+    let cellPositionY =
+      -this.mainInst.scrollYvalue % this.valueInst.defaultCellHeight;
+    let startTop = this.valueInst.getCurRowIndex(this.mainInst.scrollYvalue);
+
+    let cellPositionX =
+      -this.mainInst.scrollXvalue % this.valueInst.defaultCellWidth;
+    let startLeft = this.valueInst.getCurColumnIndex(
+      this.mainInst.scrollXvalue
+    );
+
+    for (let i = startLeft; i < startX; i++) {
       x += this.valueInst.getCurCellWidth(i);
     }
-    for (
-      let i = this.mainInst.scrollYvalue;
-      i < this.mainInst.scrollYvalue + startY;
-      i++
-    ) {
+    for (let i = startTop; i < startY; i++) {
       y += this.valueInst.getCurCellHeight(i);
     }
-    for (let i = startX; i <= endX; i++) {
+    y = y + cellPositionY;
+    x = x + cellPositionX;
+    let temp2 = Math.max(startLeft, startX);
+    for (let i = temp2; i <= endX; i++) {
       width += this.valueInst.getCurCellWidth(i);
     }
-    for (
-      let i = this.mainInst.scrollYvalue + startY;
-      i <= this.mainInst.scrollYvalue + endY;
-      i++
-    ) {
+    let temp = Math.max(startTop, startY);
+    for (let i = temp; i <= endY; i++) {
       height += this.valueInst.getCurCellHeight(i);
     }
+
     if (this.mainInst.isColSelected && this.mainInst.isRowSelected) {
       this.topHeaderCtx.save();
       this.topHeaderCtx.beginPath();
@@ -298,6 +193,123 @@ class DrawHighlight {
     }
   }
 
+  highlightSelectedArea() {
+    const [startX, startY, endX, endY] = this.mainInst.selectedDimensionsMain;
+
+    const nameBoxInput = document.getElementById("nameBoxInput");
+    let currentCell = `${this.valueInst.convertNumToChar(startX + 1)}${
+      startY + 1
+    }`;
+    nameBoxInput.value = currentCell;
+
+    let x = 0;
+    let y = 0;
+    let width = 0;
+    let height = 0;
+
+    let cellPositionY =
+      -this.mainInst.scrollYvalue % this.valueInst.defaultCellHeight;
+    let startTop = this.valueInst.getCurRowIndex(this.mainInst.scrollYvalue);
+
+    let cellPositionX =
+      -this.mainInst.scrollXvalue % this.valueInst.defaultCellWidth;
+    let startLeft = this.valueInst.getCurColumnIndex(
+      this.mainInst.scrollXvalue
+    );
+
+    for (let i = startLeft; i < startX; i++) {
+      x += this.valueInst.getCurCellWidth(i);
+    }
+    for (let i = startTop; i < startY; i++) {
+      y += this.valueInst.getCurCellHeight(i);
+    }
+    y = y + cellPositionY;
+    x = x + cellPositionX;
+    let temp2 = Math.max(startLeft, startX);
+    for (let i = temp2; i <= endX; i++) {
+      width += this.valueInst.getCurCellWidth(i);
+    }
+    let temp = Math.max(startTop, startY);
+    for (let i = temp; i <= endY; i++) {
+      height += this.valueInst.getCurCellHeight(i);
+    }
+
+    this.mainInst.cellPositionLeft = 0;
+    this.mainInst.cellPositionTop = 0;
+
+    if (this.mainInst.isColSelected || this.mainInst.isRowSelected) {
+      this.mainInst.x1CellIndex = startX;
+      this.mainInst.y1CellIndex = startY;
+    }
+
+    for (let i = 0; i < this.mainInst.x1CellIndex; i++) {
+      this.mainInst.cellPositionLeft += this.valueInst.getCurCellWidth(i);
+    }
+
+    // y = y + cellPositionY;
+    let cellPositionTop = 0;
+    for (let i = startTop; i < startY; i++) {
+      cellPositionTop += this.valueInst.getCurCellHeight(i);
+    }
+    this.mainInst.cellPositionTop = cellPositionTop + cellPositionY;
+
+    this.mainCtx.save();
+
+    this.mainCtx.fillStyle = this.mainInst.areaHighlightColor;
+    if (this.mainInst.isColSelected) {
+      this.mainInst.currSelectedCol = [startX, endX];
+      if (this.mainInst.topheaderSelected && this.mainInst.leftheaderSelected) {
+        this.mainInst.currSelectedRow = [0, 100];
+      } else {
+        this.mainInst.currSelectedRow = "all";
+      }
+      this.mainCtx.fillRect(x, 0, width, this.mainCtx.canvas.height);
+    } else if (this.mainInst.isRowSelected) {
+      this.mainInst.currSelectedRow = [startY, endY];
+      this.mainInst.currSelectedCol = "all";
+      this.mainCtx.fillRect(0, y, this.mainCtx.canvas.width, height);
+    } else {
+      this.mainInst.currSelectedCol = [startX, endX];
+      this.mainInst.currSelectedRow = [startY, endY];
+      this.mainCtx.fillRect(x, y, width, height);
+    }
+
+    if (this.mainInst.isTopAreaSelected) {
+      this.mainInst.currSelectedCol = [startX, endX];
+    }
+
+    if (this.mainInst.isLeftAreaSelected) {
+      this.mainInst.currSelectedRow = [startY, endY];
+    }
+
+    this.mainCtx.fillStyle = this.mainInst.whiteColor;
+    this.mainCtx.fillRect(
+      this.mainInst.cellPositionLeft,
+      this.mainInst.cellPositionTop,
+      this.valueInst.getCurCellWidth(this.mainInst.x1CellIndex),
+      this.valueInst.getCurCellHeight(this.mainInst.y1CellIndex)
+    );
+
+    this.mainCtx.lineWidth = 2;
+    this.mainCtx.strokeStyle = this.mainInst.strokeColor;
+    if (this.mainInst.isColSelected) {
+      this.mainCtx.strokeRect(
+        x - 0.5,
+        -0.5,
+        width + 1,
+        this.mainCtx.canvas.height
+      );
+    } else if (this.mainInst.isRowSelected) {
+      this.mainCtx.strokeRect(-1, y - 1, this.mainCtx.canvas.width, height + 2);
+    } else {
+      this.mainCtx.strokeRect(x - 0.5, y - 0.5, width + 1, height + 1);
+    }
+
+    this.mainCtx.restore();
+
+    this.mainInst.headersHighlightCoordinate = [startX, startY, endX, endY];
+  }
+
   highlightSelectedAreaEvents() {
     this.mainCtx.canvas.addEventListener("dblclick", (e) => {
       this.mainInst.inputBoxPosition();
@@ -336,7 +348,8 @@ class DrawHighlight {
 
     const rect = this.mainCtx.canvas.getBoundingClientRect();
     this.mainInst.isAreaSelected = true;
-    const clickX = (e.clientX - rect.left) / this.scale;
+    const clickX =
+      (e.clientX - rect.left + this.mainInst.scrollXvalue) / this.scale;
     const clickY =
       (e.clientY - rect.top + this.mainInst.scrollYvalue) / this.scale;
 
@@ -384,7 +397,8 @@ class DrawHighlight {
   highlightAreaPointerMove(e) {
     if (this.mainInst.isAreaSelected) {
       const rect = this.mainCtx.canvas.getBoundingClientRect();
-      const clickX = (e.clientX - rect.left) / this.scale;
+      const clickX =
+        (e.clientX - rect.left + this.mainInst.scrollXvalue) / this.scale;
       const clickY =
         (e.clientY - rect.top + this.mainInst.scrollYvalue) / this.scale;
 
@@ -417,6 +431,7 @@ class DrawHighlight {
   highlightAreaPointerUp(e) {
     this.mainInst.isAreaSelected = false;
     const [startX, startY, endX, endY] = this.mainInst.selectedDimensionsMain;
+    console.log(this.mainInst.selectedDimensionsMain);
 
     let sum = 0,
       max = Number.MIN_VALUE,
