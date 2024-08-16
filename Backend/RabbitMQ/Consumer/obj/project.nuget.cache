@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "r628YKZZQAs=",
+  "dgSpecHash": "z3NzoE2Nemw=",
   "success": true,
-  "projectFilePath": "D:\\Training-tasks\\Backend\\RabbitMQ\\consumer\\consumer.csproj",
+  "projectFilePath": "D:\\Training-tasks\\Backend\\RabbitMQ\\Consumer\\consumer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\nilesh.lad\\.nuget\\packages\\rabbitmq.client\\6.8.1\\rabbitmq.client.6.8.1.nupkg.sha512",
     "C:\\Users\\nilesh.lad\\.nuget\\packages\\system.memory\\4.5.5\\system.memory.4.5.5.nupkg.sha512",
