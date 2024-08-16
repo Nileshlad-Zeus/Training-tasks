@@ -1,19 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using Backend2.Models;
-
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<RabbitMQService>();
+
+
+
+
 // Add services to the container.
 
-
-builder.Services.AddDbContext<Database1Context>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                      Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.37-mysql")));
+// builder.Services.AddDbContext<Database1Context>(options =>
+//     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+//                       Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.37-mysql")));
 
 builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

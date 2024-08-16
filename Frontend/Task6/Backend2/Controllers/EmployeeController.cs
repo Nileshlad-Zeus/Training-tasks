@@ -1,116 +1,212 @@
 using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Dapper;
+
+using System.Text;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+
 using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+
 using Backend2.Models;
 
-namespace Backend2.Controllers;
-
-[ApiController]
-[Route("/api/[controller]")]
-public class EmployeeController : ControllerBase
+namespace Backend2.Controllers
 {
-    private const int ChunkSize = 10000;
-
-    private readonly Database1Context _context;
-
-    public EmployeeController(Database1Context context)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class EmployeeController : ControllerBase
     {
-        _context = context;
-    }
 
-    // [HttpGet]
-    // public IEnumerable<EmployeeInfo> Get()
-    // {
-    //     //fetch all
-    //     // return _context.EmployeeInfos.ToList();
+        private const int ChunkSize = 1000;
 
-    //     //fetch by email id
-    //     return _context.EmployeeInfos.Where(auth=> auth.EmailId == "000qL32RpD@example.com").ToList();
+        private readonly string _connectionString;
 
+        private readonly RabbitMQService _rabbitMQService;
 
-    //     //add newData
-    //     // EmployeeInfo employee = new EmployeeInfo();
-    //     // employee.EmailId = "nilesh09@gmail.com";
-    //     // _context.EmployeeInfos.Add(employee);
-    //     // _context.SaveChanges();
-    //     // return _context.EmployeeInfos.Where(auth => auth.EmailId == "nileshlad871@gmail.com").ToList();
-    // }
-
-
-    [HttpPost]
-    public async Task<IActionResult> Post()
-    {
-        string csvFilePath = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv";
-
-        if (!System.IO.File.Exists(csvFilePath))
+        public EmployeeController(RabbitMQService rabbitMQService)
         {
-            return NotFound("CSV file not found.");
+            _connectionString = "server=localhost;database=database1;uid=root;pwd=bAKU@#0919;";
+            _rabbitMQService = rabbitMQService;
         }
 
-        IEnumerable<EmployeeInfo> employees;
-        using (var reader = new StreamReader(csvFilePath))
-        using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+
+
+
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EmployeeInfo>>> Get()
         {
-            BadDataFound = null,
-            HeaderValidated = null,
-            MissingFieldFound = null
-        }))
-        {
-            csv.Context.RegisterClassMap<EmployeeInfoMap>();
-            employees = csv.GetRecords<EmployeeInfo>().ToList();
+            var employees = new List<EmployeeInfo>();
+
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = "SELECT * FROM employee_info LIMIT 50";
+            var e1 = await connection.QueryAsync<EmployeeInfo>(query);
+            return Ok(e1);
         }
 
-        var chunks = employees
-            .Select((employee, index) => new { employee, index })
-            .GroupBy(x => x.index / ChunkSize)
-            .Select(g => g.Select(x => x.employee).ToList())
-            .ToList();
-
-        Console.WriteLine($"Number of chunks possible: {chunks.Count}");
-
-        var top10Chunks = chunks.Take(10).ToList();
-
-        // for (int i = 0; i < chunks.Count; i++)
-        // {
-        //     Console.WriteLine($"Chunk {i + 1}:");
-        //     foreach (var employee in top10Chunks[i])
-        //     {
-        //         Console.WriteLine($"{employee.Name}");
-        //     }
-        //     Console.WriteLine();
-        // }
-
-        // if (top10Chunks.Any())
-        // {
-        //     return Ok(top10Chunks);
-        // }
-
-        // return NotFound("No data found.");
-
-        foreach (var chunk in chunks)
+        [HttpPost]
+        public async Task<IActionResult> Post()
         {
-            await InsertChunkIntoDatabase(chunk);
-        }
+            string csvFilePath = "D:/Training-tasks/Frontend/Task6/Backend2/users.csv";
+            if (!System.IO.File.Exists(csvFilePath))
+            {
+                return NotFound("CSV file not found.");
+            }
 
-        return Ok("Data inserted into the database.");
-    }
+            List<EmployeeInfoCsv> users = new List<EmployeeInfoCsv>();
+            using (var reader = new StreamReader(csvFilePath))
+            using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
+            {
+                users = csv.GetRecords<EmployeeInfoCsv>().ToList();
+            }
 
-    private async Task InsertChunkIntoDatabase(List<EmployeeInfo> chunk)
-    {
-        try
-        {
-            _context.EmployeeInfos.AddRange(chunk);
-            await _context.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred while inserting data: {ex.Message}");
-            throw;
+            var chunks = users.Select((employee, index) => new { employee, index })
+                                .GroupBy(x => x.index / ChunkSize)
+                                .Select(g => g.Select(x => x.employee).ToList())
+                                .ToList();
+
+            Console.WriteLine($"Number of chunks possible: {chunks.Count}");
+            var result = users.Take(10).ToList();
+
+            foreach (var chunk in result)
+            {
+                var jsonChunk = JsonConvert.SerializeObject(chunk);
+                _rabbitMQService.PublishMessage(jsonChunk);
+            }
+            _rabbitMQService.ConsumeMessage();
+            return Ok(result);
         }
     }
 }
+
+
+
+
+
+
+
+
+
+// using Microsoft.AspNetCore.Mvc;
+// using CsvHelper;
+// using CsvHelper.Configuration;
+// using System.Globalization;
+// using System.IO;
+// using System.Linq;
+// using System.Collections.Generic;
+// using System.Threading.Tasks;
+// using Microsoft.EntityFrameworkCore;
+// using System.Collections.Generic;
+// using System.Threading.Tasks;
+
+// using Backend2.Models;
+
+// namespace Backend2.Controllers;
+
+// [ApiController]
+// [Route("/api/[controller]")]
+// public class EmployeeController : ControllerBase
+// {
+//     private const int ChunkSize = 10000;
+
+//     private readonly Database1Context _context;
+
+//     public EmployeeController(Database1Context context)
+//     {
+//         _context = context;
+//     }
+
+//     [HttpGet]
+//     public async Task<ActionResult<IEnumerable<EmployeeInfo>>> Get()
+//     {
+//         //fetch all
+//         // return _context.EmployeeInfos.ToList();
+
+//         //fetch by email id
+//         // return _context.EmployeeInfos.Where(auth=> auth.EmailId == "000qL32RpD@example.com").ToList();
+//     }
+
+
+//     // [HttpPost]
+//     // public async Task<IActionResult> Post()
+//     // {
+//     //     string csvFilePath = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv";
+
+//     //     if (!System.IO.File.Exists(csvFilePath))
+//     //     {
+//     //         return NotFound("CSV file not found.");
+//     //     }
+
+//     //     IEnumerable<EmployeeInfo> employees;
+//     //     using (var reader = new StreamReader(csvFilePath))
+//     //     using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+//     //     {
+//     //         BadDataFound = null,
+//     //         HeaderValidated = null,
+//     //         MissingFieldFound = null
+//     //     }))
+//     //     {
+//     //         csv.Context.RegisterClassMap<EmployeeInfoMap>();
+//     //         employees = csv.GetRecords<EmployeeInfo>().ToList();
+//     //     }
+
+//     //     var chunks = employees
+//     //         .Select((employee, index) => new { employee, index })
+//     //         .GroupBy(x => x.index / ChunkSize)
+//     //         .Select(g => g.Select(x => x.employee).ToList())
+//     //         .ToList();
+
+//     //     Console.WriteLine($"Number of chunks possible: {chunks.Count}");
+
+//     //     var top10Chunks = chunks.Take(10).ToList();
+
+//     //     // for (int i = 0; i < chunks.Count; i++)
+//     //     // {
+//     //     //     Console.WriteLine($"Chunk {i + 1}:");
+//     //     //     foreach (var employee in top10Chunks[i])
+//     //     //     {
+//     //     //         Console.WriteLine($"{employee.Name}");
+//     //     //     }
+//     //     //     Console.WriteLine();
+//     //     // }
+
+//     //     // if (top10Chunks.Any())
+//     //     // {
+//     //     //     return Ok(top10Chunks);
+//     //     // }
+
+//     //     // return NotFound("No data found.");
+
+//     //     foreach (var chunk in chunks)
+//     //     {
+//     //         await InsertChunkIntoDatabase(chunk);
+//     //     }
+
+//     //     return Ok("Data inserted into the database.");
+//     // }
+
+//     // private async Task InsertChunkIntoDatabase(List<EmployeeInfo> chunk)
+//     // {
+//     //     try
+//     //     {
+//     //         _context.EmployeeInfos.AddRange(chunk);
+//     //         await _context.SaveChangesAsync();
+//     //     }
+//     //     catch (Exception ex)
+//     //     {
+//     //         Console.WriteLine($"An error occurred while inserting data: {ex.Message}");
+//     //         throw;
+//     //     }
+//     // }
+// }
+
+
+
