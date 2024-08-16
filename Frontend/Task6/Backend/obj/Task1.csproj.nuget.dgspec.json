@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Training-tasks\\Frontend\\Task6\\backend\\Task1.csproj": {}
+    "D:\\Training-tasks\\Frontend\\Task6\\Backend\\Task1.csproj": {}
   },
   "projects": {
-    "D:\\Training-tasks\\Frontend\\Task6\\backend\\Task1.csproj": {
+    "D:\\Training-tasks\\Frontend\\Task6\\Backend\\Task1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Training-tasks\\Frontend\\Task6\\backend\\Task1.csproj",
+        "projectUniqueName": "D:\\Training-tasks\\Frontend\\Task6\\Backend\\Task1.csproj",
         "projectName": "Task1",
-        "projectPath": "D:\\Training-tasks\\Frontend\\Task6\\backend\\Task1.csproj",
+        "projectPath": "D:\\Training-tasks\\Frontend\\Task6\\Backend\\Task1.csproj",
         "packagesPath": "C:\\Users\\nilesh.lad\\.nuget\\packages\\",
-        "outputPath": "D:\\Training-tasks\\Frontend\\Task6\\backend\\obj\\",
+        "outputPath": "D:\\Training-tasks\\Frontend\\Task6\\Backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
