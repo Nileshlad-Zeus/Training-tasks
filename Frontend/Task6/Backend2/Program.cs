@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<RabbitMQService>();
 
-
+builder.Services.AddHostedService<RabbitMQConsumerService>();
 
 
 // Add services to the container.

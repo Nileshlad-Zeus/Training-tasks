@@ -21,16 +21,16 @@ namespace Backend2.Models
 
         public string? Address_Line_2 { get; set; }
 
-        public DateTime? Date_Of_Birth { get; set; }
+        public string? Date_Of_Birth { get; set; }
 
-        public decimal? Gross_Salary_2019_20 { get; set; }
+        public string? Gross_Salary_2019_20 { get; set; }
 
-        public decimal? Gross_Salary_2020_21 { get; set; }
+        public string? Gross_Salary_2020_21 { get; set; }
 
-        public decimal? Gross_Salary_2021_22 { get; set; }
+        public string? Gross_Salary_2021_22 { get; set; }
 
-        public decimal? Gross_Salary_2022_23 { get; set; }
+        public string? Gross_Salary_2022_23 { get; set; }
 
-        public decimal? Gross_Salary_2023_24 { get; set; }
+        public string? Gross_Salary_2023_24 { get; set; }
     }
 }

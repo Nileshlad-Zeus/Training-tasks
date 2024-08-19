@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 
 using System.Text;
+using System.Text.Json;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -12,7 +14,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 using System.IO;
-using Newtonsoft.Json;
+// using Newtonsoft.Json;
 
 using Backend2.Models;
 
@@ -23,7 +25,7 @@ namespace Backend2.Controllers
     public class EmployeeController : ControllerBase
     {
 
-        private const int ChunkSize = 1000;
+        private const int ChunkSize = 10;
 
         private readonly string _connectionString;
 
@@ -55,34 +57,66 @@ namespace Backend2.Controllers
         [HttpPost]
         public async Task<IActionResult> Post()
         {
+
+
             string csvFilePath = "D:/Training-tasks/Frontend/Task6/Backend2/users.csv";
             if (!System.IO.File.Exists(csvFilePath))
             {
                 return NotFound("CSV file not found.");
             }
 
-            List<EmployeeInfoCsv> users = new List<EmployeeInfoCsv>();
+            var lines = new List<string>();
+            
             using (var reader = new StreamReader(csvFilePath))
-            using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
             {
-                users = csv.GetRecords<EmployeeInfoCsv>().ToList();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    lines.Add(line);
+                }
             }
 
-            var chunks = users.Select((employee, index) => new { employee, index })
-                                .GroupBy(x => x.index / ChunkSize)
-                                .Select(g => g.Select(x => x.employee).ToList())
-                                .ToList();
-
-            Console.WriteLine($"Number of chunks possible: {chunks.Count}");
-            var result = users.Take(10).ToList();
-
-            foreach (var chunk in result)
+            int chunkSize = 500;
+            for (int i = 0; i < lines.Count(); i += chunkSize)
             {
-                var jsonChunk = JsonConvert.SerializeObject(chunk);
-                _rabbitMQService.PublishMessage(jsonChunk);
+                var chunk = lines.Skip(i).Take(chunkSize).ToList();
+                string combinedMessage = string.Join("\n", chunk);
+                _rabbitMQService.PublishMessage(combinedMessage);
             }
-            _rabbitMQService.ConsumeMessage();
-            return Ok(result);
+
+            return Ok("Messages have been published in chunks.");
+
+
+
+
+
+
+
+
+
+
+            // List<EmployeeInfoCsv> users = new List<EmployeeInfoCsv>();
+            // using (var reader = new StreamReader(csvFilePath))
+            // using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
+            // {
+            //     users = csv.GetRecords<EmployeeInfoCsv>().ToList();
+            // }
+
+            // var chunks = users.Select((employee, index) => new { employee, index })
+            //                     .GroupBy(x => x.index / ChunkSize)
+            //                     .Select(g => g.Select(x => x.employee).ToList())
+            //                     .ToList();
+
+            // Console.WriteLine($"Number of chunks possible: {chunks.Count}");
+            // var result = chunks.Take(10).ToList();
+
+
+            // for (var chunkId = 0; chunkId < chunks.Count; chunkId++)
+            // {
+            //     // var jsonChunk = JsonSerializer.Serialize(chunks[chunkId]); ;
+            //     _rabbitMQService.PublishMessage(chunks[chunkId]);
+            // }
+            // return Ok(result);
         }
     }
 }
