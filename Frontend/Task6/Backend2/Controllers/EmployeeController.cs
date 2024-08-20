@@ -66,7 +66,7 @@ namespace Backend2.Controllers
             }
 
             var lines = new List<string>();
-            
+
             using (var reader = new StreamReader(csvFilePath))
             {
                 string line;
@@ -76,8 +76,8 @@ namespace Backend2.Controllers
                 }
             }
 
-            int chunkSize = 500;
-            for (int i = 0; i < lines.Count(); i += chunkSize)
+            int chunkSize = 10;
+            for (int i = 0; i < 50; i += chunkSize)
             {
                 var chunk = lines.Skip(i).Take(chunkSize).ToList();
                 string combinedMessage = string.Join("\n", chunk);

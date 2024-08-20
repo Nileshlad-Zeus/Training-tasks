@@ -1,0 +1,59 @@
+using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+public async Task InsertRecordsAsync(IEnumerable<string> lines, MySqlConnection connection, MySqlTransaction transaction)
+{
+    // Constants
+    const int BatchSize = 500;
+    var insertValues = new List<string>();
+    
+    foreach (var line in lines)
+    {
+        string[] l1 = line.Split(new[] { "," }, StringSplitOptions.None);
+
+        // Check if the line has the correct number of fields
+        if (l1.Length == 14)
+        {
+            // Build a VALUES clause for this row
+            var valuesClause = $"('{string.Join("','", l1)}')";
+            insertValues.Add(valuesClause);
+
+            // If the batch size is reached or this is the last line, execute the batch
+            if (insertValues.Count == BatchSize)
+            {
+                var query = @$"INSERT INTO employee_info 
+                    (email_id, name, country, state, city, telephone_number, address_line_1, address_line_2, date_of_birth, gross_salary_2019_20, gross_salary_2020_21, gross_salary_2021_22, gross_salary_2022_23, gross_salary_2023_24) 
+                    VALUES {string.Join(",", insertValues)}";
+
+                using (var command = new MySqlCommand(query, connection, transaction))
+                {
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                // Clear the list for the next batch
+                insertValues.Clear();
+            }
+        }
+        else
+        {
+            // Log or handle incorrect record format
+            Console.WriteLine($"Line skipped due to incorrect number of fields: {line}");
+        }
+    }
+
+    // Insert any remaining records
+    if (insertValues.Count > 0)
+    {
+        var query = @$"INSERT INTO employee_info 
+            (email_id, name, country, state, city, telephone_number, address_line_1, address_line_2, date_of_birth, gross_salary_2019_20, gross_salary_2020_21, gross_salary_2021_22, gross_salary_2022_23, gross_salary_2023_24) 
+            VALUES {string.Join(",", insertValues)}";
+
+        using (var command = new MySqlCommand(query, connection, transaction))
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+    }
+}
