@@ -67,6 +67,7 @@ class MakeChart {
     drawChart(chartType, selectedDimensionsMain) {
         if (chartType == "") return;
         const [startX, startY, endX, endY] = selectedDimensionsMain;
+        
         if (startX == 0 && startY == 0 && endX == 0 && endY == 0) {
             return;
         }
@@ -81,11 +82,10 @@ class MakeChart {
         let i = 1;
 
         for (let j = startY; j <= endY; j++) {
-            const result = this.sheetData.find((item) => item[j]);
+            const result = this.sheetData.find((item) => item[j+1]);
             const tempArray = [];
-
             for (let k = startX; k <= endX; k++) {
-                let currentData = result ? result[j][k] : "";
+                let currentData = result ? result[j+1][k+2] : "";
                 if (currentData && !isNaN(currentData.data)) {
                     tempArray.push(Number(currentData.data));
                 }
@@ -95,6 +95,7 @@ class MakeChart {
                 dataArray.push(tempArray);
             }
         }
+
         if (dataArray.length <= 0) {
             return;
         }

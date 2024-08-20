@@ -1,12 +1,12 @@
 class FontStyle {
-  /**
-   * 
-   * @param {object} mainInst 
-   * @param {object} highlightInst 
-   * @param {Array} sheetData 
-   * @param {CanvasRenderingContext2D} mainCtx 
-   * @param {HTMLCanvasElement} mainCanvas 
-   */
+    /**
+     *
+     * @param {object} mainInst
+     * @param {object} highlightInst
+     * @param {Array} sheetData
+     * @param {CanvasRenderingContext2D} mainCtx
+     * @param {HTMLCanvasElement} mainCanvas
+     */
     constructor(mainInst, highlightInst, sheetData, mainCtx, mainCanvas) {
         this.mainInst = mainInst;
         this.highlightInst = highlightInst;
@@ -75,25 +75,39 @@ class FontStyle {
     }
 
     /**
-     * 
-     * @param {string} type 
-     * @param {string} [value=""] 
+     *
+     * @param {string} type
+     * @param {string} [value=""]
      */
     updateFontProperty(type, value = "") {
-        const [startX, startY] = this.mainInst.selectedDimensionsMain;
-        const result = this.sheetData.find((item) => item[startY]);
-        let currentData = result[startY][startX];
-        let properties = currentData?.properties;
-        let Pos = this.getPos(properties, "*", this.propertyIndex(type));
-        let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
-        let newValue =
-            oldVal === ""
-                ? properties.slice(0, Pos[0] + 1) +
-                  value +
-                  properties.slice(Pos[0] + 1)
-                : properties.replace(oldVal, value);
-        result[startY][startX].properties = newValue;
+        const [startX, startY, endX, endY] =
+            this.mainInst.selectedDimensionsMain;
 
+        console.log(this.mainInst.selectedDimensionsMain);
+        for (let i = startY; i <= endY; i++) {
+            const result = this.sheetData.find((item) => item[i + 1]);
+        
+            
+
+            for (let j = startX; j <= endX; j++) {
+                let currentData = result[i + 1][j+2];
+                let properties = currentData?.properties;
+                let Pos = this.getPos(
+                    properties,
+                    "*",
+                    this.propertyIndex(type)
+                );
+                let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
+                let newValue =
+                    oldVal === ""
+                        ? properties.slice(0, Pos[0] + 1) +
+                          value +
+                          properties.slice(Pos[0] + 1)
+                        : properties.replace(oldVal, value);
+                result[i + 1][j+2].properties = newValue;
+                
+            }
+        }
         this.mainCtx.clearRect(
             0,
             0,
@@ -105,9 +119,9 @@ class FontStyle {
     }
 
     /**
-     * 
-     * @param {string} type 
-     * @param {HTMLElement} ele 
+     *
+     * @param {string} type
+     * @param {HTMLElement} ele
      */
     toggleFontProperty(type, ele) {
         let isActive = ele.classList.toggle("fontstyleactive");
@@ -115,10 +129,10 @@ class FontStyle {
     }
 
     /**
-     * 
-     * @param {string} str 
-     * @param {string} subStr 
-     * @param {number} i 
+     *
+     * @param {string} str
+     * @param {string} subStr
+     * @param {number} i
      * @returns {[number, number]}
      */
     getPos(str = "", subStr, i) {
