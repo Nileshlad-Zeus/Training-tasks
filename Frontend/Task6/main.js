@@ -23,6 +23,7 @@ class newCanvas {
         this.valueInst = new GetValues(this, this.cellHeight, this.cellWidths);
 
         this.inputBoxPosition();
+
         this.highlightInst = new DrawHighlight(
             this,
             this.mainCtx,
@@ -34,8 +35,9 @@ class newCanvas {
             this.inputBox,
             this.inputBoxPosition,
             this.drawGrid,
-            this.sheetData
+            this.sheetData,
         );
+
         this.highlightInst.highlightSelectedAreaEvents();
         this.highlightInst.highlightSelectedArea();
 
@@ -101,7 +103,12 @@ class newCanvas {
 
         //charts
         var charts = document.querySelectorAll(".chart");
-        this.chartInst = new MakeChart(this.mainCanvas, this.sheetData);
+        this.chartInst = new MakeChart(
+            this,
+            this.highlightInst,
+            this.mainCanvas,
+            this.sheetData,
+        );
         this.chartArray = [];
 
         Array.from(charts).forEach((chart) => {
@@ -753,14 +760,14 @@ class newCanvas {
         data = data.slice(0, length - length2 - 2);
         return data;
     }
-    drawGrid() {
+    drawGrid(strokeColor="", fillColor="") {
         this.mainCtx.clearRect(
             0,
             0,
             this.mainCanvas.width,
             this.mainCanvas.height
         );
-        this.highlightInst.highlightSelectedArea();
+        this.highlightInst.highlightSelectedArea(strokeColor,fillColor);
         this.drawRows();
         this.drawColumns();
         this.renderData();

@@ -10,7 +10,8 @@ class DrawHighlight {
         inputBox,
         inputBoxPosition,
         drawGrid,
-        sheetData
+        sheetData,
+        highlightDiv
     ) {
         this.mainInst = mainInst;
 
@@ -25,6 +26,7 @@ class DrawHighlight {
         this.drawGrid = drawGrid;
         this.sheetData = sheetData;
         this.scale = window.devicePixelRatio;
+        this.highlightDiv= highlightDiv
     }
 
     highlightLeftHeaders() {
@@ -217,7 +219,9 @@ class DrawHighlight {
         }
     }
 
-    highlightSelectedArea() {
+    highlightSelectedArea(strokeColor="",fillColor="") {
+        console.log("Highlight");
+
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;
 
@@ -282,7 +286,13 @@ class DrawHighlight {
 
         this.mainCtx.save();
 
-        this.mainCtx.fillStyle = this.mainInst.areaHighlightColor;
+        this.mainCtx.fillStyle = fillColor==""?this.mainInst.areaHighlightColor:fillColor;
+
+
+
+       
+
+
         if (this.mainInst.isColSelected) {
             this.mainInst.currSelectedCol = [startX, endX];
             if (
@@ -321,7 +331,9 @@ class DrawHighlight {
         );
 
         this.mainCtx.lineWidth = 2;
-        this.mainCtx.strokeStyle = this.mainInst.strokeColor;
+        this.mainCtx.strokeStyle = strokeColor==""?this.mainInst.strokeColor:strokeColor;
+        console.log(strokeColor);
+        
         if (this.mainInst.isColSelected) {
             this.mainCtx.strokeRect(
                 x - 0.5,
@@ -357,6 +369,7 @@ class DrawHighlight {
         });
 
         this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
+         
             this.highlightAreaPointerDown(e);
         });
 
@@ -430,6 +443,7 @@ class DrawHighlight {
     }
 
     highlightAreaPointerMove(e) {
+        
         if (this.mainInst.isAreaSelected) {
             const rect = this.mainCtx.canvas.getBoundingClientRect();
             const clickX =
@@ -474,7 +488,6 @@ class DrawHighlight {
         this.mainInst.isAreaSelected = false;
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;
-        console.log(this.mainInst.selectedDimensionsMain);
 
         let sum = 0,
             max = Number.MIN_VALUE,

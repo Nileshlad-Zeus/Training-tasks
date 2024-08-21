@@ -4,11 +4,14 @@ class MakeChart {
      * @param {HTMLCanvasElement} mainCanvas
      * @param {Array} sheetData
      */
-    constructor(mainCanvas, sheetData) {
+    constructor(mainInst, highlightInst, mainCanvas, sheetData) {
+        this.highlightInst = highlightInst;
+        this.mainInst = mainInst;
         this.mainCanvas = mainCanvas;
         this.sheetData = sheetData;
         this.scale = window.devicePixelRatio;
         this.draggableChart = false;
+        this.highlightInst = highlightInst;
     }
 
     /**
@@ -34,9 +37,15 @@ class MakeChart {
      *
      * @param {HTMLDivElement} chartDiv
      */
-    makeitDraggable(chartDiv) {
+    makeitDraggable(chartDiv, selectedDimensionsMain) {
         const rect = this.mainCanvas.getBoundingClientRect();
         this.draggableChart = false;
+
+        chartDiv.addEventListener("click",()=>{
+            this.mainInst.selectedDimensionsMain = selectedDimensionsMain;
+            // this.highlightInst.highlightSelectedArea();
+            this.mainInst.drawGrid("rgb(124,83,172)","rgb(235,229,243)");
+        })
 
         chartDiv.addEventListener("pointerdown", () => {
             this.draggableChart = true;
@@ -67,7 +76,7 @@ class MakeChart {
     drawChart(chartType, selectedDimensionsMain) {
         if (chartType == "") return;
         const [startX, startY, endX, endY] = selectedDimensionsMain;
-        
+
         if (startX == 0 && startY == 0 && endX == 0 && endY == 0) {
             return;
         }
@@ -82,10 +91,10 @@ class MakeChart {
         let i = 1;
 
         for (let j = startY; j <= endY; j++) {
-            const result = this.sheetData.find((item) => item[j+1]);
+            const result = this.sheetData.find((item) => item[j + 1]);
             const tempArray = [];
             for (let k = startX; k <= endX; k++) {
-                let currentData = result ? result[j+1][k+2] : "";
+                let currentData = result ? result[j + 1][k + 2] : "";
                 if (currentData && !isNaN(currentData.data)) {
                     tempArray.push(Number(currentData.data));
                 }
@@ -127,7 +136,7 @@ class MakeChart {
                 cutoutPercentage: 0,
             },
         });
-        this.makeitDraggable(chartDiv);
+        this.makeitDraggable(chartDiv, selectedDimensionsMain);
     }
 
     /**
@@ -138,7 +147,9 @@ class MakeChart {
     setStyleForEle(canvas, chartDiv) {
         canvas.style.backgroundColor = "white";
         canvas.style.padding = "10px";
+        canvas.style.paddingTop = "25px";
         canvas.style.border = "1px solid gray";
+
         chartDiv.style.position = "absolute";
         chartDiv.style.top = "50px";
         chartDiv.style.left = "50px";
