@@ -35,7 +35,7 @@ class newCanvas {
             this.inputBox,
             this.inputBoxPosition,
             this.drawGrid,
-            this.sheetData,
+            this.sheetData
         );
 
         this.highlightInst.highlightSelectedAreaEvents();
@@ -107,7 +107,7 @@ class newCanvas {
             this,
             this.highlightInst,
             this.mainCanvas,
-            this.sheetData,
+            this.sheetData
         );
         this.chartArray = [];
 
@@ -224,6 +224,8 @@ class newCanvas {
 
         this.rowIndex2 = -1;
         this.columnIndex2 = -1;
+
+        this.clickOnGraph = false;
 
         // this.sheetData = [
         //   {
@@ -760,17 +762,20 @@ class newCanvas {
         data = data.slice(0, length - length2 - 2);
         return data;
     }
-    drawGrid(strokeColor="", fillColor="") {
+    drawGrid(strokeColor = "", fillColor = "") {
+        if (strokeColor != "") {
+            this.clickOnGraph = true;
+        }
         this.mainCtx.clearRect(
             0,
             0,
             this.mainCanvas.width,
             this.mainCanvas.height
         );
-        this.highlightInst.highlightSelectedArea(strokeColor,fillColor);
+        this.highlightInst.highlightSelectedArea(strokeColor, fillColor);
         this.drawRows();
         this.drawColumns();
-        this.renderData();
+        this.renderData(strokeColor);
     }
 
     /**
@@ -788,7 +793,7 @@ class newCanvas {
         ];
     }
 
-    renderTopHeader() {
+    renderTopHeader(transparentColor = "") {
         this.topHeaderCtx.save();
         this.topHeaderCtx.beginPath();
 
@@ -797,7 +802,7 @@ class newCanvas {
         this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24 - 0.5);
         this.topHeaderCtx.stroke();
         this.topHeaderCtx.restore();
-        this.highlightInst.highlightTopHeader();
+        this.highlightInst.highlightTopHeader(transparentColor);
 
         this.topHeaderCtx.font = "10pt Arial";
         this.topHeaderCtx.textAlign = "center";
@@ -845,7 +850,9 @@ class newCanvas {
             let yPosition = 15;
 
             this.topHeaderCtx.fillStyle = this.gridStrokeColor;
-            if (Array.isArray(this.currSelectedCol)) {
+            if (transparentColor != "") {
+                this.topHeaderCtx.fillStyle = this.gridStrokeColor;
+            } else if (Array.isArray(this.currSelectedCol)) {
                 if (
                     this.topheaderSelected &&
                     this.currSelectedCol[0] <= i &&
@@ -882,7 +889,7 @@ class newCanvas {
         }
     }
 
-    renderLeftHeader() {
+    renderLeftHeader(transparentColor = "") {
         this.leftHeaderCtx.save();
         this.leftHeaderCtx.beginPath();
         this.leftHeaderCtx.moveTo(40 - 0.5, 0);
@@ -890,7 +897,7 @@ class newCanvas {
         this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
         this.leftHeaderCtx.stroke();
         this.leftHeaderCtx.restore();
-        this.highlightInst.highlightLeftHeaders();
+        this.highlightInst.highlightLeftHeaders(transparentColor);
 
         const canvasHeight = this.mainCanvas.height;
         const rowHeight = this.valueInst.getCurCellHeight(0);
@@ -935,7 +942,9 @@ class newCanvas {
                 cellPosition - this.valueInst.getCurCellHeight(i) / 2;
 
             this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
-            if (Array.isArray(this.currSelectedRow)) {
+            if (transparentColor != "") {
+                this.topHeaderCtx.fillStyle = this.gridStrokeColor;
+            } else if (Array.isArray(this.currSelectedRow)) {
                 if (
                     this.leftheaderSelected &&
                     this.currSelectedRow[0] <= i &&

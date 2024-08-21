@@ -26,10 +26,10 @@ class DrawHighlight {
         this.drawGrid = drawGrid;
         this.sheetData = sheetData;
         this.scale = window.devicePixelRatio;
-        this.highlightDiv= highlightDiv
+        this.highlightDiv = highlightDiv;
     }
 
-    highlightLeftHeaders() {
+    highlightLeftHeaders(transparentColor = "") {
         this.leftHeaderCtx.save();
         this.leftHeaderCtx.beginPath();
         this.leftHeaderCtx.moveTo(40 - 0.5, 0);
@@ -120,16 +120,24 @@ class DrawHighlight {
             this.leftHeaderCtx.beginPath();
             this.leftHeaderCtx.moveTo(39, y - 2);
             this.leftHeaderCtx.lineTo(39, y + height + 3);
-            this.leftHeaderCtx.fillStyle = this.mainInst.headersHighlightColor;
+            this.leftHeaderCtx.fillStyle =
+                transparentColor == ""
+                    ? this.mainInst.headersHighlightColor
+                    : transparentColor;
             this.leftHeaderCtx.fillRect(0, y, 40, height);
             this.leftHeaderCtx.lineWidth = 2;
-            this.leftHeaderCtx.strokeStyle = this.mainInst.strokeColor;
+            this.leftHeaderCtx.strokeStyle =
+                transparentColor == ""
+                    ? this.mainInst.strokeColor
+                    : transparentColor;
             this.leftHeaderCtx.stroke();
             this.leftHeaderCtx.restore();
         }
     }
 
-    highlightTopHeader() {
+    highlightTopHeader(transparentColor = "") {
+        console.log(transparentColor);
+
         const [startX, startY, endX, endY] =
             this.mainInst.headersHighlightCoordinate;
         let x = 0;
@@ -208,18 +216,26 @@ class DrawHighlight {
         } else {
             this.topHeaderCtx.save();
             this.topHeaderCtx.beginPath();
-            this.topHeaderCtx.fillStyle = this.mainInst.headersHighlightColor;
+            console.log(transparentColor);
+
+            this.topHeaderCtx.fillStyle =
+                transparentColor == ""
+                    ? this.mainInst.headersHighlightColor
+                    : "#ffffff00";
             this.topHeaderCtx.fillRect(x, 0, width, 24);
             this.topHeaderCtx.moveTo(x - 2, 23);
             this.topHeaderCtx.lineTo(x + width + 2.5, 23);
             this.topHeaderCtx.lineWidth = 2;
-            this.topHeaderCtx.strokeStyle = this.mainInst.strokeColor;
+            this.topHeaderCtx.strokeStyle =
+                transparentColor == ""
+                    ? this.mainInst.strokeColor
+                    : transparentColor;
             this.topHeaderCtx.stroke();
             this.topHeaderCtx.restore();
         }
     }
 
-    highlightSelectedArea(strokeColor="",fillColor="") {
+    highlightSelectedArea(strokeColor = "", fillColor = "") {
         console.log("Highlight");
 
         const [startX, startY, endX, endY] =
@@ -286,12 +302,8 @@ class DrawHighlight {
 
         this.mainCtx.save();
 
-        this.mainCtx.fillStyle = fillColor==""?this.mainInst.areaHighlightColor:fillColor;
-
-
-
-       
-
+        this.mainCtx.fillStyle =
+            fillColor == "" ? this.mainInst.areaHighlightColor : fillColor;
 
         if (this.mainInst.isColSelected) {
             this.mainInst.currSelectedCol = [startX, endX];
@@ -331,9 +343,10 @@ class DrawHighlight {
         );
 
         this.mainCtx.lineWidth = 2;
-        this.mainCtx.strokeStyle = strokeColor==""?this.mainInst.strokeColor:strokeColor;
+        this.mainCtx.strokeStyle =
+            strokeColor == "" ? this.mainInst.strokeColor : strokeColor;
         console.log(strokeColor);
-        
+
         if (this.mainInst.isColSelected) {
             this.mainCtx.strokeRect(
                 x - 0.5,
@@ -369,7 +382,6 @@ class DrawHighlight {
         });
 
         this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
-         
             this.highlightAreaPointerDown(e);
         });
 
@@ -443,7 +455,6 @@ class DrawHighlight {
     }
 
     highlightAreaPointerMove(e) {
-        
         if (this.mainInst.isAreaSelected) {
             const rect = this.mainCtx.canvas.getBoundingClientRect();
             const clickX =

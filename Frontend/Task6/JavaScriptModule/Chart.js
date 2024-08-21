@@ -43,7 +43,11 @@ class MakeChart {
 
         chartDiv.addEventListener("click",()=>{
             this.mainInst.selectedDimensionsMain = selectedDimensionsMain;
-            // this.highlightInst.highlightSelectedArea();
+            // this.highlightInst.highlightTopHeader("#ffffff00");
+            this.mainInst.clearTopHeader();
+            this.mainInst.clearLeftHeader();
+            this.mainInst.renderTopHeader("#ffffff00");
+            this.mainInst.renderLeftHeader("#ffffff00");
             this.mainInst.drawGrid("rgb(124,83,172)","rgb(235,229,243)");
         })
 
