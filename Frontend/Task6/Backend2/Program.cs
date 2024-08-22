@@ -9,6 +9,21 @@ builder.Services.AddSingleton<RabbitMQService>();
 
 builder.Services.AddHostedService<RabbitMQConsumerService>();
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      builder =>
+                      {
+                          builder.WithOrigins("http://localhost:3000", "http://localhost:5000", "http://127.0.0.1:5500")
+                                 .AllowAnyHeader()
+                                 .AllowAnyMethod()
+                                 .AllowCredentials();
+                      });
+});
+
 
 // Add services to the container.
 
@@ -21,6 +36,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseCors(MyAllowSpecificOrigins);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

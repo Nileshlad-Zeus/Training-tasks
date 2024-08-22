@@ -1,23 +1,15 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-
-using System.Threading.Tasks;
-
 using MySql.Data.MySqlClient;
-using Dapper;
 using System.Text;
-using System.Text.Json;
-
-
-using Microsoft.Extensions.Configuration;
-// using Newtonsoft.Json;
-using Backend2.Models;
 
 public class RabbitMQService
 {
     private readonly IConfiguration _configuration;
     private readonly IConnection _connection;
     private readonly IModel _channel;
+
+    public readonly string[] NewlineSeparators = ["\r\n", "\r", "\n"];
 
     private readonly string _connectionString;
 
@@ -63,55 +55,51 @@ public class RabbitMQService
 
 
 
-    public async Task ConsumeMessage()
+    public void ConsumeMessage()
     {
 
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += async (model, ea) =>
         {
             using var connection = new MySqlConnection(_connectionString);
-            await connection.OpenAsync();
-            using var transaction = await connection.BeginTransactionAsync();
             try
             {
-
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
 
-                string[] lines = message.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-                Console.WriteLine(message);
-                Console.WriteLine(" ");
-                var insertValues = new List<string>();
+                var lines = message.Split('\n');
+                var valuesList = new List<string>();
 
                 foreach (var line in lines)
                 {
-                    string[] l1 = line.Split(new[] { "," }, StringSplitOptions.None);
-                    var valuesClause = $"('{string.Join("','", l1)}')";
-                    insertValues.Add(valuesClause);
+                    var values = line.Split(',');
+                    if (values.Length == 15)
+                    {
+                        var valuesFormatted = string.Join(",", values.Select(v => $"'{v}'"));
+                        valuesList.Add($"({valuesFormatted})");
+                    }
                 }
 
-                var query = @$"INSERT INTO employee_info 
-                    (email_id, name, country, state, city, telephone_number, address_line_1, address_line_2, date_of_birth, gross_salary_2019_20, gross_salary_2020_21, gross_salary_2021_22, gross_salary_2022_23, gross_salary_2023_24) 
-                    VALUES {string.Join(",", insertValues)}";
-
-                using (var command = new MySqlCommand(query, connection))
+                if (valuesList.Count > 0)
                 {
-                    await command.ExecuteNonQueryAsync();
-                }
 
-                await transaction.CommitAsync();
-            }
-            catch (Newtonsoft.Json.JsonException jsonEx)
-            {
-                await transaction.RollbackAsync();
-                Console.WriteLine($"JSON error 2 processing message: {jsonEx.Message}");
+                    await connection.OpenAsync();
+
+                    var query = $"INSERT INTO employee_info (RowNo,A,B,C,D,E,F,G,H,I,J,K,L,M,N) VALUES {string.Join(",", valuesList)};";
+
+                    using (var command = new MySqlCommand(query, connection))
+                    {
+                        await command.ExecuteNonQueryAsync();
+                    }
+
+                    await connection.CloseAsync();
+                }
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                Console.WriteLine(ex);
-                Console.WriteLine($"Error processing message 2: {ex.Message}");
+                Console.WriteLine($"Error processing message: {ex.Message}");
             }
+
         };
 
         _channel.BasicConsume(queue: _configuration["RabbitMQ:QueueName"], autoAck: true, consumer: consumer);
