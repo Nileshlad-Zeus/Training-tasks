@@ -136,8 +136,6 @@ class DrawHighlight {
     }
 
     highlightTopHeader(transparentColor = "") {
-        console.log(transparentColor);
-
         const [startX, startY, endX, endY] =
             this.mainInst.headersHighlightCoordinate;
         let x = 0;
@@ -216,7 +214,6 @@ class DrawHighlight {
         } else {
             this.topHeaderCtx.save();
             this.topHeaderCtx.beginPath();
-            console.log(transparentColor);
 
             this.topHeaderCtx.fillStyle =
                 transparentColor == ""
@@ -236,7 +233,6 @@ class DrawHighlight {
     }
 
     highlightSelectedArea(strokeColor = "", fillColor = "") {
-        console.log("Highlight");
 
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;
@@ -345,7 +341,6 @@ class DrawHighlight {
         this.mainCtx.lineWidth = 2;
         this.mainCtx.strokeStyle =
             strokeColor == "" ? this.mainInst.strokeColor : strokeColor;
-        console.log(strokeColor);
 
         if (this.mainInst.isColSelected) {
             this.mainCtx.strokeRect(

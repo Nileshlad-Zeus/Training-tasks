@@ -1,533 +1,561 @@
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 body {
-  overflow: hidden;
-  background-color: rgb(245, 245, 245);
-  // background-color: red;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    overflow: hidden;
+    background-color: rgb(245, 245, 245);
+    // background-color: red;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        sans-serif;
 }
 
 .toolsSection {
-  position: sticky;
-  height: 100px;
-  background-color: white;
-  z-index: 100;
-  margin: 0 8px;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 0 10px 10px rgb(239, 237, 240);
-  display: flex;
-
-  .tool {
-    border-left: 1px solid rgba(128, 128, 128, 0.411);
-    border-right: 1px solid rgba(128, 128, 128, 0.411);
-  }
-
-  .toolNameHeading {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 11px;
-    color: rgb(83, 83, 83);
-    font-weight: 500;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-      Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-      sans-serif;
-  }
-
-  .fontSection {
-    position: relative;
-    width: 250px;
-    height: 100%;
-    padding-left: 10px;
-
-    .fontFamilySize {
-      display: flex;
-      border: 1px solid rgba(128, 128, 128, 0.411);
-      border-radius: 5px;
-      width: 200px;
-      height: 25px;
-      align-items: center;
-      border-radius: 3px;
-      .fontFamily {
-        flex: 1;
-        height: 100%;
-        display: flex;
-        border-right: 1px solid rgba(128, 128, 128, 0.411);
-      }
-      .fontSize {
-        width: 50px;
-      }
-      select {
-        width: 100%;
-        border: none;
-        outline: none;
-        color: rgb(83, 83, 83);
-        border-radius: 3px;
-      }
-    }
-
-    .fontStyle {
-      padding: 2px 4px;
-      display: flex;
-      .icon {
-        cursor: pointer;
-        font-size: 18px;
-        width: 30px;
-        height: 25px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #000000c5;
-      }
-      .bold {
-        font-weight: 500;
-      }
-      .italic {
-        font-weight: 300;
-      }
-      .underline {
-        font-weight: 300;
-        font-size: 20px;
-      }
-      .fontstyleactive {
-        border: 1px solid rgba(0, 0, 0, 0.397);
-        border-radius: 5px;
-        background-color: rgb(245, 245, 245);
-      }
-
-      .fontColor {
-        padding-left: 10px;
-        display: flex;
-        align-items: center;
-        p {
-          color: #080707;
-          font-size: 16px;
-          font-weight: 400;
-          border-bottom: 4px solid black;
-          text-align: center;
-          width: 16px;
-          line-height: 15px;
-          cursor: pointer;
-        }
-        span {
-          font-size: 15px;
-          cursor: pointer;
-        }
-        .colorSelector {
-          display: none;
-        }
-      }
-    }
-  }
-
-  .editingSection,
-  .chartSection {
-    position: relative;
+    position: sticky;
+    height: 100px;
+    background-color: white;
+    z-index: 100;
+    margin: 0 8px;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 0 10px 10px rgb(239, 237, 240);
     display: flex;
-    gap: 20px;
-    justify-content: center;
-    padding: 0 15px;
-    div {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
 
-      label {
-        font-size: 14px;
-        color: rgb(95, 88, 88);
-      }
+    .tool {
+        border-left: 1px solid rgba(128, 128, 128, 0.411);
+        border-right: 1px solid rgba(128, 128, 128, 0.411);
     }
 
-    .icon {
-      cursor: pointer;
-      font-size: 30px;
-      color: rgb(95, 88, 88);
+    .toolNameHeading {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 11px;
+        color: rgb(83, 83, 83);
+        font-weight: 500;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+            Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+            sans-serif;
     }
-  }
 
-  .chartSection {
-    .chart {
-      cursor: pointer;
-      label {
-        cursor: pointer;
-      }
-      img {
-        width: 40px;
-      }
-      #horizontalBar {
-        transform: rotate(90deg);
-      }
+    .uploadFileSection {
+        padding: 0 10px;
+        position: relative;
+        .uploadFile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            button {
+                height: 25px;
+                width: 90px;
+                border: none;
+                background-color: rgb(16, 124, 65);
+                color: white;
+                border-radius: 5px;
+            }
+        }
+        .icon {
+            font-size: 50px;
+            color: rgb(95, 88, 88);
+            cursor: pointer;
+        }
     }
-  }
+
+    .fontSection {
+        position: relative;
+        width: 250px;
+        height: 100%;
+        padding-left: 10px;
+
+        .fontFamilySize {
+            display: flex;
+            border: 1px solid rgba(128, 128, 128, 0.411);
+            border-radius: 5px;
+            width: 200px;
+            height: 25px;
+            align-items: center;
+            border-radius: 3px;
+            .fontFamily {
+                flex: 1;
+                height: 100%;
+                display: flex;
+                border-right: 1px solid rgba(128, 128, 128, 0.411);
+            }
+            .fontSize {
+                width: 50px;
+            }
+            select {
+                width: 100%;
+                border: none;
+                outline: none;
+                color: rgb(83, 83, 83);
+                border-radius: 3px;
+            }
+        }
+
+        .fontStyle {
+            padding: 2px 4px;
+            display: flex;
+            .icon {
+                cursor: pointer;
+                font-size: 18px;
+                width: 30px;
+                height: 25px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #000000c5;
+            }
+            .bold {
+                font-weight: 500;
+            }
+            .italic {
+                font-weight: 300;
+            }
+            .underline {
+                font-weight: 300;
+                font-size: 20px;
+            }
+            .fontstyleactive {
+                border: 1px solid rgba(0, 0, 0, 0.397);
+                border-radius: 5px;
+                background-color: rgb(245, 245, 245);
+            }
+
+            .fontColor {
+                padding-left: 10px;
+                display: flex;
+                align-items: center;
+                p {
+                    color: #080707;
+                    font-size: 16px;
+                    font-weight: 400;
+                    border-bottom: 4px solid black;
+                    text-align: center;
+                    width: 16px;
+                    line-height: 15px;
+                    cursor: pointer;
+                }
+                span {
+                    font-size: 15px;
+                    cursor: pointer;
+                }
+                .colorSelector {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    .editingSection,
+    .chartSection {
+        position: relative;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        padding: 0 15px;
+        div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            label {
+                font-size: 14px;
+                color: rgb(95, 88, 88);
+            }
+        }
+
+        .icon {
+            cursor: pointer;
+            font-size: 30px;
+            color: rgb(95, 88, 88);
+        }
+    }
+
+    .chartSection {
+        .chart {
+            cursor: pointer;
+            label {
+                cursor: pointer;
+            }
+            img {
+                width: 40px;
+            }
+            #horizontalBar {
+                transform: rotate(90deg);
+            }
+        }
+    }
 }
 
 .editingSectionModal {
-  display: none;
-  position: absolute;
-  top: 240px;
-  left: 0;
-  right: 0;
-  height: 400px;
-  z-index: 100;
-  width: 100%;
-  // display: flex;
-  justify-content: center;
-  align-items: center;
+    display: none;
+    position: absolute;
+    top: 240px;
+    left: 0;
+    right: 0;
+    height: 400px;
+    z-index: 100;
+    width: 100%;
+    // display: flex;
+    justify-content: center;
+    align-items: center;
 
-  .modal {
-    position: relative;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    background-color: white;
-    width: 500px;
-    padding: 16px;
+    .modal {
+        position: relative;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+            0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        background-color: white;
+        width: 500px;
+        padding: 16px;
 
-    .closeModal {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      cursor: pointer;
+        .closeModal {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+        }
+
+        h2 {
+            color: rgb(16, 124, 65);
+            font-weight: 500;
+        }
+        .inputSection {
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+            color: rgb(75, 75, 75);
+            font-weight: 500;
+            gap: 5px;
+            margin-top: 16px;
+
+            input {
+                height: 36px;
+                padding-left: 10px;
+                font-size: 14px;
+                outline: none;
+            }
+        }
+        .btnSection {
+            margin-top: 16px;
+
+            button {
+                padding: 6px 10px;
+                background-color: transparent;
+                border: 1px solid rgb(95, 88, 88);
+                font-size: 14px;
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.788);
+                cursor: pointer;
+            }
+        }
     }
-
-    h2 {
-      color: rgb(16, 124, 65);
-      font-weight: 500;
-    }
-    .inputSection {
-      display: flex;
-      flex-direction: column;
-      font-size: 14px;
-      color: rgb(75, 75, 75);
-      font-weight: 500;
-      gap: 5px;
-      margin-top: 16px;
-
-      input {
-        height: 36px;
-        padding-left: 10px;
-        font-size: 14px;
-        outline: none;
-      }
-    }
-    .btnSection {
-      margin-top: 16px;
-
-      button {
-        padding: 6px 10px;
-        background-color: transparent;
-        border: 1px solid rgb(95, 88, 88);
-        font-size: 14px;
-        font-weight: 600;
-        color: rgba(0, 0, 0, 0.788);
-        cursor: pointer;
-      }
-    }
-  }
 }
 
 .toolsSection2Main {
-  position: sticky;
-  z-index: 101;
-  padding: 4px 8px;
-  background-color: inherit;
-  .toolsSection2 {
-    display: flex;
-    gap: 10px;
-    height: 24px;
-
-    .nameBox {
-      width: 124px;
-      display: flex;
-      align-items: center;
-      i {
-        padding: 0 10px;
-        font-size: 12px;
-        height: 100%;
+    position: sticky;
+    z-index: 101;
+    padding: 4px 8px;
+    background-color: inherit;
+    .toolsSection2 {
         display: flex;
-        align-items: center;
-        border-radius: inherit;
-        &:hover {
-          background-color: rgb(245, 245, 245);
-        }
-      }
-    }
-    .insertFormulaDiv {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 80px;
+        gap: 10px;
+        height: 24px;
 
-      .icon {
-        font-size: 25px;
-        font-weight: 300;
-        color: rgba(128, 128, 128, 0.555);
-      }
-      svg {
-        fill: rgb(71, 67, 67);
-        &:hover {
-          background-color: rgb(245, 245, 245);
+        .nameBox {
+            width: 124px;
+            display: flex;
+            align-items: center;
+            i {
+                padding: 0 10px;
+                font-size: 12px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                border-radius: inherit;
+                &:hover {
+                    background-color: rgb(245, 245, 245);
+                }
+            }
         }
-      }
-    }
-    .inputDiv {
-      display: flex;
-      flex: 1;
-      align-items: center;
-      i {
-        padding: 0 10px;
-        font-size: 12px;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        border-radius: inherit;
-        &:hover {
-          background-color: rgb(245, 245, 245);
+        .insertFormulaDiv {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 80px;
+
+            .icon {
+                font-size: 25px;
+                font-weight: 300;
+                color: rgba(128, 128, 128, 0.555);
+            }
+            svg {
+                fill: rgb(71, 67, 67);
+                &:hover {
+                    background-color: rgb(245, 245, 245);
+                }
+            }
         }
-      }
-    }
+        .inputDiv {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            i {
+                padding: 0 10px;
+                font-size: 12px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                border-radius: inherit;
+                &:hover {
+                    background-color: rgb(245, 245, 245);
+                }
+            }
+        }
 
-    div {
-      border: 1px solid rgba(128, 128, 128, 0.411);
-      border-radius: 5px;
-      background-color: white;
-    }
+        div {
+            border: 1px solid rgba(128, 128, 128, 0.411);
+            border-radius: 5px;
+            background-color: white;
+        }
 
-    input {
-      border: none;
-      outline: none;
-      height: 100%;
-      width: 100%;
-      padding: 0 5px;
-      border-radius: 5px;
+        input {
+            border: none;
+            outline: none;
+            height: 100%;
+            width: 100%;
+            padding: 0 5px;
+            border-radius: 5px;
+        }
     }
-  }
 }
 
 .mainSheet {
-  position: relative;
-  // position: fixed;
-  .topleftDiv {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 40px;
-    height: 24px;
-    background-color: rgb(245, 245, 245);
-    border: 1px solid #d5cece;
-    border-top: none;
-    border-left: none;
-    z-index: 10;
-    cursor: cell;
-
-    .topleft {
-      position: absolute;
-      right: 4px;
-      bottom: 4px;
-
-      width: 0;
-      height: 0;
-      border-top: 15px solid transparent;
-      border-right: 15px solid rgb(183, 183, 183);
-    }
-  }
-
-  .topHeader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 24px;
-    margin-left: 40px;
-    overflow: hidden;
-  }
-  .leftHeader {
-    position: absolute;
-    left: 0;
-    margin-top: 24px;
-    top: 0;
-    height: calc(100vh - 190px);
-  }
-
-  .mainSection {
-    // height: calc(100vh - 190px);
-    height: 10000px;
-    width: 2000px;
-    // margin-left: 40px;
-    // margin-top: 24px;
-    // overflow: auto;
-    // top: 24px;
     position: relative;
-    background-color: #ffffff;
+    // position: fixed;
+    .topleftDiv {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 40px;
+        height: 24px;
+        background-color: rgb(245, 245, 245);
+        border: 1px solid #d5cece;
+        border-top: none;
+        border-left: none;
+        z-index: 10;
+        cursor: cell;
 
-    canvas {
-      position: fixed;
+        .topleft {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-right: 15px solid rgb(183, 183, 183);
+        }
     }
 
-    .resizeLineHorizontal {
-      display: none;
-      position: absolute;
-      height: 3px;
-      border-top: dashed rgb(16, 124, 65);
-      z-index: 100;
+    .topHeader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 24px;
+        margin-left: 40px;
+        overflow: hidden;
     }
-    .resizeLineVertical {
-      display: none;
-      position: absolute;
-      width: 3px;
-      border-left: dashed rgb(16, 124, 65);
-      z-index: 100;
+    .leftHeader {
+        position: absolute;
+        left: 0;
+        margin-top: 24px;
+        top: 0;
+        height: calc(100vh - 190px);
     }
-  }
+
+    .mainSection {
+        // height: calc(100vh - 190px);
+        height: 10000px;
+        width: 2000px;
+        // margin-left: 40px;
+        // margin-top: 24px;
+        // overflow: auto;
+        // top: 24px;
+        position: relative;
+        background-color: #ffffff;
+
+        canvas {
+            position: fixed;
+        }
+
+        .resizeLineHorizontal {
+            display: none;
+            position: absolute;
+            height: 3px;
+            border-top: dashed rgb(16, 124, 65);
+            z-index: 100;
+        }
+        .resizeLineVertical {
+            display: none;
+            position: absolute;
+            width: 3px;
+            border-left: dashed rgb(16, 124, 65);
+            z-index: 100;
+        }
+    }
 }
 
 .footer {
-  padding-left: 10px;
-  position: relative;
-  z-index: 100;
-  background: rgb(245, 245, 245);
-  height: 32px;
-  display: flex;
-  align-items: center;
-  // margin-left: 40px;
-  gap: 24px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-
-  i {
-    font-size: 14px;
-    color: rgb(85, 83, 83);
-    cursor: pointer;
-  }
-  .sheets {
+    padding-left: 10px;
+    position: relative;
+    z-index: 100;
+    background: rgb(245, 245, 245);
+    height: 32px;
     display: flex;
-    gap: 20px;
-
-    .selected {
-      color: rgba(0, 0, 0, 0.849);
-      font-weight: 600;
-      border-bottom: 4px solid rgb(16, 124, 65);
-    }
-
-    .sheetBtn {
-      background: transparent;
-      outline: none;
-      border: none;
-      cursor: pointer;
-
-      color: #444;
-      font-weight: 400;
-      line-height: 16px;
-      font-size: 14px;
-      height: 30px;
-
-      div {
-        display: flex;
-        align-items: center;
-        height: 100%;
-      }
-    }
-  }
-  .addNewSheet {
-    border: none;
-    cursor: pointer;
-  }
-
-  .sheetListModal {
-    display: none;
-    position: absolute;
-    width: 200px;
-    max-height: 400px;
-    overflow-y: auto;
-    background-color: white;
-    bottom: 28px;
-    left: 70px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    border-radius: 2px;
-    flex-direction: column;
-    // padding: 10px;
-    // gap: 16px;
-    span {
-      font-size: 15px;
-      color: rgb(61, 58, 58);
-      cursor: pointer;
-      padding: 10px 10px;
-    }
-    .selected {
-      background-color: rgb(225, 223, 221);
-    }
-  }
-
-  .arrowBtn {
-    display: flex;
+    align-items: center;
+    // margin-left: 40px;
     gap: 24px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        sans-serif;
 
     i {
-      font-size: 12px;
-      color: rgba(128, 128, 128, 0.432);
+        font-size: 14px;
+        color: rgb(85, 83, 83);
+        cursor: pointer;
     }
-  }
+    .sheets {
+        display: flex;
+        gap: 20px;
+
+        .selected {
+            color: rgba(0, 0, 0, 0.849);
+            font-weight: 600;
+            border-bottom: 4px solid rgb(16, 124, 65);
+        }
+
+        .sheetBtn {
+            background: transparent;
+            outline: none;
+            border: none;
+            cursor: pointer;
+
+            color: #444;
+            font-weight: 400;
+            line-height: 16px;
+            font-size: 14px;
+            height: 30px;
+
+            div {
+                display: flex;
+                align-items: center;
+                height: 100%;
+            }
+        }
+    }
+    .addNewSheet {
+        border: none;
+        cursor: pointer;
+    }
+
+    .sheetListModal {
+        display: none;
+        position: absolute;
+        width: 200px;
+        max-height: 400px;
+        overflow-y: auto;
+        background-color: white;
+        bottom: 28px;
+        left: 70px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+            0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        border-radius: 2px;
+        flex-direction: column;
+        // padding: 10px;
+        // gap: 16px;
+        span {
+            font-size: 15px;
+            color: rgb(61, 58, 58);
+            cursor: pointer;
+            padding: 10px 10px;
+        }
+        .selected {
+            background-color: rgb(225, 223, 221);
+        }
+    }
+
+    .arrowBtn {
+        display: flex;
+        gap: 24px;
+
+        i {
+            font-size: 12px;
+            color: rgba(128, 128, 128, 0.432);
+        }
+    }
 }
 
 .footer2 {
-  position: relative;
-  height: 25px;
-  width: 100%;
-  padding: 0 14px;
-  background-color: white;
-  z-index: 200;
-  font-size: 14px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  i {
-    color: rgb(80, 77, 77);
-  }
-  .footer2-left {
-    font-size: 12px;
-    color: gray;
-  }
-
-  .footer2-right {
+    position: relative;
+    height: 25px;
+    width: 100%;
+    padding: 0 14px;
+    background-color: white;
+    z-index: 200;
+    font-size: 14px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        sans-serif;
     display: flex;
-    gap: 15px;
+    justify-content: space-between;
     align-items: center;
 
-    .mathsCalculation {
-      display: flex;
-      gap: 10px;
-      font-size: 12px;
-      color: gray;
+    i {
+        color: rgb(80, 77, 77);
     }
-    span {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      border: 1px solid rgba(128, 128, 128, 0.712);
-      padding: 0 2px;
-      font-size: 13px;
-      i {
+    .footer2-left {
         font-size: 12px;
-      }
+        color: gray;
     }
-  }
+
+    .footer2-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+
+        .mathsCalculation {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            color: gray;
+        }
+        span {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            border: 1px solid rgba(128, 128, 128, 0.712);
+            padding: 0 2px;
+            font-size: 13px;
+            i {
+                font-size: 12px;
+            }
+        }
+    }
 }
 
 .scroller {
-  position: relative;
-  overflow: scroll;
-  background-color: red;
-  margin-left: 40px;
-  top: 24px;
-  height: calc(100vh - 220px);
-  margin-bottom: 27px;
+    position: relative;
+    overflow: scroll;
+    background-color: red;
+    margin-left: 40px;
+    top: 24px;
+    height: calc(100vh - 220px);
+    margin-bottom: 27px;
 }
 
 // ::-webkit-scrollbar {
@@ -549,14 +577,14 @@ body {
 // }
 
 .canvasinput {
-  display: none;
-  position: absolute;
-  border: none;
-  z-index: 10;
-  outline: none;
-  padding-left: 2px;
+    display: none;
+    position: absolute;
+    border: none;
+    z-index: 10;
+    outline: none;
+    padding-left: 2px;
 }
 .canvasDiv1 {
-  height: 800px;
-  outline: auto;
+    height: 800px;
+    outline: auto;
 }

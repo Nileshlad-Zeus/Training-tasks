@@ -6,15 +6,18 @@ import { ResizeGrid } from "./JavaScriptModule/ResizeGrid.js";
 
 //infinite scrolling
 class newCanvas {
-    constructor(sheetName, sheetData) {
-        this.sheetData = sheetData;
+    constructor(sheetName) {
+        // this.sheetData = sheetData;
         this.sheetName = sheetName;
+        this.sheetData = [];
+        this.prevOffset = -1;
+        this.fetchUserData(0);
 
         this.inputBox = document.getElementById("canvasinput");
         this.scale = window.devicePixelRatio;
-        window.addEventListener("resize", () => {
-            location.reload();
-        });
+        // window.addEventListener("resize", () => {
+        //     location.reload();
+        // });
 
         this.createNewCanvas();
 
@@ -125,7 +128,50 @@ class newCanvas {
         this.scrollFunction();
     }
 
+    fetchUserData = async (offset = 0) => {
+        const response = await fetch(
+            `http://localhost:5022/api/Employee?offset=${offset}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        const data = await response.json();
+        let sheetData = this.convertJsonData(data);
+
+        this.sheetData.push(...sheetData);
+        // console.log(offset);
+        console.log(this.sheetData.length);
+        console.log(this.sheetData);
+
+        sheetData = [];
+        this.renderData();
+        return sheetData;
+    };
+
+    convertJsonData = (data) => {
+        const result = [];
+        if (data.length > 0) {
+            const keys = Object.keys(data[0]);
+
+            data.forEach((item, index) => {
+                const formattedItem = {};
+                keys.forEach((key, idx) => {
+                    formattedItem[idx] = {
+                        data: item[key],
+                        properties: "*****",
+                    };
+                });
+                result.push({ [item["RowNo"]]: formattedItem });
+            });
+        }
+        return result;
+    };
+
     initialVariables() {
+        this.loadLoadedPosition = 0;
         this.scrollYvalue = 0;
         this.scrollXvalue = 0;
 
@@ -229,7 +275,7 @@ class newCanvas {
 
         // this.sheetData = [
         //   {
-        //     0: {
+        //     30: {
         //       0: { data: "name", properties: "*****" },
         //       1: { data: "Country", properties: "*****" },
         //       2: { data: "City", properties: "*****" },
@@ -593,7 +639,6 @@ class newCanvas {
         //     },
         //   },
         // ];
-        console.log(this.sheetData);
     }
 
     createNewCanvas() {
@@ -1004,6 +1049,7 @@ class newCanvas {
             let rowNo = Object.keys(this.sheetData[n]);
             availableRow.push(rowNo[0] - "0");
         }
+        // console.log(availableRow);
 
         let m = startRow;
         for (let n = startRow; n <= endRow; n++) {
@@ -1128,11 +1174,21 @@ class newCanvas {
         const scroller = document.getElementById("scroller");
         const main = document.getElementById("main");
         scroller.addEventListener("scroll", (e) => {
-            console.log("scroll");
-
             this.inputBox.style.display = "none";
             this.scrollYvalue = Math.max(0, e.target.scrollTop);
             this.scrollXvalue = Math.max(0, e.target.scrollLeft);
+
+            let offset = Math.floor(
+                (Math.max(0, e.target.scrollTop / 21) + 100) / 500
+            );
+
+            if (
+                Math.max(0, e.target.scrollTop) >= 8400 &&
+                this.prevOffset != offset
+            ) {
+                this.prevOffset = offset;
+                this.fetchUserData(offset);
+            }
 
             if (this.scrollYvalue > 9000) {
                 main.style.height = `${this.scrollYvalue + 1000}px`;
