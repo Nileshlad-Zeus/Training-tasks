@@ -3,6 +3,7 @@ import { GetValues } from "./JavaScriptModule/GetValues.js";
 import { DrawHighlight } from "./JavaScriptModule/DrawHighLight.js";
 import { FontStyle } from "./JavaScriptModule/ChangeFontStyle.js";
 import { ResizeGrid } from "./JavaScriptModule/ResizeGrid.js";
+import { CopyPaste } from "./JavaScriptModule/CopyPaste.js";
 
 //infinite scrolling
 class newCanvas {
@@ -23,7 +24,7 @@ class newCanvas {
 
         this.initialVariables();
 
-        this.valueInst = new GetValues(this, this.cellHeight, this.cellWidths);
+        this.valueInst = new GetValues(this);
 
         this.inputBoxPosition();
 
@@ -44,10 +45,18 @@ class newCanvas {
         this.highlightInst.highlightSelectedAreaEvents();
         this.highlightInst.highlightSelectedArea();
 
+        this.copyPasteInst = new CopyPaste(
+            this,
+            this.mainCtx,
+            this.highlightInst,
+            this.valueInst
+        );
+
         this.resizeGridInst = new ResizeGrid(
             this,
             this.valueInst,
-            this.highlightInst
+            this.highlightInst,
+            this.copyPasteInst
         );
         this.resizeGridInst.resizeGridEvents();
 
@@ -67,13 +76,7 @@ class newCanvas {
         this.drawGrid();
         this.renderLeftHeader();
         this.renderTopHeader();
-        this.fontStyleInst = new FontStyle(
-            this,
-            this.highlightInst,
-            this.sheetData,
-            this.mainCtx,
-            this.mainCanvas
-        );
+        this.fontStyleInst = new FontStyle(this, this.sheetData);
 
         const findtextInput = document.querySelector("#findtextInput");
         const replacetextInput = document.querySelector("#replacetextInput");
@@ -108,7 +111,6 @@ class newCanvas {
         var charts = document.querySelectorAll(".chart");
         this.chartInst = new MakeChart(
             this,
-            this.highlightInst,
             this.mainCanvas,
             this.sheetData
         );
@@ -125,6 +127,7 @@ class newCanvas {
                 );
             });
         });
+
         this.scrollFunction();
     }
 
@@ -142,10 +145,6 @@ class newCanvas {
         let sheetData = this.convertJsonData(data);
 
         this.sheetData.push(...sheetData);
-        // console.log(offset);
-        console.log(this.sheetData.length);
-        console.log(this.sheetData);
-
         sheetData = [];
         this.renderData();
         return sheetData;
@@ -155,14 +154,15 @@ class newCanvas {
         const result = [];
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
-
             data.forEach((item, index) => {
                 const formattedItem = {};
                 keys.forEach((key, idx) => {
-                    formattedItem[idx] = {
-                        data: item[key],
-                        properties: "*****",
-                    };
+                    if (key != "RowNo" && key != "id") {
+                        formattedItem[idx - 2] = {
+                            data: item[key],
+                            properties: "*****",
+                        };
+                    }
                 });
                 result.push({ [item["RowNo"]]: formattedItem });
             });
@@ -171,107 +171,158 @@ class newCanvas {
     };
 
     initialVariables() {
-        this.loadLoadedPosition = 0;
-        this.scrollYvalue = 0;
-        this.scrollXvalue = 0;
+        /**
+         * current vertical scroll position
+         * @type {number}
+         */
+        this.scrollTopvalue = 0;
 
-        this.scrollTop = 0;
-        this.textWidth = 0;
-        // this.cellHeight = new Map();
-        // this.cellWidths = new Map();
+        /**
+         * current horizontal scroll position
+         * @type {number}
+         */
+        this.scrollLeftvalue = 0;
 
-        this.drawGraph = false;
-        //height and width of cell
-        this.defaultCellHeight = 21;
-        this.defaultCellWidth = 100;
-
-        //initial number of rows and cols
-        this.numRows = 100;
-        this.numCols = 26;
-
-        //data structure for storing data
-        this.cellHeight = new Map();
-        this.cellWidths = new Map();
-        this.cellPositionTopArr = new Map();
-        this.cellPositionTopArr = new Map();
-
-        //colors
+        /**
+         * color used to highlight text from top header and left header of selected area
+         * and border of selected area
+         * @type {string} -
+         */
         this.strokeColor = "rgb(16,124,65)";
-        this.areaHighlightColor = "rgb(231,241,236)";
-        this.headersHighlightColor = "rgb(202,234,216)";
-        this.gridStrokeColor = "rgb(128, 128, 128)";
-        this.blackColor = "rgb(0, 0, 0)";
-        this.whiteColor = "rgb(255, 255, 255)";
-        this.headerBgColor = "rgb(245,245,245)";
 
-        //selected rows and cols for highlight them
+        /**
+         * gray color used for draw rows and columns
+         * @type {string}
+         */
+        this.gridStrokeColor = "rgb(128, 128, 128)";
+
+        /**
+         * color used when user selected particular column or row
+         * @type {string}
+         */
+        this.whiteColor = "rgb(255, 255, 255)";
+
+        /**
+         * Index of current selected columns
+         * @type {Array | null | number | string}
+         */
         this.currSelectedCol = null;
+
+        /**
+         * Index of current selected row
+         * @type {Array | null | number | string}
+         */
         this.currSelectedRow = null;
+
+        /**
+         * Indicates whether a column is selected.
+         * @type {boolean}
+         */
         this.isColSelected = false;
+
+        /**
+         * Indicates whether a row is selected.
+         * @type {boolean}
+         */
         this.isRowSelected = false;
 
-        //resize column
-        this.isDraggingTop = false;
-        this.resizeColIndex = -1;
-        this.resizeColTop = 0;
-        this.resizeColWidth = 0;
-
-        //resize row
-        this.isDraggingLeft = false;
-        this.resizeRowIndex = -1;
-        this.resizeRowTop = 0;
-        this.resizeRowHeight = 0;
-
-        //current cell Index
+        /**
+         * Index of the top-left cell in the current selection.
+         * @type {number}
+         */
         this.x1CellIndex = 0;
+
+        /**
+         * Index of the bottom-right cell in the current selection.
+         * @type {number}
+         */
         this.x2CellIndex = 0;
+
+        /**
+         * Index of the top-left cell in the current selection (vertical).
+         * @type {number}
+         */
         this.y1CellIndex = 0;
+
+        /**
+         * Index of the bottom-right cell in the current selection (vertical).
+         * @type {number}
+         */
         this.y2CellIndex = 0;
 
-        //current Cell positions
+        /**
+         * Input Cell position from Top
+         * @type {number}
+         */
         this.cellPositionTop = 0;
+
+        /**
+         * Input Cell position from Left
+         * @type {number}
+         */
         this.cellPositionLeft = 0;
 
-        //coordinated for highlighting headers [x,y,width,height]
-        this.headersHighlightCoordinate = null;
-
+        /**
+         * Indicates whether the top header is selected.
+         * @type {boolean}
+         */
         this.topheaderSelected = false;
+
+        /**
+         * Indicates whether the left header is selected.
+         * @type {boolean}
+         */
         this.leftheaderSelected = false;
 
-        //coordinated for highlight selected area [startX,startY,endX,endY]
-        this.isAreaSelected = false;
+        /**
+         * coordinates of the selected area [startX,startY,endX,endY]
+         * @type {number[]}
+         */
         this.selectedDimensionsMain = [0, 0, 0, 0];
-        this.selectedTopHeaderCoordinates = [0, 0, 0, 0];
-        this.selectedLeftHeaderCoordinates = [0, 0, 0, 0];
 
-        //starring index of mouse Down Evenets
-        this.startingIndex = null;
-        this.startingIndexTop = null;
-        this.startingIndexLeft = null;
-
-        //Marching Ants Animation variables
-        this.marchingAntsCoordinates = null;
-        this.lineDashOffset = 0;
+        /**
+         * Indicates whether the marching ants animation is running.
+         * @type {boolean}
+         */
         this.isAnimationRunning = false;
+
+        /**
+         * Indicates whether the animation should cover the full column.
+         * @type {boolean}
+         */
         this.animateFullColumn = false;
+
+        /**
+         * Indicates whether the animation should cover the full row.
+         * @type {boolean}
+         */
         this.animateFullRow = false;
-        this.alreadyCopy = 0; //0: ctrl+c on animation not running  1:ctr    l+c on animation already running
 
-        this.columnLeftOfDrag = 0;
-        this.rowTopOfDrag = 0;
-
+        /**
+         * Indicates whether the left area is selected.
+         * @type {boolean}
+         */
         this.isLeftAreaSelected = false;
+
+        /**
+         * Indicates whether the Top area is selected.
+         * @type {boolean}
+         */
         this.isTopAreaSelected = false;
 
+        /**
+         * Reference to the vertical resize line element.
+         * @type {HTMLElement}
+         */
         this.resizeLineVertical = document.getElementById("resizeLineVertical");
+
+        /**
+         * Reference to the horizontal resize line element.
+         * @type {HTMLElement}
+         */
         this.resizeLineHorizontal = document.getElementById(
             "resizeLineHorizontal"
         );
-
-        this.rowIndex2 = -1;
-        this.columnIndex2 = -1;
-
-        this.clickOnGraph = false;
 
         // this.sheetData = [
         //   {
@@ -721,6 +772,14 @@ class newCanvas {
             this.leftHeaderCanvas.height
         );
     }
+    clearMainCanvas() {
+        this.mainCtx.clearRect(
+            0,
+            0,
+            this.mainCanvas.width,
+            this.mainCanvas.height
+        );
+    }
     clearTopHeader() {
         this.topHeaderCtx.clearRect(
             0,
@@ -808,9 +867,6 @@ class newCanvas {
         return data;
     }
     drawGrid(strokeColor = "", fillColor = "") {
-        if (strokeColor != "") {
-            this.clickOnGraph = true;
-        }
         this.mainCtx.clearRect(
             0,
             0,
@@ -855,10 +911,12 @@ class newCanvas {
         const canvasHeight = this.mainCanvas.width;
         const colWidth = 100;
 
-        const startCol = Math.floor(this.scrollXvalue / colWidth);
-        const endCol = Math.ceil((this.scrollXvalue + canvasHeight) / colWidth);
+        const startCol = Math.floor(this.scrollLeftvalue / colWidth);
+        const endCol = Math.ceil(
+            (this.scrollLeftvalue + canvasHeight) / colWidth
+        );
 
-        let cellPositionX = -this.scrollXvalue % colWidth;
+        let cellPositionX = -this.scrollLeftvalue % colWidth;
 
         for (let i = startCol; i <= endCol; i++) {
             cellPositionX += this.valueInst.getCurCellWidth(i);
@@ -885,7 +943,7 @@ class newCanvas {
             this.topHeaderCtx.restore();
         }
 
-        cellPositionX = -this.scrollXvalue % colWidth;
+        cellPositionX = -this.scrollLeftvalue % colWidth;
         for (let i = startCol; i <= endCol; i++) {
             cellPositionX += this.valueInst.getCurCellWidth(i);
             this.topHeaderCtx.save();
@@ -923,8 +981,8 @@ class newCanvas {
             this.topHeaderCtx.restore();
 
             if (
-                i == this.columnIndex2 &&
-                cellPositionX - this.columnLeftOfDrag >= 20
+                i == this.resizeGridInst.columnIndexAtDraggablepoint
+                && cellPositionX - this.resizeGridInst.columnDraggedPos >= 20
             ) {
                 this.resizeLineVertical.style.top = 0;
                 this.resizeLineVertical.style.left = `${
@@ -946,11 +1004,11 @@ class newCanvas {
 
         const canvasHeight = this.mainCanvas.height;
         const rowHeight = this.valueInst.getCurCellHeight(0);
-        const startRow = Math.floor(this.scrollYvalue / rowHeight);
+        const startRow = Math.floor(this.scrollTopvalue / rowHeight);
         const endRow = Math.ceil(
-            (this.scrollYvalue + canvasHeight) / rowHeight
+            (this.scrollTopvalue + canvasHeight) / rowHeight
         );
-        let cellPosition = -this.scrollYvalue % rowHeight;
+        let cellPosition = -this.scrollTopvalue % rowHeight;
         for (let i = startRow; i <= endRow; i++) {
             cellPosition += this.valueInst.getCurCellHeight(i);
             this.leftHeaderCtx.save();
@@ -977,7 +1035,7 @@ class newCanvas {
             this.leftHeaderCtx.restore();
         }
 
-        cellPosition = -this.scrollYvalue % rowHeight;
+        cellPosition = -this.scrollTopvalue % rowHeight;
         this.leftHeaderCtx.font = "14px Arial";
         for (let i = startRow; i <= endRow; i++) {
             cellPosition += this.valueInst.getCurCellHeight(i);
@@ -1009,13 +1067,16 @@ class newCanvas {
             } else if (this.currSelectedRow == "all") {
                 this.leftHeaderCtx.fillStyle = this.strokeColor;
             } else {
-                this.leftHeaderCtx.fillStyle = this.blackColor;
+                this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
             }
             this.leftHeaderCtx.textAlign = "right";
             this.leftHeaderCtx.fillText(text, 35, yPosition + 4);
             this.leftHeaderCtx.restore();
 
-            if (i == this.rowIndex2 && cellPosition - this.rowTopOfDrag > 10) {
+            if (
+                i == this.resizeGridInst.rowIndexAtDraggablepoint &&
+                cellPosition - this.resizeGridInst.rowDraggedPos > 10
+            ) {
                 this.resizeLineHorizontal.style.top = `${
                     cellPosition * this.scale
                 }px`;
@@ -1034,22 +1095,23 @@ class newCanvas {
         const rowHeight = this.valueInst.getCurCellHeight(0);
         const colWidth = 100;
 
-        const startRow = Math.floor(this.scrollYvalue / rowHeight);
+        const startRow = Math.floor(this.scrollTopvalue / rowHeight);
         const endRow = Math.min(
             this.sheetData.length - 1,
-            Math.ceil((this.scrollYvalue + canvasHeight) / rowHeight)
+            Math.ceil((this.scrollTopvalue + canvasHeight) / rowHeight)
         );
 
-        let cellPositionY = -this.scrollYvalue % rowHeight;
+        let cellPositionY = -this.scrollTopvalue % rowHeight;
 
-        const startCol = Math.floor(this.scrollXvalue / colWidth);
-        const endCol = Math.ceil((this.scrollXvalue + canvasWidth) / colWidth);
+        const startCol = Math.floor(this.scrollLeftvalue / colWidth);
+        const endCol = Math.ceil(
+            (this.scrollLeftvalue + canvasWidth) / colWidth
+        );
         let availableRow = [];
         for (let n = startRow; n <= endRow; n++) {
             let rowNo = Object.keys(this.sheetData[n]);
             availableRow.push(rowNo[0] - "0");
         }
-        // console.log(availableRow);
 
         let m = startRow;
         for (let n = startRow; n <= endRow; n++) {
@@ -1060,14 +1122,14 @@ class newCanvas {
                 m++;
             }
 
-            let cellPositionX = -this.scrollXvalue % colWidth;
+            let cellPositionX = -this.scrollLeftvalue % colWidth;
             let data = this.sheetData[m - 1];
 
             cellPositionY += this.valueInst.getCurCellHeight(n);
             i = Object.keys(data) - "0";
 
             for (let j = startCol; j <= endCol; j++) {
-                let currProperties = data[i][j + 2]?.properties;
+                let currProperties = data[i][j]?.properties;
 
                 if (currProperties) {
                     let colorPos = this.getPos(currProperties, "*", 1);
@@ -1103,11 +1165,7 @@ class newCanvas {
                         ) || "calibri";
                     this.mainCtx.save();
                     this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
-                    let newData = this.trimData(
-                        data[i][j + 2]?.data,
-                        j,
-                        fontSize
-                    );
+                    let newData = this.trimData(data[i][j]?.data, j, fontSize);
                     this.mainCtx.fillStyle = `${fontColor}`;
                     this.mainCtx.fillText(
                         newData,
@@ -1126,12 +1184,12 @@ class newCanvas {
         const canvasHeight = this.mainCanvas.height;
         const rowHeight = this.valueInst.getCurCellHeight(0);
 
-        const startRow = Math.floor(this.scrollYvalue / rowHeight);
+        const startRow = Math.floor(this.scrollTopvalue / rowHeight);
         const endRow = Math.ceil(
-            (this.scrollYvalue + canvasHeight) / rowHeight
+            (this.scrollTopvalue + canvasHeight) / rowHeight
         );
 
-        let cellPositionY = -this.scrollYvalue % rowHeight;
+        let cellPositionY = -this.scrollTopvalue % rowHeight;
 
         for (let i = startRow; i <= endRow; i++) {
             cellPositionY += this.valueInst.getCurCellHeight(i);
@@ -1151,10 +1209,12 @@ class newCanvas {
         const canvasHeight = this.mainCanvas.width;
         const colWidth = 100;
 
-        const startCol = Math.floor(this.scrollXvalue / colWidth);
-        const endCol = Math.ceil((this.scrollXvalue + canvasHeight) / colWidth);
+        const startCol = Math.floor(this.scrollLeftvalue / colWidth);
+        const endCol = Math.ceil(
+            (this.scrollLeftvalue + canvasHeight) / colWidth
+        );
 
-        let cellPositionX = -this.scrollXvalue % colWidth;
+        let cellPositionX = -this.scrollLeftvalue % colWidth;
 
         for (let i = startCol; i <= endCol; i++) {
             cellPositionX += this.valueInst.getCurCellWidth(i);
@@ -1173,10 +1233,12 @@ class newCanvas {
     scrollFunction() {
         const scroller = document.getElementById("scroller");
         const main = document.getElementById("main");
+
         scroller.addEventListener("scroll", (e) => {
+            console.log("scroll");
             this.inputBox.style.display = "none";
-            this.scrollYvalue = Math.max(0, e.target.scrollTop);
-            this.scrollXvalue = Math.max(0, e.target.scrollLeft);
+            this.scrollTopvalue = Math.max(0, e.target.scrollTop);
+            this.scrollLeftvalue = Math.max(0, e.target.scrollLeft);
 
             let offset = Math.floor(
                 (Math.max(0, e.target.scrollTop / 21) + 100) / 500
@@ -1190,12 +1252,12 @@ class newCanvas {
                 this.fetchUserData(offset);
             }
 
-            if (this.scrollYvalue > 9000) {
-                main.style.height = `${this.scrollYvalue + 1000}px`;
+            if (this.scrollTopvalue > 9000) {
+                main.style.height = `${this.scrollTopvalue + 1000}px`;
             }
 
-            if (this.scrollXvalue > 100) {
-                main.style.width = `${this.scrollXvalue + 2000}px`;
+            if (this.scrollLeftvalue > 100) {
+                main.style.width = `${this.scrollLeftvalue + 2000}px`;
             }
 
             this.mainCtx.clearRect(
@@ -1221,37 +1283,15 @@ class newCanvas {
             this.renderLeftHeader();
             this.renderTopHeader();
         });
-
-        // document.addEventListener("wheel", (e) => {
-        //   this.inputBox.style.display = "none";
-        //   this.scrollYvalue = Math.max(0, this.scrollYvalue + e.deltaY);
-        //   console.log(e.scrollTop);
-
-        //   this.mainCtx.clearRect(
-        //     0,
-        //     0,
-        //     this.mainCanvas.width,
-        //     this.mainCanvas.height
-        //   );
-        //   this.leftHeaderCtx.clearRect(
-        //     0,
-        //     0,
-        //     this.leftHeaderCanvas.width,
-        //     this.leftHeaderCanvas.height
-        //   );
-        //   this.highlightInst.highlightSelectedArea();
-        //   this.drawGrid();
-        //   this.renderLeftHeader();
-        // });
     }
 
     //----------------------keyboard Evenets----------------------
     keyBoardEvents(e) {
         let flag = false;
-        this.alreadyCopy = 0;
         let startX, startY, endX, endY;
         if ((e.ctrlKey && e.key === "c") || (e.ctrlKey && e.key === "C")) {
-            this.marchingAntsCoordinates = this.selectedDimensionsMain;
+            this.copyPasteInst.marchingAntsCoordinates =
+                this.selectedDimensionsMain;
 
             if (this.isColSelected) {
                 this.animateFullRow = false;
@@ -1263,18 +1303,15 @@ class newCanvas {
                 this.animateFullRow = false;
                 this.animateFullColumn = false;
             }
-            if (this.isAnimationRunning) {
-                this.alreadyCopy = 1;
-            }
-            cancelAnimationFrame(this.animationFrameId);
+            cancelAnimationFrame(this.copyPasteInst.animationFrameId);
             this.isAnimationRunning = true;
-            this.startMarchingAntsAnimation();
-            this.copyToClipboard();
+            this.copyPasteInst.startMarchingAntsAnimation();
+            this.copyPasteInst.copyToClipboard();
         } else if (
             (e.ctrlKey && e.key === "v") ||
             (e.ctrlKey && e.key === "V")
         ) {
-            this.pasteToSheet();
+            this.copyPasteInst.pasteToSheet();
         } else if (e.shiftKey) {
             this.inputBox.style.display = "none";
             if (e.key === "ArrowDown") {
@@ -1383,155 +1420,6 @@ class newCanvas {
             // this.highlightHeaders();
             this.renderTopHeader();
             this.renderLeftHeader();
-        }
-    }
-
-    //----------------------Marching Ant Animation----------------------
-    copyToClipboard = () => {
-        const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
-        let textTocopy = "";
-        for (let j = startY; j <= endY; j++) {
-            const result = this.sheetData.find((item) => item[j]);
-            let temp = "";
-
-            for (let i = startX; i <= endX; i++) {
-                let currentData = result ? result[j][i] : "";
-                temp = temp + "	" + (currentData ? currentData.data : "");
-            }
-            textTocopy += temp.slice(1);
-            textTocopy += "\n";
-        }
-        navigator.clipboard.writeText(textTocopy);
-    };
-
-    pasteToSheet = async () => {
-        if (this.isAnimationRunning) {
-            const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
-            this.selectedDimensionsMain = [
-                this.x1CellIndex,
-                this.y1CellIndex,
-                this.x1CellIndex + (endX - startX),
-                this.y1CellIndex + (endY - startY),
-            ];
-
-            this.highlightInst.highlightSelectedArea();
-
-            let copiedText = await navigator.clipboard.readText();
-
-            let x = startX;
-            let y = startY;
-            let a = 0;
-            let b = 0;
-            for (
-                let i = this.y1CellIndex;
-                i <= this.y1CellIndex + (endY - startY);
-                i++
-            ) {
-                x = startX;
-                let result = this.sheetData.find((item) => item[i]);
-                if (!result) {
-                    this.sheetData.push({
-                        [i]: {},
-                    });
-                }
-                result = this.sheetData.find((item) => item[i]);
-                let newData = copiedText.split("\r\n");
-                let currData = newData[a].split("\t");
-                a++;
-                b = 0;
-                for (
-                    let j = this.x1CellIndex;
-                    j <= this.x1CellIndex + (endX - startX);
-                    j++
-                ) {
-                    if (!result[i][j]) {
-                        result[i][j] = {
-                            data: currData[b],
-                            properties: "*****",
-                        };
-                    } else {
-                        result[i][j].data = currData[b];
-                    }
-                    b++;
-                    x++;
-                }
-                y++;
-            }
-            this.renderData();
-        }
-    };
-
-    startMarchingAntsAnimation() {
-        if (this.isAnimationRunning == true) {
-            const [startX, startY, endX, endY] = this.marchingAntsCoordinates;
-            let x = 0;
-            let y = 0;
-            let width = 0;
-            let height = 0;
-
-            let cellPositionY =
-                -this.scrollYvalue % this.valueInst.defaultCellHeight;
-            let startTop = this.valueInst.getCurRowIndex(this.scrollYvalue);
-
-            let cellPositionX =
-                -this.scrollXvalue % this.valueInst.defaultCellWidth;
-            let startLeft = this.valueInst.getCurColumnIndex(this.scrollXvalue);
-
-            for (let i = startLeft; i < startX; i++) {
-                x += this.valueInst.getCurCellWidth(i);
-            }
-            for (let i = startTop; i < startY; i++) {
-                y += this.valueInst.getCurCellHeight(i);
-            }
-            y = y + cellPositionY;
-            x = x + cellPositionX;
-            let temp2 = Math.max(startLeft, startX);
-            for (let i = temp2; i <= endX; i++) {
-                width += this.valueInst.getCurCellWidth(i);
-            }
-            let temp = Math.max(startTop, startY);
-            for (let i = temp; i <= endY; i++) {
-                height += this.valueInst.getCurCellHeight(i);
-            }
-
-            if (this.animateFullColumn) {
-                y = 0;
-                height = this.mainCtx.canvas.height;
-            }
-            if (this.animateFullRow) {
-                x = 0;
-                width = this.mainCtx.canvas.width;
-            }
-
-            // this.lineDashOffset = this.lineDashOffset - 0.2;
-            this.lineDashOffset = this.lineDashOffset - 0.2;
-
-            if (this.lineDashOffset < 0) {
-                this.lineDashOffset = 8;
-            }
-
-            // this.clearCanvas();
-            this.mainCtx.save();
-            this.highlightInst.highlightSelectedArea();
-            this.drawGrid();
-            this.clearLeftHeader();
-            this.clearTopHeader();
-            // this.highlightHeaders();
-            this.renderTopHeader();
-            this.renderLeftHeader();
-
-            this.mainCtx.beginPath();
-            this.mainCtx.setLineDash([5, 3]);
-            this.mainCtx.lineDashOffset = this.lineDashOffset;
-            this.mainCtx.lineWidth = 2;
-            this.mainCtx.strokeStyle = this.strokeColor;
-            this.mainCtx.rect(x + 1, y + 1, width - 1, height - 1);
-            this.mainCtx.stroke();
-            this.mainCtx.restore();
-
-            this.animationFrameId = requestAnimationFrame(() =>
-                this.startMarchingAntsAnimation()
-            );
         }
     }
 }
