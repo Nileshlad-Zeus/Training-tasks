@@ -43,59 +43,14 @@ class sheetManager {
         });
         this.uploadFile();
         this.findandReplace();
-
-        // const scroller = document.getElementById("scroller");
-        // scroller.addEventListener("scroll", (e) => {
-        //     let offset = Math.floor(Math.max(0, e.target.scrollTop) / 8400) + 1;
-
-        //     if (Math.max(0, e.target.scrollTop) >= 8400 * offset - 1000) {
-        //         console.log(8400 * offset);
-        //         this.fetchUserData("sheet-1", offset, true);
-        //     }
-        // });
     }
 
-    fetchUserData = async (sheedId, offset = 0, isScroll = false) => {
+    fetchUserData = async (sheedId) => {
         new newCanvas(sheedId);
-        // const response = await fetch(
-        //     `http://localhost:5022/api/Employee?offset=${offset}`,
-        //     {
-        //         method: "GET",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //     }
-        // );
-        // const data = await response.json();
-        // console.log(data);
-        
-        // let sheetData = this.convertJsonData(data);
-        // if (!isScroll) {
-            
-        // }
         this.canvases = document.querySelectorAll(".canvas");
         this.topHeaderCanvas = document.querySelectorAll(".topHeaderCanvas");
         this.leftHeaderCanvas = document.querySelectorAll(".leftHeaderCanvas");
     };
-
-    // convertJsonData = (data) => {
-    //     const result = [];
-    //     if (data.length > 0) {
-    //         const keys = Object.keys(data[0]);
-
-    //         data.forEach((item, index) => {
-    //             const formattedItem = {};
-    //             keys.forEach((key, idx) => {
-    //                 formattedItem[idx] = {
-    //                     data: item[key],
-    //                     properties: "*****",
-    //                 };
-    //             });
-    //             result.push({ [item["RowNo"]]: formattedItem });
-    //         });
-    //     }
-    //     return result;
-    // };
 
     uploadFile = () => {
         const selectFile = document.getElementById("selectFile");
@@ -111,9 +66,6 @@ class sheetManager {
                 `http://localhost:5022/api/Employee/UploadFile`,
                 {
                     method: "POST",
-                    // headers: {
-                    //     "Content-Type": "application/json",
-                    // },
                     body: data,
                 }
             );
