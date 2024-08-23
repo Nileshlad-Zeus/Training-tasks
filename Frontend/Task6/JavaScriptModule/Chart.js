@@ -1,110 +1,112 @@
+/**
+ * To generate Graph or Chart
+ */
+
 class MakeChart {
     /**
-     *
+     * @param {object} mainInst
      * @param {HTMLCanvasElement} mainCanvas
      * @param {Array} sheetData
      */
-    constructor(mainInst, highlightInst, mainCanvas, sheetData) {
-        this.highlightInst = highlightInst;
+    constructor(mainInst, mainCanvas, sheetData) {
         this.mainInst = mainInst;
         this.mainCanvas = mainCanvas;
         this.sheetData = sheetData;
         this.scale = window.devicePixelRatio;
-        this.draggableChart = false;
-        this.highlightInst = highlightInst;
+        this.isGraphDraggable = false;
     }
 
     /**
-     *
+     * Rotates a matrix 90 degrees clockwise
      * @param {Array<Array<any>>} array
      * @returns {Array<Array<any>>}
      */
     rotateMatrix(array) {
         const rows = array.length;
         const cols = array[0].length;
-        const rotated = Array.from({ length: cols }, () => []);
+        const rotatedArray = Array.from({ length: cols }, () => []);
 
-        for (let i = 0; i < rows; i++) {
-            for (let j = 0; j < cols; j++) {
-                rotated[j][rows - 1 - i] = array[i][j];
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                rotatedArray[col][rows - 1 - row] = array[row][col];
             }
         }
 
-        return rotated;
+        return rotatedArray;
     }
 
     /**
-     *
-     * @param {HTMLDivElement} chartDiv
+     * Makes a graph Div draggable
+     * @param {HTMLDivElement} graphDivElement
+     * @param {Array<number>} selectedDimensions
      */
-    makeitDraggable(chartDiv, selectedDimensionsMain) {
+    makegraphDraggable(graphDivElement, selectedDimensions) {
         const rect = this.mainCanvas.getBoundingClientRect();
-        this.draggableChart = false;
+        this.isGraphDraggable = false;
 
-        chartDiv.addEventListener("click",()=>{
-            this.mainInst.selectedDimensionsMain = selectedDimensionsMain;
-            // this.highlightInst.highlightTopHeader("#ffffff00");
+        graphDivElement.addEventListener("click", () => {
+            this.mainInst.selectedDimensionsMain = selectedDimensions;
             this.mainInst.clearTopHeader();
             this.mainInst.clearLeftHeader();
             this.mainInst.renderTopHeader("#ffffff00");
             this.mainInst.renderLeftHeader("#ffffff00");
-            this.mainInst.drawGrid("rgb(124,83,172)","rgb(235,229,243)");
-        })
-
-        chartDiv.addEventListener("pointerdown", () => {
-            this.draggableChart = true;
+            this.mainInst.drawGrid("rgb(124,83,172)", "rgb(235,229,243)");
         });
 
-        chartDiv.addEventListener("pointermove", (e) => {
-            chartDiv.style.cursor = "move";
+        graphDivElement.addEventListener("pointerdown", () => {
+            this.isGraphDraggable = true;
+        });
 
-            if (this.draggableChart) {
-                let clickX = (e.clientX - rect.left) / this.scale;
-                let clickY = (e.clientY - rect.top) / this.scale;
-                chartDiv.style.top = `${clickY - 25}px`;
-                chartDiv.style.left = `${clickX - 225}px`;
+        graphDivElement.addEventListener("pointermove", (e) => {
+            graphDivElement.style.cursor = "move";
+
+            if (this.isGraphDraggable) {
+                let mouseX = (e.clientX - rect.left) / this.scale;
+                let mouseY = (e.clientY - rect.top) / this.scale;
+                graphDivElement.style.top = `${mouseY - 25}px`;
+                graphDivElement.style.left = `${mouseX - 225}px`;
             }
         });
 
-        chartDiv.addEventListener("pointerup", () => {
-            this.draggableChart = false;
+        graphDivElement.addEventListener("pointerup", () => {
+            this.isGraphDraggable = false;
         });
     }
 
     /**
-     *
-     * @param {String} chartType
-     * @param {Array<number>} selectedDimensionsMain
+     * Draws a Graph on a canvas based on graph type and selected dimensions.
+     * @param {String} typeOfGraph
+     * @param {Array<number>} selectedDimensions
      * @returns
      */
-    drawChart(chartType, selectedDimensionsMain) {
-        if (chartType == "") return;
-        const [startX, startY, endX, endY] = selectedDimensionsMain;
+    drawChart(typeOfGraph, selectedDimensions) {
+        if (typeOfGraph === "") return;
+        const [startX, startY, endX, endY] = selectedDimensions;
 
         if (startX == 0 && startY == 0 && endX == 0 && endY == 0) {
             return;
         }
         let main = document.getElementById("main");
-        let chartDiv = document.createElement("div");
+        let graphDivElement = document.createElement("div");
         let canvas = document.createElement("canvas");
-        chartDiv.appendChild(canvas);
-        main.appendChild(chartDiv);
+        graphDivElement.appendChild(canvas);
+        main.appendChild(graphDivElement);
 
         let dataArray = [];
         let xValues = [];
-        let i = 1;
+        let seriesIndex = 1;
 
-        for (let j = startY; j <= endY; j++) {
-            const result = this.sheetData.find((item) => item[j + 1]);
+        for (let row = startY; row <= endY; row++) {
+            const rowData = this.sheetData.find((item) => item[row + 1]);
             const tempArray = [];
-            for (let k = startX; k <= endX; k++) {
-                let currentData = result ? result[j + 1][k + 2] : "";
-                if (currentData && !isNaN(currentData.data)) {
-                    tempArray.push(Number(currentData.data));
+            for (let col = startX; col <= endX; col++) {
+                let cellData = rowData ? rowData[row + 1][col] : "";
+                if (cellData && !isNaN(cellData.data)) {
+                    tempArray.push(Number(cellData.data));
                 }
             }
             if (tempArray.length > 0) {
-                xValues.push(i++);
+                xValues.push(seriesIndex++);
                 dataArray.push(tempArray);
             }
         }
@@ -113,52 +115,53 @@ class MakeChart {
             return;
         }
 
-        this.setStyleForEle(canvas, chartDiv);
+        this.applyStyleToElements(canvas, graphDivElement);
 
         let dataSet = [];
         dataArray = this.rotateMatrix(dataArray);
 
-        dataArray.forEach((d, index) => {
-            if (chartType != "pie" || (chartType == "pie" && index == 0)) {
+        dataArray.forEach((data, index) => {
+            if (typeOfGraph != "pie" || (typeOfGraph == "pie" && index == 0)) {
                 dataSet.push({
                     label: `Series${index + 1}`,
                     fill: false,
-                    data: d,
+                    data: data,
                 });
             }
         });
-        let chartType2 = chartType == "horizontalBar" ? "bar" : chartType;
-        let barType = chartType == "horizontalBar" ? "y" : "x";
+        let adjustedtypeOfGraph =
+            typeOfGraph == "horizontalBar" ? "bar" : typeOfGraph;
+        let indexAxis = typeOfGraph == "horizontalBar" ? "y" : "x";
         new Chart(canvas, {
-            type: chartType2,
+            type: adjustedtypeOfGraph,
             data: {
                 labels: xValues,
                 datasets: dataSet,
             },
             options: {
-                indexAxis: barType,
+                indexAxis: indexAxis,
                 cutoutPercentage: 0,
             },
         });
-        this.makeitDraggable(chartDiv, selectedDimensionsMain);
+        this.makegraphDraggable(graphDivElement, selectedDimensions);
     }
 
     /**
-     *
+     * Apply CSS styles to the canvas and Graph Div Elements
      * @param {HTMLCanvasElement} canvas
-     * @param {HTMLDivElement} chartDiv
+     * @param {HTMLDivElement} graphDivElement
      */
-    setStyleForEle(canvas, chartDiv) {
+    applyStyleToElements(canvas, graphDivElement) {
         canvas.style.backgroundColor = "white";
         canvas.style.padding = "10px";
         canvas.style.paddingTop = "25px";
         canvas.style.border = "1px solid gray";
 
-        chartDiv.style.position = "absolute";
-        chartDiv.style.top = "50px";
-        chartDiv.style.left = "50px";
-        chartDiv.style.width = "450px";
-        chartDiv.style.backgroundColor = "white";
+        graphDivElement.style.position = "absolute";
+        graphDivElement.style.top = "50px";
+        graphDivElement.style.left = "50px";
+        graphDivElement.style.width = "450px";
+        graphDivElement.style.backgroundColor = "white";
     }
 }
 

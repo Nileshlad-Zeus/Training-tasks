@@ -27,6 +27,34 @@ class DrawHighlight {
         this.sheetData = sheetData;
         this.scale = window.devicePixelRatio;
         this.highlightDiv = highlightDiv;
+
+        /**
+         * @type {string} - color used to fill selected area
+         */
+        this.areaHighlightColor = "rgb(231,241,236)";
+
+        /**
+         * @type {string} - color used to fill headers of selected area
+         */
+        this.headersHighlightColor = "rgb(202,234,216)";
+
+        /**
+         * coordinates for highlighting headers [x,y,width,height]
+         * @type {number[]}
+         */
+        this.headersHighlightCoordinate = [0, 0, 0, 0];
+
+        /**
+         * Indicate whether an area is selected
+         * @type {boolean}
+         */
+        this.isAreaSelected = false;
+
+        /**
+         * Starting index of the mouse down event for selection.
+         * @type {number[] | null}
+         */
+        this.startingIndex = null;
     }
 
     highlightLeftHeaders(transparentColor = "") {
@@ -38,8 +66,7 @@ class DrawHighlight {
         this.leftHeaderCtx.stroke();
         this.leftHeaderCtx.restore();
 
-        const [startX, startY, endX, endY] =
-            this.mainInst.headersHighlightCoordinate;
+        const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
 
         let x = 0;
         let y = 0;
@@ -47,15 +74,15 @@ class DrawHighlight {
         let height = 0;
 
         let cellPositionY =
-            -this.mainInst.scrollYvalue % this.valueInst.defaultCellHeight;
+            -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
         let startTop = this.valueInst.getCurRowIndex(
-            this.mainInst.scrollYvalue
+            this.mainInst.scrollTopvalue
         );
 
         let cellPositionX =
-            -this.mainInst.scrollXvalue % this.valueInst.defaultCellWidth;
+            -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
         let startLeft = this.valueInst.getCurColumnIndex(
-            this.mainInst.scrollXvalue
+            this.mainInst.scrollLeftvalue
         );
 
         for (let i = startLeft; i < startX; i++) {
@@ -92,7 +119,7 @@ class DrawHighlight {
             this.leftHeaderCtx.beginPath();
             this.leftHeaderCtx.moveTo(39, 0);
             this.leftHeaderCtx.lineTo(39, this.leftHeaderCtx.canvas.height);
-            this.leftHeaderCtx.fillStyle = this.mainInst.headersHighlightColor;
+            this.leftHeaderCtx.fillStyle = this.headersHighlightColor;
             this.leftHeaderCtx.fillRect(
                 0,
                 0,
@@ -122,7 +149,7 @@ class DrawHighlight {
             this.leftHeaderCtx.lineTo(39, y + height + 3);
             this.leftHeaderCtx.fillStyle =
                 transparentColor == ""
-                    ? this.mainInst.headersHighlightColor
+                    ? this.headersHighlightColor
                     : transparentColor;
             this.leftHeaderCtx.fillRect(0, y, 40, height);
             this.leftHeaderCtx.lineWidth = 2;
@@ -136,23 +163,22 @@ class DrawHighlight {
     }
 
     highlightTopHeader(transparentColor = "") {
-        const [startX, startY, endX, endY] =
-            this.mainInst.headersHighlightCoordinate;
+        const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
         let x = 0;
         let y = 0;
         let width = 0;
         let height = 0;
 
         let cellPositionY =
-            -this.mainInst.scrollYvalue % this.valueInst.defaultCellHeight;
+            -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
         let startTop = this.valueInst.getCurRowIndex(
-            this.mainInst.scrollYvalue
+            this.mainInst.scrollTopvalue
         );
 
         let cellPositionX =
-            -this.mainInst.scrollXvalue % this.valueInst.defaultCellWidth;
+            -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
         let startLeft = this.valueInst.getCurColumnIndex(
-            this.mainInst.scrollXvalue
+            this.mainInst.scrollLeftvalue
         );
 
         for (let i = startLeft; i < startX; i++) {
@@ -200,7 +226,7 @@ class DrawHighlight {
             this.topHeaderCtx.beginPath();
             this.topHeaderCtx.moveTo(0, 23);
             this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 23);
-            this.topHeaderCtx.fillStyle = this.mainInst.headersHighlightColor;
+            this.topHeaderCtx.fillStyle = this.headersHighlightColor;
             this.topHeaderCtx.fillRect(
                 0,
                 0,
@@ -217,7 +243,7 @@ class DrawHighlight {
 
             this.topHeaderCtx.fillStyle =
                 transparentColor == ""
-                    ? this.mainInst.headersHighlightColor
+                    ? this.headersHighlightColor
                     : "#ffffff00";
             this.topHeaderCtx.fillRect(x, 0, width, 24);
             this.topHeaderCtx.moveTo(x - 2, 23);
@@ -233,7 +259,6 @@ class DrawHighlight {
     }
 
     highlightSelectedArea(strokeColor = "", fillColor = "") {
-
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;
 
@@ -249,15 +274,15 @@ class DrawHighlight {
         let height = 0;
 
         let cellPositionY =
-            -this.mainInst.scrollYvalue % this.valueInst.defaultCellHeight;
+            -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
         let startTop = this.valueInst.getCurRowIndex(
-            this.mainInst.scrollYvalue
+            this.mainInst.scrollTopvalue
         );
 
         let cellPositionX =
-            -this.mainInst.scrollXvalue % this.valueInst.defaultCellWidth;
+            -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
         let startLeft = this.valueInst.getCurColumnIndex(
-            this.mainInst.scrollXvalue
+            this.mainInst.scrollLeftvalue
         );
 
         for (let i = startLeft; i < startX; i++) {
@@ -299,7 +324,7 @@ class DrawHighlight {
         this.mainCtx.save();
 
         this.mainCtx.fillStyle =
-            fillColor == "" ? this.mainInst.areaHighlightColor : fillColor;
+            fillColor == "" ? this.areaHighlightColor : fillColor;
 
         if (this.mainInst.isColSelected) {
             this.mainInst.currSelectedCol = [startX, endX];
@@ -362,7 +387,7 @@ class DrawHighlight {
 
         this.mainCtx.restore();
 
-        this.mainInst.headersHighlightCoordinate = [startX, startY, endX, endY];
+        this.headersHighlightCoordinate = [startX, startY, endX, endY];
     }
 
     highlightSelectedAreaEvents() {
@@ -399,45 +424,42 @@ class DrawHighlight {
         this.inputBox.style.display = "none";
         this.mainInst.isColSelected = false;
         this.mainInst.isRowSelected = false;
-        this.mainInst.alreadyCopy = 0;
 
         const rect = this.mainCtx.canvas.getBoundingClientRect();
-        this.mainInst.isAreaSelected = true;
+        this.isAreaSelected = true;
         const clickX =
-            (e.clientX - rect.left + this.mainInst.scrollXvalue) / this.scale;
+            (e.clientX - rect.left + this.mainInst.scrollLeftvalue) /
+            this.scale;
         const clickY =
-            (e.clientY - rect.top + this.mainInst.scrollYvalue) / this.scale;
+            (e.clientY - rect.top + this.mainInst.scrollTopvalue) / this.scale;
 
         const colIndex = this.valueInst.getCurColumnIndex(clickX);
         const rowIndex = this.valueInst.getCurRowIndex(clickY);
 
-        this.mainInst.startingIndex = [
-            this.valueInst.getCurColumnIndex(clickX),
-            this.valueInst.getCurRowIndex(clickY),
-        ];
+        this.startingIndex = [colIndex, rowIndex];
 
         this.mainInst.cellPositionLeft = 0;
         this.mainInst.cellPositionTop = 0;
-        this.mainInst.x1CellIndex = this.valueInst.getCurColumnIndex(clickX);
-        this.mainInst.y1CellIndex = this.valueInst.getCurRowIndex(clickY);
-        this.x2CellIndex = this.valueInst.getCurColumnIndex(clickX);
-        this.y2CellIndex = this.valueInst.getCurRowIndex(clickY);
+        this.mainInst.x1CellIndex = colIndex;
+        this.mainInst.y1CellIndex = rowIndex;
+        this.x2CellIndex = colIndex;
+        this.y2CellIndex = rowIndex;
 
         for (let i = 0; i < this.mainInst.x1CellIndex; i++) {
             this.mainInst.cellPositionLeft += this.valueInst.getCurCellWidth(i);
         }
         for (
-            let i = this.mainInst.scrollYvalue;
+            let i = this.mainInst.scrollTopvalue;
             i < this.mainInst.y1CellIndex;
             i++
         ) {
             this.mainInst.cellPositionTop += this.valueInst.getCurCellHeight(i);
         }
 
-        const startX = Math.min(this.mainInst.startingIndex[0], colIndex);
-        const startY = Math.min(this.mainInst.startingIndex[1], rowIndex);
-        const endX = Math.max(this.mainInst.startingIndex[0], colIndex);
-        const endY = Math.max(this.mainInst.startingIndex[1], rowIndex);
+        const startX = Math.min(this.startingIndex[0], colIndex);
+        const startY = Math.min(this.startingIndex[1], rowIndex);
+        const endX = Math.max(this.startingIndex[0], colIndex);
+        const endY = Math.max(this.startingIndex[1], rowIndex);
 
         this.mainInst.selectedDimensionsMain = [startX, startY, endX, endY];
         this.highlightSelectedArea();
@@ -450,13 +472,13 @@ class DrawHighlight {
     }
 
     highlightAreaPointerMove(e) {
-        if (this.mainInst.isAreaSelected) {
+        if (this.isAreaSelected) {
             const rect = this.mainCtx.canvas.getBoundingClientRect();
             const clickX =
-                (e.clientX - rect.left + this.mainInst.scrollXvalue) /
+                (e.clientX - rect.left + this.mainInst.scrollLeftvalue) /
                 this.scale;
             const clickY =
-                (e.clientY - rect.top + this.mainInst.scrollYvalue) /
+                (e.clientY - rect.top + this.mainInst.scrollTopvalue) /
                 this.scale;
 
             const colIndex = this.valueInst.getCurColumnIndex(clickX);
@@ -465,22 +487,17 @@ class DrawHighlight {
             // Determine dimensions of selection
             const startX = Math.max(
                 0,
-                Math.min(this.mainInst.startingIndex[0], colIndex)
+                Math.min(this.startingIndex[0], colIndex)
             );
             const startY = Math.max(
                 0,
-                Math.min(this.mainInst.startingIndex[1], rowIndex)
+                Math.min(this.startingIndex[1], rowIndex)
             );
-            const endX = Math.max(this.mainInst.startingIndex[0], colIndex);
-            const endY = Math.max(this.mainInst.startingIndex[1], rowIndex);
+            const endX = Math.max(this.startingIndex[0], colIndex);
+            const endY = Math.max(this.startingIndex[1], rowIndex);
 
             this.mainInst.selectedDimensionsMain = [startX, startY, endX, endY];
-            this.mainInst.headersHighlightCoordinate = [
-                startX,
-                startY,
-                endX,
-                endY,
-            ];
+            this.headersHighlightCoordinate = [startX, startY, endX, endY];
             this.highlightSelectedArea();
             this.mainInst.drawGrid();
             this.mainInst.clearTopHeader();
@@ -491,7 +508,7 @@ class DrawHighlight {
     }
 
     highlightAreaPointerUp(e) {
-        this.mainInst.isAreaSelected = false;
+        this.isAreaSelected = false;
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;
 
@@ -502,13 +519,13 @@ class DrawHighlight {
             count = 0,
             numerical_count = 0;
         for (
-            let j = this.mainInst.scrollYvalue + startY;
-            j <= this.mainInst.scrollYvalue + endY;
+            let j = this.mainInst.scrollTopvalue + startY;
+            j <= this.mainInst.scrollTopvalue + endY;
             j++
         ) {
             const result = this.sheetData.find((item) => item[j + 1]);
             for (let i = startX; i <= endX; i++) {
-                let currentData = result ? result[j + 1][i + 2] : "";
+                let currentData = result ? result[j + 1][i] : "";
                 count++;
                 if (!isNaN(Number(currentData?.data))) {
                     sum += Number(currentData.data);

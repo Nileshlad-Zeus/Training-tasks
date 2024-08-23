@@ -1,144 +1,130 @@
+/**
+ * To change font property
+ */
+
 class FontStyle {
     /**
      *
      * @param {object} mainInst
-     * @param {object} highlightInst
      * @param {Array} sheetData
-     * @param {CanvasRenderingContext2D} mainCtx
-     * @param {HTMLCanvasElement} mainCanvas
      */
-    constructor(mainInst, highlightInst, sheetData, mainCtx, mainCanvas) {
+    constructor(mainInst, sheetData) {
         this.mainInst = mainInst;
-        this.highlightInst = highlightInst;
         this.sheetData = sheetData;
-        this.mainCtx = mainCtx;
-        this.mainCanvas = mainCanvas;
 
-        this.eventListenersFun();
+        this.changeFontPropertyEventListner();
     }
 
     /**
      * Event Listners for font style change
      */
-    eventListenersFun() {
-        const fontsize = document.getElementById("fontsize");
-        const fontfamily = document.getElementById("fontfamily");
-        const fontbold = document.getElementById("fontbold");
-        const fontitalic = document.getElementById("fontitalic");
+    changeFontPropertyEventListner() {
+        const fontsizeInput = document.getElementById("fontsize");
+        const fontfamilyInput = document.getElementById("fontfamily");
+        const fontboldButton = document.getElementById("fontbold");
+        const fontitalicButton = document.getElementById("fontitalic");
         const openColorPalette = document.getElementById("openColorPalette");
-        const colorSelector = document.getElementById("colorSelector");
-        const fontUnderline = document.querySelector(".fontColor p");
+        const colorSelectorInput = document.getElementById("colorSelector");
+        const fontUnderlineElement = document.querySelector(".fontColor p");
 
         openColorPalette.addEventListener("click", () => {
-            colorSelector.click();
+            colorSelectorInput.click();
         });
-        fontUnderline.addEventListener("click", () => {
-            var value = colorSelector.value;
-            fontUnderline.style.borderColor = value;
+        fontUnderlineElement.addEventListener("click", () => {
+            var value = colorSelectorInput.value;
+            fontUnderlineElement.style.borderColor = value;
             this.updateFontProperty("fontcolor", value);
         });
-        colorSelector.addEventListener("change", () => {
-            var value = colorSelector.value;
-            fontUnderline.style.borderColor = value;
+        colorSelectorInput.addEventListener("change", () => {
+            var value = colorSelectorInput.value;
+            fontUnderlineElement.style.borderColor = value;
             this.updateFontProperty("fontcolor", value);
         });
 
-        fontsize.addEventListener("change", () =>
-            this.updateFontProperty("fontsize", fontsize.value)
+        fontsizeInput.addEventListener("change", () =>
+            this.updateFontProperty("fontsize", fontsizeInput.value)
         );
-        fontfamily.addEventListener("change", () =>
-            this.updateFontProperty("fontfamily", fontfamily.value)
+        fontfamilyInput.addEventListener("change", () =>
+            this.updateFontProperty("fontfamily", fontfamilyInput.value)
         );
 
-        fontbold.addEventListener("click", () =>
-            this.toggleFontProperty("bold", fontbold)
+        fontboldButton.addEventListener("click", () =>
+            this.toggleFontProperty("bold", fontboldButton)
         );
-        fontitalic.addEventListener("click", () =>
-            this.toggleFontProperty("italic", fontitalic)
+        fontitalicButton.addEventListener("click", () =>
+            this.toggleFontProperty("italic", fontitalicButton)
         );
     }
 
     /**
      * returns the index position for a property type
-     * @param {string} type - the type of property(eg, fontsize, fontfamily, bold, italic)
-     * @returns {number} the index position for the property
+     * @param {string} propertyType - the type of property(eg, fontsize, fontfamily, bold, italic)
+     * @returns {number} - the index position for the property
      */
-    propertyIndex(type) {
-        const propertyInd = {
+    getPropertyIndex(propertyType) {
+        const propertyIndices = {
             fontsize: 4,
             fontfamily: 5,
             bold: 3,
             italic: 2,
             fontcolor: 1,
         };
-        return propertyInd[type] || 0;
+        return propertyIndices[propertyType] || 0;
     }
 
     /**
-     *
-     * @param {string} type
-     * @param {string} [value=""]
+     * Updates the font property for the selected area
+     * @param {string} propertyType - the type of property(eg, fontsize, fontfamily, bold, italic)
+     * @param {string} [newValue=""]
      */
-    updateFontProperty(type, value = "") {
+    updateFontProperty(propertyType, newValue = "") {
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;
 
-        console.log(this.mainInst.selectedDimensionsMain);
-        for (let i = startY; i <= endY; i++) {
-            const result = this.sheetData.find((item) => item[i + 1]);
-        
-            
+        for (let row = startY; row <= endY; row++) {
+            const result = this.sheetData.find((item) => item[row + 1]);
 
-            for (let j = startX; j <= endX; j++) {
-                let currentData = result[i + 1][j+2];
-                let properties = currentData?.properties;
-                let Pos = this.getPos(
+            for (let col = startX; col <= endX; col++) {
+                let cellData = result[row + 1][col];
+                let properties = cellData?.properties;
+                let position = this.getPosition(
                     properties,
-                    "*",
-                    this.propertyIndex(type)
+                    this.getPropertyIndex(propertyType)
                 );
-                let oldVal = properties.slice(Pos[0] + 1, Pos[1]);
-                let newValue =
-                    oldVal === ""
-                        ? properties.slice(0, Pos[0] + 1) +
-                          value +
-                          properties.slice(Pos[0] + 1)
-                        : properties.replace(oldVal, value);
-                result[i + 1][j+2].properties = newValue;
-                
+                let oldValue = properties.slice(position[0] + 1, position[1]);
+                let updatedValue =
+                    oldValue === ""
+                        ? properties.slice(0, position[0] + 1) +
+                          newValue +
+                          properties.slice(position[0] + 1)
+                        : properties.replace(oldValue, newValue);
+                result[row + 1][col].properties = updatedValue;
             }
         }
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
-        this.highlightInst.highlightSelectedArea();
+        this.mainInst.clearMainCanvas();
         this.mainInst.drawGrid();
     }
 
     /**
-     *
-     * @param {string} type
-     * @param {HTMLElement} ele
+     * Toggle a font property between active and inactive states.
+     * @param {string} propertyType - the type of property(eg, fontsize, fontfamily, bold, italic)
+     * @param {HTMLElement} element
      */
-    toggleFontProperty(type, ele) {
-        let isActive = ele.classList.toggle("fontstyleactive");
-        this.updateFontProperty(type, isActive ? type : "");
+    toggleFontProperty(propertyType, element) {
+        let isActive = element.classList.toggle("fontstyleactive");
+        this.updateFontProperty(propertyType, isActive ? propertyType : "");
     }
 
     /**
-     *
-     * @param {string} str
-     * @param {string} subStr
-     * @param {number} i
+     * Gets the position of a particular property by using indexPosition
+     * @param {string} properties
+     * @param {number} index
      * @returns {[number, number]}
      */
-    getPos(str = "", subStr, i) {
+    getPosition(properties = "", index) {
         return [
-            str.split(subStr, i).join(subStr).length,
-            str.split(subStr, i + 1).join(subStr).length,
+            properties.split("*", index).join("*").length,
+            properties.split("*", index + 1).join("*").length,
         ];
     }
 }
