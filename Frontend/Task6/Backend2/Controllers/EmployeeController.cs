@@ -23,11 +23,11 @@ namespace Backend2.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int offset)
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            var query = "SELECT * FROM employee_info ORDER BY RowNo LIMIT 10000;";
+            var query = $"SELECT * FROM employee_info ORDER BY RowNo LIMIT 500 OFFSET {offset * 500}";
             var e1 = await connection.QueryAsync(query);
             return Ok(e1);
         }
@@ -82,5 +82,21 @@ namespace Backend2.Controllers
 
             return Ok("Messages have been published in chunks.");
         }
+
+
+        [HttpPost]
+        [Route("findandreplace")]
+        public async Task<IActionResult> FindandReplace()
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = $"UPDATE employee_info SET ";
+            var e1 = await connection.QueryAsync(query);
+            return Ok(e1);
+        }
+
+
+
     }
 }
