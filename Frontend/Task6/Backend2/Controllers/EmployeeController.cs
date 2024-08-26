@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Dapper;
+using System.Text;
 
 namespace Backend2.Controllers
 {
@@ -37,7 +38,7 @@ namespace Backend2.Controllers
         public async Task<IActionResult> Post(IFormFile file)
         {
             var fileName = file.FileName;
-            Console.WriteLine(fileName);
+
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files");
             if (!Directory.Exists(filePath))
             {
@@ -107,16 +108,71 @@ namespace Backend2.Controllers
 
         [HttpPost]
         [Route("findandreplace")]
-        public async Task<IActionResult> FindandReplace()
+        public async Task<IActionResult> FindandReplace(string findText, string replaceText)
         {
-            using var connection = new MySqlConnection(_connectionString);
-            await connection.OpenAsync();
+            if (string.IsNullOrEmpty(findText) || string.IsNullOrEmpty(replaceText))
+            {
+                return BadRequest("Invalid parameters.");
+            }
 
-            var query = $"UPDATE employee_info SET ";
-            var e1 = await connection.QueryAsync(query);
-            return Ok(e1);
+            var connectionString = _connectionString;
+            var tableName = "employee_info";
+            var databaseName = "database1";
+
+            var updateStatements = new List<string>();
+
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                // Fetch the columns for the specified table
+                var columnsQuery = @"
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_NAME = @TableName 
+            AND TABLE_SCHEMA = @DatabaseName 
+            AND DATA_TYPE IN ('varchar', 'char', 'text', 'nvarchar', 'nchar', 'ntext')";
+
+                var columns = await connection.QueryAsync<string>(columnsQuery, new { TableName = tableName, DatabaseName = databaseName });
+                if (columns.Any())
+                {
+                    var noOfRowsAffected = (double)0;
+                    foreach (var column in columns)
+                    {
+                        var selectQuery = $@" SELECT COUNT(*) FROM `{tableName}` WHERE `{column}` = @FindText";
+
+                        using (var command = new MySqlCommand(selectQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@FindText", findText);
+
+                            var count = (long)await command.ExecuteScalarAsync();
+                            noOfRowsAffected += count;
+                        }
+                    }
+
+                    foreach (var column in columns)
+                    {
+                        // Construct the SET clause for the UPDATE statement
+                        var query = $"UPDATE `{tableName}` SET `{column}` = @ReplaceText WHERE `{column}` = @FindText";
+                        using (var command = new MySqlCommand(query, connection))
+                        {
+                            command.Parameters.AddWithValue("@FindText", findText);
+                            command.Parameters.AddWithValue("@ReplaceText", replaceText);
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+
+
+
+                    var Status = true;
+                    return Ok(new { Status = true, noOfRowsAffected = noOfRowsAffected });
+                }
+                else
+                {
+                    return NotFound("No columns found for the specified table.");
+                }
+            }
         }
-
 
 
     }

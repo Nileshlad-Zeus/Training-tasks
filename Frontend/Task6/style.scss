@@ -213,6 +213,13 @@ body {
         width: 500px;
         padding: 16px;
 
+        .findAndReplaceStatus{
+            background-color: #DFF6DD;
+            font-weight: 600;
+            margin: 10px 0 0 0;
+            padding: 10px;
+            display: none;
+        }
         .closeModal {
             position: absolute;
             right: 10px;
@@ -241,8 +248,7 @@ body {
             }
         }
         .btnSection {
-            margin-top: 16px;
-
+            margin-top: 10px;
             button {
                 padding: 6px 10px;
                 background-color: transparent;

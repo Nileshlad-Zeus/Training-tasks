@@ -197,6 +197,13 @@ body {
   width: 500px;
   padding: 16px;
 }
+.editingSectionModal .modal .findAndReplaceStatus {
+  background-color: #DFF6DD;
+  font-weight: 600;
+  margin: 10px 0 0 0;
+  padding: 10px;
+  display: none;
+}
 .editingSectionModal .modal .closeModal {
   position: absolute;
   right: 10px;
@@ -223,7 +230,7 @@ body {
   outline: none;
 }
 .editingSectionModal .modal .btnSection {
-  margin-top: 16px;
+  margin-top: 10px;
 }
 .editingSectionModal .modal .btnSection button {
   padding: 6px 10px;

@@ -125,6 +125,9 @@ class newCanvas {
             });
         });
 
+        this.findAndReplaceStatus = document.getElementById(
+            "findAndReplaceStatus"
+        );
         this.scrollFunction();
     }
 
@@ -157,6 +160,8 @@ class newCanvas {
     };
 
     fetchUserData = async (offset = 0) => {
+        console.log("Fetch");
+
         const response = await fetch(
             `http://localhost:5022/api/Employee?offset=${offset}`,
             {
@@ -168,11 +173,8 @@ class newCanvas {
         );
         const data = await response.json();
         let sheetData = this.convertJsonData(data);
-
         this.sheetData.push(...sheetData);
-        sheetData = [];
         this.renderData();
-        return sheetData;
     };
 
     convertJsonData = (data) => {
@@ -842,31 +844,27 @@ class newCanvas {
         }px`;
     }
 
-    findAndReplace(findText, replaceText) {
+    findAndReplace = async (findText, replaceText) => {
         console.log(findText, replaceText);
+        this.findAndReplaceStatus.style.display = "block";
+        this.findAndReplaceStatus.innerText = "Updating...";
+        const response = await fetch(
+            `http://localhost:5022/api/Employee/findandreplace?findText=${findText}&replaceText=${replaceText}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        const data = await response.json();
         
-        this.sheetData.forEach((data) => {
-            let i = Object.keys(data);
-            let min = 0,
-                max = 0;
-            if (data[i]) {
-                min = Object.keys(data[i])[0] || 0;
-                max = Object.keys(data[i])[0] || 0;
-                Object.keys(data[i]).forEach((ele) => {
-                    min = Math.min(min, ele);
-                    max = Math.max(max, ele);
-                });
-            }
-            let result = this.sheetData.find((item) => item[i]);
-            if (result) {
-                for (let j = 0; j <= max && min != max; j++) {
-                    let currData = data[i][j]?.data;
-                    if (currData == findText) {
-                        result[i][j].data = replaceText;
-                    }
-                }
-            }
-        });
+        if (data.status) {
+            this.sheetData = [];
+            await this.fetchUserData(0);
+            this.findAndReplaceStatus.innerText = `Matches Replaced (${data.noOfRowsAffected})`;
+        }
+
         this.mainCtx.clearRect(
             0,
             0,
@@ -875,7 +873,30 @@ class newCanvas {
         );
         this.highlightInst.highlightSelectedArea();
         this.drawGrid();
-    }
+
+        // this.sheetData.forEach((data) => {
+        //     let i = Object.keys(data);
+        //     let min = 0,
+        //         max = 0;
+        //     if (data[i]) {
+        //         min = Object.keys(data[i])[0] || 0;
+        //         max = Object.keys(data[i])[0] || 0;
+        //         Object.keys(data[i]).forEach((ele) => {
+        //             min = Math.min(min, ele);
+        //             max = Math.max(max, ele);
+        //         });
+        //     }
+        //     let result = this.sheetData.find((item) => item[i]);
+        //     if (result) {
+        //         for (let j = 0; j <= max && min != max; j++) {
+        //             let currData = data[i][j]?.data;
+        //             if (currData == findText) {
+        //                 result[i][j].data = replaceText;
+        //             }
+        //         }
+        //     }
+        // });
+    };
 
     //----------------------draw grid----------------------
     trimData(data, j, fontSize) {
@@ -1116,6 +1137,8 @@ class newCanvas {
 
     renderData() {
         let i = 0;
+        console.log(this.sheetData);
+
         const canvasHeight = this.mainCanvas.height;
         const canvasWidth = this.mainCanvas.width;
 
