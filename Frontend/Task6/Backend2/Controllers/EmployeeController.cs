@@ -105,6 +105,40 @@ namespace Backend2.Controllers
             return Ok(e1);
         }
 
+        [HttpPost]
+        [Route("updatevalue")]
+        public async Task<IActionResult> Updatevalue(string column, int row, string text=" ")
+        {
+            if (string.IsNullOrEmpty(column) || string.IsNullOrEmpty(text))
+            {
+                return BadRequest("Invalid parameters.");
+            }
+            if (column.Contains("`") || column.Contains("'") || column.Contains(";"))
+            {
+                return BadRequest("Invalid column name.");
+            }
+
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = $"UPDATE employee_info SET `{column}` = @Text WHERE `RowNo` = @Row";
+
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Text", text);
+                command.Parameters.AddWithValue("@Row", row);
+
+                var count = await command.ExecuteNonQueryAsync();
+                return Ok(new { Status = true, Count = count });
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
 
         [HttpPost]
         [Route("findandreplace")]
@@ -125,7 +159,6 @@ namespace Backend2.Controllers
             {
                 await connection.OpenAsync();
 
-                // Fetch the columns for the specified table
                 var columnsQuery = @"
             SELECT COLUMN_NAME 
             FROM INFORMATION_SCHEMA.COLUMNS 

@@ -160,8 +160,6 @@ class newCanvas {
     };
 
     fetchUserData = async (offset = 0) => {
-        console.log("Fetch");
-
         const response = await fetch(
             `http://localhost:5022/api/Employee?offset=${offset}`,
             {
@@ -198,6 +196,10 @@ class newCanvas {
     };
 
     initialVariables() {
+        /**
+         * check whether to update a value or not
+         */
+        this.isValueupdate = false;
         /**
          * current vertical scroll position
          * @type {number}
@@ -845,7 +847,6 @@ class newCanvas {
     }
 
     findAndReplace = async (findText, replaceText) => {
-        console.log(findText, replaceText);
         this.findAndReplaceStatus.style.display = "block";
         this.findAndReplaceStatus.innerText = "Updating...";
         const response = await fetch(
@@ -858,7 +859,7 @@ class newCanvas {
             }
         );
         const data = await response.json();
-        
+
         if (data.status) {
             this.sheetData = [];
             await this.fetchUserData(0);
@@ -1137,8 +1138,6 @@ class newCanvas {
 
     renderData() {
         let i = 0;
-        console.log(this.sheetData);
-
         const canvasHeight = this.mainCanvas.height;
         const canvasWidth = this.mainCanvas.width;
 
@@ -1285,7 +1284,6 @@ class newCanvas {
         const main = document.getElementById("main");
 
         scroller.addEventListener("scroll", (e) => {
-            console.log("scroll");
             this.inputBox.style.display = "none";
             this.scrollTopvalue = Math.max(0, e.target.scrollTop);
             this.scrollLeftvalue = Math.max(0, e.target.scrollLeft);
@@ -1336,7 +1334,38 @@ class newCanvas {
     }
 
     //----------------------keyboard Evenets----------------------
-    keyBoardEvents(e) {
+    updateData = async () => {
+        if (this.isValueupdate == false) return;
+        let value = this.inputBox.value;
+
+        let column = this.valueInst.convertNumToChar(this.x1CellIndex + 1);
+        let row = this.y1CellIndex;
+        const response = await fetch(
+            `http://localhost:5022/api/Employee/updatevalue?column=${column}&row=${row}&text=${value}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        const data = await response.json();
+        if (data.status) {
+            this.sheetData = [];
+            await this.fetchUserData(0);
+            this.inputBox.value = null;
+        }
+
+        this.mainCtx.clearRect(
+            0,
+            0,
+            this.mainCanvas.width,
+            this.mainCanvas.height
+        );
+        this.highlightInst.highlightSelectedArea();
+        this.drawGrid();
+    };
+    keyBoardEvents = async (e) => {
         let flag = false;
         let startX, startY, endX, endY;
         if ((e.ctrlKey && e.key === "c") || (e.ctrlKey && e.key === "C")) {
@@ -1387,7 +1416,6 @@ class newCanvas {
             this.drawGrid();
             this.clearTopHeader();
             this.clearLeftHeader();
-            // this.highlightHeaders();
             this.renderTopHeader();
             this.renderLeftHeader();
         } else if (e.key == "Enter" || e.key == "ArrowDown") {
@@ -1412,21 +1440,20 @@ class newCanvas {
             this.x1CellIndex = this.x1CellIndex - 1;
         } else if (
             (e.key >= "a" && e.key <= "z") ||
+            (e.key >= "A" && e.key <= "Z") ||
             (e.key >= "0" && e.key <= "9") ||
             e.key == "Backspace" ||
             e.key == " "
         ) {
-            if (e.key == " ") e.preventDefault();
             flag = true;
+            this.isValueupdate = true;
             this.isAnimationRunning = false;
             this.inputBoxPosition();
-            this.highlightInst.highlightSelectedArea();
-            this.drawGrid();
-            this.clearTopHeader();
-            // this.highlightHeaders();
-            this.renderTopHeader();
-            this.renderLeftHeader();
             this.inputBox.focus();
+        }
+
+        if (e.key == "Enter") {
+           this.updateData();
         }
 
         if (
@@ -1437,12 +1464,14 @@ class newCanvas {
             e.key == "ArrowRight" ||
             e.key == "ArrowLeft"
         ) {
+            this.isValueupdate = false;
             this.inputBox.style.display = "none";
             this.topheaderSelected = false;
             this.leftheaderSelected = false;
             this.isColSelected = false;
             this.isRowSelected = false;
         }
+
 
         if (!e.ctrlKey && flag == false) {
             e.preventDefault();
@@ -1471,7 +1500,7 @@ class newCanvas {
             this.renderTopHeader();
             this.renderLeftHeader();
         }
-    }
+    };
 }
 
 export { newCanvas };

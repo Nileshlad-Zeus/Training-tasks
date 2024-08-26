@@ -141,8 +141,16 @@ class sheetManager {
                 editingSectionModal.style.display = "none";
             }
         });
+        const findtextInput = document.querySelector("#findtextInput");
+        const replacetextInput = document.querySelector("#replacetextInput");
+        const findAndReplaceStatus = document.getElementById(
+            "findAndReplaceStatus"
+        );
         closeEditingModal.addEventListener("click", () => {
+            findAndReplaceStatus.style.display = "none";
             editingSectionModal.style.display = "none";
+            findtextInput.value = null;
+            replacetextInput.value = null;
         });
     }
 }
