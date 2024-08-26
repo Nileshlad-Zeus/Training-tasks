@@ -12,10 +12,12 @@ class newCanvas {
         this.sheetName = sheetName;
         this.sheetData = [];
         this.prevOffset = -1;
-        this.fetchUserData(0);
+        this.progressbarEle = document.getElementById("progressbarEle");
+        this.intervalid = setInterval(this.fetchProgress, 100);
 
         this.inputBox = document.getElementById("canvasinput");
         this.scale = window.devicePixelRatio;
+
         // window.addEventListener("resize", () => {
         //     location.reload();
         // });
@@ -33,7 +35,6 @@ class newCanvas {
             this.mainCtx,
             this.leftHeaderCtx,
             this.topHeaderCtx,
-            this.mainCanvas,
             this.selectedDimensionsMain,
             this.valueInst,
             this.inputBox,
@@ -109,11 +110,7 @@ class newCanvas {
 
         //charts
         var charts = document.querySelectorAll(".chart");
-        this.chartInst = new MakeChart(
-            this,
-            this.mainCanvas,
-            this.sheetData
-        );
+        this.chartInst = new MakeChart(this, this.mainCanvas, this.sheetData);
         this.chartArray = [];
 
         Array.from(charts).forEach((chart) => {
@@ -130,6 +127,34 @@ class newCanvas {
 
         this.scrollFunction();
     }
+
+    fetchProgress = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:5022/api/Employee/GetProgress`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            const data = await response.json();
+            let percentage =
+                (data[0].currentchunks / data[0].totalchunks) * 100;
+            this.progressbarEle.value = percentage;
+            if (percentage > 0) {
+                this.progressbarEle.style.display = "block";
+            }
+            if (percentage == 100) {
+                this.progressbarEle.style.display = "none";
+                clearInterval(this.intervalid);
+                this.fetchUserData(0);
+            }
+        } catch (error) {
+            clearInterval(this.intervalid);
+        }
+    };
 
     fetchUserData = async (offset = 0) => {
         const response = await fetch(
@@ -818,6 +843,8 @@ class newCanvas {
     }
 
     findAndReplace(findText, replaceText) {
+        console.log(findText, replaceText);
+        
         this.sheetData.forEach((data) => {
             let i = Object.keys(data);
             let min = 0,
@@ -981,8 +1008,8 @@ class newCanvas {
             this.topHeaderCtx.restore();
 
             if (
-                i == this.resizeGridInst.columnIndexAtDraggablepoint
-                && cellPositionX - this.resizeGridInst.columnDraggedPos >= 20
+                i == this.resizeGridInst.columnIndexAtDraggablepoint &&
+                cellPositionX - this.resizeGridInst.columnDraggedPos >= 20
             ) {
                 this.resizeLineVertical.style.top = 0;
                 this.resizeLineVertical.style.left = `${

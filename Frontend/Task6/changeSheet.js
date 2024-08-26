@@ -43,7 +43,34 @@ class sheetManager {
         });
         this.uploadFile();
         this.findandReplace();
+        // this.intervalid = setInterval(this.fetchProgress, 100);
+        // this.progressbarEle = document.getElementById("progressbarEle");
     }
+
+    // fetchProgress = async () => {
+    //     console.log("FetchProgess");
+    //     try {
+    //         const response = await fetch(
+    //             `http://localhost:5022/api/Employee/GetProgress`,
+    //             {
+    //                 method: "GET",
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+    //         const data = await response.json();
+    //         let percentage =
+    //             (data[0].currentchunks / data[0].totalchunks) * 100;
+    //         this.progressbarEle.value = percentage;
+    //         if (percentage == 100) {
+    //             this.progressbarEle.style.display="none";
+    //             clearInterval(this.intervalid);
+    //         }
+    //     } catch (error) {
+    //         clearInterval(this.intervalid);
+    //     }
+    // };
 
     fetchUserData = async (sheedId) => {
         new newCanvas(sheedId);
@@ -55,10 +82,11 @@ class sheetManager {
     uploadFile = () => {
         const selectFile = document.getElementById("selectFile");
         const selectFileInput = document.getElementById("selectFileInput");
-        selectFile.addEventListener("click", (e) => {
+        selectFile.addEventListener("click", () => {
             selectFileInput.click();
         });
-        selectFileInput.addEventListener("change", async () => {
+        selectFileInput.addEventListener("change", async (e) => {
+            e.preventDefault();
             console.log(selectFileInput.files[0]);
             var data = new FormData();
             data.append("file", selectFileInput.files[0]);
@@ -70,7 +98,6 @@ class sheetManager {
                 }
             );
             const res = await response.json();
-            console.log(res);
         });
     };
 

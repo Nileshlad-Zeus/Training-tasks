@@ -53,14 +53,14 @@ public class RabbitMQService
     }
 
 
-
-
     public void ConsumeMessage()
     {
 
+        var totoal = 1;
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += async (model, ea) =>
         {
+
             using var connection = new MySqlConnection(_connectionString);
             try
             {
@@ -69,7 +69,6 @@ public class RabbitMQService
 
                 var lines = message.Split('\n');
                 var valuesList = new List<string>();
-
                 foreach (var line in lines)
                 {
                     var values = line.Split(',');
@@ -80,20 +79,26 @@ public class RabbitMQService
                     }
                 }
 
+
                 if (valuesList.Count > 0)
                 {
-
                     await connection.OpenAsync();
-
                     var query = $"INSERT INTO employee_info (RowNo,A,B,C,D,E,F,G,H,I,J,K,L,M,N) VALUES {string.Join(",", valuesList)};";
-
                     using (var command = new MySqlCommand(query, connection))
                     {
                         await command.ExecuteNonQueryAsync();
                     }
+                    await connection.CloseAsync();
 
+                    await connection.OpenAsync();
+                    var query2 = $"UPDATE progress SET currentchunks = currentchunks + 1";
+                    using (var command = new MySqlCommand(query2, connection))
+                    {
+                        await command.ExecuteNonQueryAsync();
+                    }
                     await connection.CloseAsync();
                 }
+
             }
             catch (Exception ex)
             {

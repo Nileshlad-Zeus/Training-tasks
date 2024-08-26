@@ -238,7 +238,7 @@ body {
 .toolsSection2Main {
   position: sticky;
   z-index: 101;
-  padding: 4px 8px;
+  padding: 4px 8px 10px;
   background-color: inherit;
 }
 .toolsSection2Main .toolsSection2 {
@@ -514,4 +514,17 @@ body {
 .canvasDiv1 {
   height: 800px;
   outline: auto;
+}
+
+.progressbar {
+  width: 100%;
+}
+.progressbar progress {
+  width: 100%;
+  position: absolute;
+  bottom: 0.5px;
+  left: 0;
+  z-index: 100;
+  display: none;
+  height: 5px;
 }/*# sourceMappingURL=style.css.map */

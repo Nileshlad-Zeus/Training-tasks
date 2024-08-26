@@ -4,21 +4,17 @@ class DrawHighlight {
         mainCtx,
         leftHeaderCtx,
         topHeaderCtx,
-        mainCanvas,
         selectedDimensionsMain,
         valueInst,
         inputBox,
         inputBoxPosition,
         drawGrid,
-        sheetData,
-        highlightDiv
+        sheetData
     ) {
         this.mainInst = mainInst;
-
         this.mainCtx = mainCtx;
         this.leftHeaderCtx = leftHeaderCtx;
         this.topHeaderCtx = topHeaderCtx;
-        this.mainCanvas = mainCanvas;
         this.mainInst.selectedDimensionsMain = selectedDimensionsMain;
         this.valueInst = valueInst;
         this.inputBox = inputBox;
@@ -26,7 +22,6 @@ class DrawHighlight {
         this.drawGrid = drawGrid;
         this.sheetData = sheetData;
         this.scale = window.devicePixelRatio;
-        this.highlightDiv = highlightDiv;
 
         /**
          * @type {string} - color used to fill selected area
@@ -57,21 +52,12 @@ class DrawHighlight {
         this.startingIndex = null;
     }
 
-    highlightLeftHeaders(transparentColor = "") {
-        this.leftHeaderCtx.save();
-        this.leftHeaderCtx.beginPath();
-        this.leftHeaderCtx.moveTo(40 - 0.5, 0);
-        this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
-        this.leftHeaderCtx.strokeStyle = this.mainInst.gridStrokeColor;
-        this.leftHeaderCtx.stroke();
-        this.leftHeaderCtx.restore();
-
+    calculateFillArea(header) {
         const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
-
-        let x = 0;
-        let y = 0;
-        let width = 0;
-        let height = 0;
+        let x = 0,
+            y = 0,
+            width = 0,
+            height = 0;
 
         let cellPositionY =
             -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
@@ -85,26 +71,35 @@ class DrawHighlight {
             this.mainInst.scrollLeftvalue
         );
 
-        for (let i = startLeft; i < startX; i++) {
-            x += this.valueInst.getCurCellWidth(i);
-        }
-        for (let i = startTop; i < startY; i++) {
-            y += this.valueInst.getCurCellHeight(i);
+        if (header == "leftheader") {
+            for (let i = startTop; i < startY; i++) {
+                y += this.valueInst.getCurCellHeight(i);
+            }
+
+            let temp = Math.max(startTop, startY);
+            for (let i = temp; i <= endY; i++) {
+                height += this.valueInst.getCurCellHeight(i);
+            }
+        } else {
+            for (let i = startLeft; i < startX; i++) {
+                x += this.valueInst.getCurCellWidth(i);
+            }
+            let temp2 = Math.max(startLeft, startX);
+            for (let i = temp2; i <= endX; i++) {
+                width += this.valueInst.getCurCellWidth(i);
+            }
         }
         y = y + cellPositionY;
         x = x + cellPositionX;
-        let temp2 = Math.max(startLeft, startX);
-        for (let i = temp2; i <= endX; i++) {
-            width += this.valueInst.getCurCellWidth(i);
-        }
-        let temp = Math.max(startTop, startY);
-        for (let i = temp; i <= endY; i++) {
-            height += this.valueInst.getCurCellHeight(i);
-        }
+        return [x, y, width, height];
+    }
 
+    highlightLeftHeaders(transparentColor = "") {
+        const [x, y, width, height] = this.calculateFillArea("leftheader");
+
+        this.leftHeaderCtx.save();
+        this.leftHeaderCtx.beginPath();
         if (this.mainInst.isColSelected && this.mainInst.isRowSelected) {
-            this.leftHeaderCtx.save();
-            this.leftHeaderCtx.beginPath();
             this.leftHeaderCtx.fillStyle = this.mainInst.strokeColor;
             this.leftHeaderCtx.fillRect(
                 0,
@@ -112,11 +107,7 @@ class DrawHighlight {
                 44,
                 this.leftHeaderCtx.canvas.height
             );
-            this.leftHeaderCtx.restore();
         } else if (this.mainInst.isColSelected) {
-            //left Header
-            this.leftHeaderCtx.save();
-            this.leftHeaderCtx.beginPath();
             this.leftHeaderCtx.moveTo(39, 0);
             this.leftHeaderCtx.lineTo(39, this.leftHeaderCtx.canvas.height);
             this.leftHeaderCtx.fillStyle = this.headersHighlightColor;
@@ -129,11 +120,7 @@ class DrawHighlight {
             this.leftHeaderCtx.lineWidth = 2;
             this.leftHeaderCtx.strokeStyle = this.mainInst.strokeColor;
             this.leftHeaderCtx.stroke();
-            this.leftHeaderCtx.restore();
         } else if (this.mainInst.isRowSelected) {
-            //Left Header
-            this.leftHeaderCtx.save();
-            this.leftHeaderCtx.beginPath();
             this.leftHeaderCtx.fillStyle = this.mainInst.strokeColor;
             this.leftHeaderCtx.fillRect(
                 0,
@@ -141,10 +128,7 @@ class DrawHighlight {
                 this.leftHeaderCtx.canvas.width,
                 height + 4
             );
-            this.leftHeaderCtx.restore();
         } else {
-            this.leftHeaderCtx.save();
-            this.leftHeaderCtx.beginPath();
             this.leftHeaderCtx.moveTo(39, y - 2);
             this.leftHeaderCtx.lineTo(39, y + height + 3);
             this.leftHeaderCtx.fillStyle =
@@ -158,49 +142,16 @@ class DrawHighlight {
                     ? this.mainInst.strokeColor
                     : transparentColor;
             this.leftHeaderCtx.stroke();
-            this.leftHeaderCtx.restore();
         }
+        this.leftHeaderCtx.restore();
     }
 
     highlightTopHeader(transparentColor = "") {
-        const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
-        let x = 0;
-        let y = 0;
-        let width = 0;
-        let height = 0;
+        const [x, y, width, height] = this.calculateFillArea("topheader");
 
-        let cellPositionY =
-            -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
-        let startTop = this.valueInst.getCurRowIndex(
-            this.mainInst.scrollTopvalue
-        );
-
-        let cellPositionX =
-            -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
-        let startLeft = this.valueInst.getCurColumnIndex(
-            this.mainInst.scrollLeftvalue
-        );
-
-        for (let i = startLeft; i < startX; i++) {
-            x += this.valueInst.getCurCellWidth(i);
-        }
-        for (let i = startTop; i < startY; i++) {
-            y += this.valueInst.getCurCellHeight(i);
-        }
-        y = y + cellPositionY;
-        x = x + cellPositionX;
-        let temp2 = Math.max(startLeft, startX);
-        for (let i = temp2; i <= endX; i++) {
-            width += this.valueInst.getCurCellWidth(i);
-        }
-        let temp = Math.max(startTop, startY);
-        for (let i = temp; i <= endY; i++) {
-            height += this.valueInst.getCurCellHeight(i);
-        }
-
+        this.topHeaderCtx.save();
+        this.topHeaderCtx.beginPath();
         if (this.mainInst.isColSelected && this.mainInst.isRowSelected) {
-            this.topHeaderCtx.save();
-            this.topHeaderCtx.beginPath();
             this.topHeaderCtx.fillStyle = this.mainInst.strokeColor;
             this.topHeaderCtx.fillRect(
                 0,
@@ -208,11 +159,7 @@ class DrawHighlight {
                 this.topHeaderCtx.canvas.width,
                 24
             );
-            this.topHeaderCtx.restore();
         } else if (this.mainInst.isColSelected) {
-            //Top Header
-            this.topHeaderCtx.save();
-            this.topHeaderCtx.beginPath();
             this.topHeaderCtx.fillStyle = this.mainInst.strokeColor;
             this.topHeaderCtx.fillRect(
                 x - 2,
@@ -220,10 +167,7 @@ class DrawHighlight {
                 width + 4,
                 this.topHeaderCtx.canvas.height
             );
-            this.topHeaderCtx.restore();
         } else if (this.mainInst.isRowSelected) {
-            this.topHeaderCtx.save();
-            this.topHeaderCtx.beginPath();
             this.topHeaderCtx.moveTo(0, 23);
             this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 23);
             this.topHeaderCtx.fillStyle = this.headersHighlightColor;
@@ -236,11 +180,7 @@ class DrawHighlight {
             this.topHeaderCtx.lineWidth = 2;
             this.topHeaderCtx.strokeStyle = this.mainInst.strokeColor;
             this.topHeaderCtx.stroke();
-            this.topHeaderCtx.restore();
         } else {
-            this.topHeaderCtx.save();
-            this.topHeaderCtx.beginPath();
-
             this.topHeaderCtx.fillStyle =
                 transparentColor == ""
                     ? this.headersHighlightColor
@@ -254,8 +194,8 @@ class DrawHighlight {
                     ? this.mainInst.strokeColor
                     : transparentColor;
             this.topHeaderCtx.stroke();
-            this.topHeaderCtx.restore();
         }
+        this.topHeaderCtx.restore();
     }
 
     highlightSelectedArea(strokeColor = "", fillColor = "") {
@@ -466,7 +406,6 @@ class DrawHighlight {
         this.mainInst.drawGrid();
         this.mainInst.clearLeftHeader();
         this.mainInst.clearTopHeader();
-        // this.highlightHeaders();
         this.mainInst.renderLeftHeader();
         this.mainInst.renderTopHeader();
     }
@@ -553,5 +492,4 @@ class DrawHighlight {
         }
     }
 }
-
 export { DrawHighlight };

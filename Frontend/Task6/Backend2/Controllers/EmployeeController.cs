@@ -37,6 +37,7 @@ namespace Backend2.Controllers
         public async Task<IActionResult> Post(IFormFile file)
         {
             var fileName = file.FileName;
+            Console.WriteLine(fileName);
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files");
             if (!Directory.Exists(filePath))
             {
@@ -48,7 +49,6 @@ namespace Backend2.Controllers
             {
                 await file.CopyToAsync(stream);
             }
-            Console.WriteLine(exactpath);
 
             string csvFilePath = exactpath;
 
@@ -72,6 +72,15 @@ namespace Backend2.Controllers
                 }
             }
 
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var query = $"INSERT INTO progress (totalchunks) VALUES ({lines.Count / chunkSize});";
+
+            using (var command = new MySqlCommand(query, connection))
+            {
+                await command.ExecuteNonQueryAsync();
+            }
+            await connection.CloseAsync();
 
             for (int i = 0; i < lines.Count; i += chunkSize)
             {
@@ -81,6 +90,18 @@ namespace Backend2.Controllers
             }
 
             return Ok("Messages have been published in chunks.");
+        }
+
+
+        [HttpGet]
+        [Route("GetProgress")]
+        public async Task<IActionResult> Get()
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var query = $"SELECT * FROM progress";
+            var e1 = await connection.QueryAsync(query);
+            return Ok(e1);
         }
 
 
