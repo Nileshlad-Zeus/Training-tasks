@@ -128,7 +128,14 @@ class newCanvas {
         this.findAndReplaceStatus = document.getElementById(
             "findAndReplaceStatus"
         );
+        this.formulaInputDiv = document.getElementById("formulaInputDiv");
         this.scrollFunction();
+
+        this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
+            console.log("ponteksjdbnsj");
+
+            this.updateData();
+        });
     }
 
     fetchProgress = async () => {
@@ -170,6 +177,8 @@ class newCanvas {
             }
         );
         const data = await response.json();
+        console.log(data);
+        
         let sheetData = this.convertJsonData(data);
         this.sheetData.push(...sheetData);
         this.renderData();
@@ -832,7 +841,6 @@ class newCanvas {
         this.inputBox.style.top = `${
             (this.cellPositionTop + 0.6) * this.scale
         }px`;
-        0;
         this.inputBox.style.left = `${
             (this.cellPositionLeft + 0.6) * this.scale
         }px`;
@@ -927,14 +935,6 @@ class newCanvas {
         this.drawColumns();
         this.renderData(strokeColor);
     }
-
-    /**
-     *
-     * @param {String} str
-     * @param {String} subStr
-     * @param {number} i
-     * @returns
-     */
 
     getPos(str = "", subStr, i) {
         return [
@@ -1336,12 +1336,15 @@ class newCanvas {
     //----------------------keyboard Evenets----------------------
     updateData = async () => {
         if (this.isValueupdate == false) return;
-        let value = this.inputBox.value;
+        console.log(this.isValueupdate);
 
-        let column = this.valueInst.convertNumToChar(this.x1CellIndex + 1);
-        let row = this.y1CellIndex;
+        let value = this.inputBox.value;
+        let rowData = this.sheetData.find((item) => item[this.activeRow]);
+        rowData[this.activeRow][this.x1CellIndex] = value;
+        console.log();
+
         const response = await fetch(
-            `http://localhost:5022/api/Employee/updatevalue?column=${column}&row=${row}&text=${value}`,
+            `http://localhost:5022/api/Employee/updatevalue?column=${this.activeColumn}&row=${this.activeRow}&text=${value}`,
             {
                 method: "POST",
                 headers: {
@@ -1351,9 +1354,14 @@ class newCanvas {
         );
         const data = await response.json();
         if (data.status) {
-            this.sheetData = [];
-            await this.fetchUserData(0);
             this.inputBox.value = null;
+            let length = this.sheetData.length;
+            console.log(length / 500);
+
+            this.sheetData = [];
+            for (let i = 0; i < length / 500; i++) {
+                await this.fetchUserData(i);
+            }
         }
 
         this.mainCtx.clearRect(
@@ -1367,6 +1375,11 @@ class newCanvas {
     };
     keyBoardEvents = async (e) => {
         let flag = false;
+        this.activeColumn = this.valueInst.convertNumToChar(
+            this.x1CellIndex + 1
+        );
+        this.activeRow = this.y1CellIndex + 1;
+
         let startX, startY, endX, endY;
         if ((e.ctrlKey && e.key === "c") || (e.ctrlKey && e.key === "C")) {
             this.copyPasteInst.marchingAntsCoordinates =
@@ -1404,6 +1417,13 @@ class newCanvas {
             } else {
                 this.x2CellIndex = this.x1CellIndex;
                 this.y2CellIndex = this.y1CellIndex;
+                
+                flag = true;
+                this.formulaInputDiv.value = this.inputBox.value;
+                this.isValueupdate = true;
+                this.isAnimationRunning = false;
+                this.inputBoxPosition();
+                this.inputBox.focus();
                 return;
             }
             flag = true;
@@ -1438,22 +1458,23 @@ class newCanvas {
                 this.x1CellIndex - 1
             );
             this.x1CellIndex = this.x1CellIndex - 1;
-        } else if (
-            (e.key >= "a" && e.key <= "z") ||
-            (e.key >= "A" && e.key <= "Z") ||
-            (e.key >= "0" && e.key <= "9") ||
-            e.key == "Backspace" ||
-            e.key == " "
-        ) {
+        } else if (e.ctrlKey) {
+            return;
+        } else 
+        // if (
+        //     (e.key >= "a" && e.key <= "z") ||
+        //     (e.key >= "A" && e.key <= "Z") ||
+        //     (e.key >= "0" && e.key <= "9") ||
+        //     e.key == "Backspace" ||
+        //     e.key == " "
+        // )
+         {
             flag = true;
+            this.formulaInputDiv.value = this.inputBox.value;
             this.isValueupdate = true;
             this.isAnimationRunning = false;
             this.inputBoxPosition();
             this.inputBox.focus();
-        }
-
-        if (e.key == "Enter") {
-           this.updateData();
         }
 
         if (
@@ -1464,6 +1485,8 @@ class newCanvas {
             e.key == "ArrowRight" ||
             e.key == "ArrowLeft"
         ) {
+            this.updateData();
+            this.inputBox.value = null;
             this.isValueupdate = false;
             this.inputBox.style.display = "none";
             this.topheaderSelected = false;
@@ -1471,7 +1494,6 @@ class newCanvas {
             this.isColSelected = false;
             this.isRowSelected = false;
         }
-
 
         if (!e.ctrlKey && flag == false) {
             e.preventDefault();
@@ -1491,12 +1513,10 @@ class newCanvas {
         }
 
         if (!e.shiftKey && !e.ctrlKey) {
-            // this.inputBoxPosition();
             this.highlightInst.highlightSelectedArea();
             this.drawGrid();
             this.clearTopHeader();
             this.clearLeftHeader();
-            // this.highlightHeaders();
             this.renderTopHeader();
             this.renderLeftHeader();
         }

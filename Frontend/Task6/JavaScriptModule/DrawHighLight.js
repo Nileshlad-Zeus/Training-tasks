@@ -254,12 +254,14 @@ class DrawHighlight {
             this.mainInst.cellPositionLeft += this.valueInst.getCurCellWidth(i);
         }
 
-        // y = y + cellPositionY;
         let cellPositionTop = 0;
         for (let i = startTop; i < startY; i++) {
             cellPositionTop += this.valueInst.getCurCellHeight(i);
         }
-        this.mainInst.cellPositionTop = cellPositionTop + cellPositionY;
+        cellPositionTop = cellPositionTop + cellPositionY;
+        for (let i = 0; i < this.mainInst.y1CellIndex; i++) {
+            this.mainInst.cellPositionTop += this.valueInst.getCurCellHeight(i);
+        }
 
         this.mainCtx.save();
 
@@ -297,8 +299,7 @@ class DrawHighlight {
 
         this.mainCtx.fillStyle = this.mainInst.whiteColor;
         this.mainCtx.fillRect(
-            this.mainInst.cellPositionLeft,
-            this.mainInst.cellPositionTop,
+            this.mainInst.cellPositionLeft,cellPositionTop,
             this.valueInst.getCurCellWidth(this.mainInst.x1CellIndex),
             this.valueInst.getCurCellHeight(this.mainInst.y1CellIndex)
         );
@@ -385,7 +386,11 @@ class DrawHighlight {
         this.x2CellIndex = colIndex;
         this.y2CellIndex = rowIndex;
 
-        for (let i = 0; i < this.mainInst.x1CellIndex; i++) {
+        for (
+            let i = this.mainInst.scrollLeftvalue;
+            i < this.mainInst.x1CellIndex;
+            i++
+        ) {
             this.mainInst.cellPositionLeft += this.valueInst.getCurCellWidth(i);
         }
         for (
