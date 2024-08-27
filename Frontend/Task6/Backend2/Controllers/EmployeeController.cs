@@ -107,7 +107,7 @@ namespace Backend2.Controllers
 
         [HttpPost]
         [Route("updatevalue")]
-        public async Task<IActionResult> Updatevalue(string column, int row, string text=" ")
+        public async Task<IActionResult> Updatevalue(string column, int row, string text = " ")
         {
             if (string.IsNullOrEmpty(column) || string.IsNullOrEmpty(text))
             {
@@ -208,5 +208,44 @@ namespace Backend2.Controllers
         }
 
 
+        [HttpPost]
+        [Route("deletedata")]
+        public async Task<IActionResult> DeleteData(int startRow, int endRow, char startCol, char endCol)
+        {
+
+            var connectionString = _connectionString;
+            var tableName = "employee_info";
+            var databaseName = "database1";
+
+            var updateStatements = new List<string>();
+            Console.WriteLine(startRow);
+            Console.WriteLine(endRow);
+            Console.WriteLine(startCol);
+            Console.WriteLine(endCol);
+            List<string> columns = new List<string>();
+            for (char i = startCol; i <= endCol; i++)
+            {
+                columns.Add(i.ToString());
+            }
+
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                foreach (var column in columns)
+                {
+                    var query = $"UPDATE `{tableName}` SET `{column}` = NULL WHERE `RowNo` BETWEEN @StartRow AND @EndRow";
+
+                    using (var command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@StartRow", startRow);
+                        command.Parameters.AddWithValue("@EndRow", endRow);
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+                var Status = true;
+                return Ok(new { Status = true });
+            }
+        }
     }
 }

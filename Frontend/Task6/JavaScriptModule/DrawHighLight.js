@@ -49,7 +49,10 @@ class DrawHighlight {
          * Starting index of the mouse down event for selection.
          * @type {number[] | null}
          */
-        this.startingIndex = null;
+        this.startingIndex = [0, 0];
+
+        this.highlightSelectedAreaEvents();
+        this.highlightSelectedArea();
     }
 
     calculateFillArea(header) {
@@ -255,10 +258,16 @@ class DrawHighlight {
         }
 
         let cellPositionTop = 0;
-        for (let i = startTop; i < startY; i++) {
+        let cellPositionLeft = 0;
+        let [colIndex, rowIndex] = this.startingIndex;
+
+        for (let i = startTop; i < this.mainInst.y1CellIndex; i++) {
             cellPositionTop += this.valueInst.getCurCellHeight(i);
         }
-        cellPositionTop = cellPositionTop + cellPositionY;
+        for (let i = startLeft; i < this.mainInst.x1CellIndex; i++) {
+            cellPositionLeft += this.valueInst.getCurCellWidth(i);
+        }
+
         for (let i = 0; i < this.mainInst.y1CellIndex; i++) {
             this.mainInst.cellPositionTop += this.valueInst.getCurCellHeight(i);
         }
@@ -299,11 +308,11 @@ class DrawHighlight {
 
         this.mainCtx.fillStyle = this.mainInst.whiteColor;
         this.mainCtx.fillRect(
-            this.mainInst.cellPositionLeft,cellPositionTop,
+            cellPositionLeft,
+            cellPositionTop,
             this.valueInst.getCurCellWidth(this.mainInst.x1CellIndex),
             this.valueInst.getCurCellHeight(this.mainInst.y1CellIndex)
         );
-
         this.mainCtx.lineWidth = 2;
         this.mainCtx.strokeStyle =
             strokeColor == "" ? this.mainInst.strokeColor : strokeColor;
@@ -360,6 +369,8 @@ class DrawHighlight {
     }
 
     highlightAreaPointerDown(e) {
+        const contextmenu = document.getElementById("contextmenu");
+        contextmenu.style.display = "none";
         this.mainInst.topheaderSelected = false;
         this.mainInst.leftheaderSelected = false;
         this.inputBox.style.display = "none";

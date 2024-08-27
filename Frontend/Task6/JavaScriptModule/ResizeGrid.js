@@ -112,6 +112,9 @@ class ResizeGrid {
          * @type {number}
          */
         this.columnIndexAtDraggablepoint = -1;
+
+
+        this.resizeGridEvents();
     }
 
     /**
@@ -154,7 +157,6 @@ class ResizeGrid {
      */
     resizeGridPointerDown(e, header) {
         this.mainInst.inputBox.style.display = "none";
-
         let rect = header.getBoundingClientRect();
         const clickX =
             (e.clientX - rect.left + this.mainInst.scrollLeftvalue) /

@@ -198,7 +198,7 @@ body {
   padding: 16px;
 }
 .editingSectionModal .modal .findAndReplaceStatus {
-  background-color: #DFF6DD;
+  background-color: #dff6dd;
   font-weight: 600;
   margin: 10px 0 0 0;
   padding: 10px;
@@ -534,4 +534,30 @@ body {
   z-index: 100;
   display: none;
   height: 5px;
+}
+
+.contextMenu {
+  display: none;
+  z-index: 10;
+  width: 300px;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  position: absolute;
+  padding: 10px;
+  border-radius: 1px;
+}
+.contextMenu ul {
+  list-style-type: none;
+}
+.contextMenu ul hr {
+  margin: 3px 0;
+}
+.contextMenu li {
+  padding: 3px 20px;
+  font-weight: 400;
+  cursor: pointer;
+  text-decoration: none;
+}
+.contextMenu li:hover {
+  color: #555;
 }/*# sourceMappingURL=style.css.map */

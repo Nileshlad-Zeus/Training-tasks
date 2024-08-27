@@ -4,32 +4,60 @@ import { DrawHighlight } from "./JavaScriptModule/DrawHighLight.js";
 import { FontStyle } from "./JavaScriptModule/ChangeFontStyle.js";
 import { ResizeGrid } from "./JavaScriptModule/ResizeGrid.js";
 import { CopyPaste } from "./JavaScriptModule/CopyPaste.js";
-
+import { RowColumnManager } from "./JavaScriptModule/RowColumnManager.js";
 //infinite scrolling
 class newCanvas {
     constructor(sheetName) {
-        // this.sheetData = sheetData;
         this.sheetName = sheetName;
         this.sheetData = [];
         this.prevOffset = -1;
         this.progressbarEle = document.getElementById("progressbarEle");
-        this.intervalid = setInterval(this.fetchProgress, 100);
-
         this.inputBox = document.getElementById("canvasinput");
         this.scale = window.devicePixelRatio;
+
+        this.intervalid = setInterval(this.fetchProgress, 100);
 
         // window.addEventListener("resize", () => {
         //     location.reload();
         // });
 
-        this.createNewCanvas();
-
-        this.initialVariables();
-
-        this.valueInst = new GetValues(this);
-
+        this.setupCanvas();
         this.inputBoxPosition();
+        this.inputBox.style.display = "none";
+        this.eventListeners();
+        this.initializefindandReplace();
+        this.initializeGraphFun();
+        this.handleTopLeftClick();
 
+        this.scrollFunction();
+    }
+    setupCanvas() {
+        this.createNewCanvas();
+        this.initialVariables();
+        this.initializeInstances();
+        this.drawGrid();
+        this.renderLeftHeader();
+        this.renderTopHeader();
+    }
+    eventListeners() {
+        document.addEventListener("keydown", (event) => {
+            const editingSectionModal = document.querySelector(
+                ".editingSectionModal"
+            );
+            if (
+                editingSectionModal.style.display == "" ||
+                editingSectionModal.style.display == "none"
+            ) {
+                this.keyBoardEvents(event);
+            }
+        });
+
+        this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
+            this.updateData();
+        });
+    }
+    initializeInstances() {
+        this.valueInst = new GetValues(this);
         this.highlightInst = new DrawHighlight(
             this,
             this.mainCtx,
@@ -42,9 +70,6 @@ class newCanvas {
             this.drawGrid,
             this.sheetData
         );
-
-        this.highlightInst.highlightSelectedAreaEvents();
-        this.highlightInst.highlightSelectedArea();
 
         this.copyPasteInst = new CopyPaste(
             this,
@@ -59,26 +84,16 @@ class newCanvas {
             this.highlightInst,
             this.copyPasteInst
         );
-        this.resizeGridInst.resizeGridEvents();
 
-        this.inputBox.style.display = "none";
-        document.addEventListener("keydown", (event) => {
-            const editingSectionModal = document.querySelector(
-                ".editingSectionModal"
-            );
-            if (
-                editingSectionModal.style.display == "" ||
-                editingSectionModal.style.display == "none"
-            ) {
-                this.keyBoardEvents(event);
-            }
-        });
-
-        this.drawGrid();
-        this.renderLeftHeader();
-        this.renderTopHeader();
         this.fontStyleInst = new FontStyle(this, this.sheetData);
-
+        this.chartInst = new MakeChart(this, this.mainCanvas, this.sheetData);
+        this.rowColumnManagerInst = new RowColumnManager(
+            this,
+            this.mainCanvas,
+            this.valueInst
+        );
+    }
+    initializefindandReplace() {
         const findtextInput = document.querySelector("#findtextInput");
         const replacetextInput = document.querySelector("#replacetextInput");
         const replaceAllFun = document.querySelector("#replaceAllFun");
@@ -87,7 +102,23 @@ class newCanvas {
             let replaceText = replacetextInput.value;
             this.findAndReplace(findText, replaceText);
         });
-
+    }
+    initializeGraphFun() {
+        var charts = document.querySelectorAll(".chart");
+        this.chartArray = [];
+        Array.from(charts).forEach((chart) => {
+            chart.addEventListener("click", (e) => {
+                let chartType = e.target.htmlFor
+                    ? e.target.htmlFor
+                    : e.target.id;
+                this.chartInst.drawChart(
+                    chartType,
+                    this.selectedDimensionsMain
+                );
+            });
+        });
+    }
+    handleTopLeftClick() {
         const topleft = document.getElementById("topleft");
         topleft.addEventListener("click", () => {
             this.x1CellIndex = 0;
@@ -107,37 +138,7 @@ class newCanvas {
             this.renderLeftHeader();
             this.renderTopHeader();
         });
-
-        //charts
-        var charts = document.querySelectorAll(".chart");
-        this.chartInst = new MakeChart(this, this.mainCanvas, this.sheetData);
-        this.chartArray = [];
-
-        Array.from(charts).forEach((chart) => {
-            chart.addEventListener("click", (e) => {
-                let chartType = e.target.htmlFor
-                    ? e.target.htmlFor
-                    : e.target.id;
-                this.chartInst.drawChart(
-                    chartType,
-                    this.selectedDimensionsMain
-                );
-            });
-        });
-
-        this.findAndReplaceStatus = document.getElementById(
-            "findAndReplaceStatus"
-        );
-        this.formulaInputDiv = document.getElementById("formulaInputDiv");
-        this.scrollFunction();
-
-        this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
-            console.log("ponteksjdbnsj");
-
-            this.updateData();
-        });
     }
-
     fetchProgress = async () => {
         try {
             const response = await fetch(
@@ -165,7 +166,6 @@ class newCanvas {
             clearInterval(this.intervalid);
         }
     };
-
     fetchUserData = async (offset = 0) => {
         const response = await fetch(
             `http://localhost:5022/api/Employee?offset=${offset}`,
@@ -177,19 +177,17 @@ class newCanvas {
             }
         );
         const data = await response.json();
-        console.log(data);
-        
         let sheetData = this.convertJsonData(data);
         this.sheetData.push(...sheetData);
         this.renderData();
     };
-
     convertJsonData = (data) => {
         const result = [];
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
             data.forEach((item, index) => {
                 const formattedItem = {};
+
                 keys.forEach((key, idx) => {
                     if (key != "RowNo" && key != "id") {
                         formattedItem[idx - 2] = {
@@ -198,12 +196,12 @@ class newCanvas {
                         };
                     }
                 });
+
                 result.push({ [item["RowNo"]]: formattedItem });
             });
         }
         return result;
     };
-
     initialVariables() {
         /**
          * check whether to update a value or not
@@ -361,375 +359,7 @@ class newCanvas {
         this.resizeLineHorizontal = document.getElementById(
             "resizeLineHorizontal"
         );
-
-        // this.sheetData = [
-        //   {
-        //     30: {
-        //       0: { data: "name", properties: "*****" },
-        //       1: { data: "Country", properties: "*****" },
-        //       2: { data: "City", properties: "*****" },
-        //       3: { data: "telephone_number", properties: "*****" },
-        //       4: { data: "DOB", properties: "*****" },
-        //       5: { data: "FY2019-20", properties: "*****" },
-        //       6: { data: "FY2020-21", properties: "*****" },
-        //       7: { data: "FY2021-22", properties: "*****" },
-        //       8: { data: "FY2022-23", properties: "*****" },
-        //       9: { data: "FY2023-24", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     1: {
-        //       0: { data: "Emily FQbt6", properties: "*****" },
-        //       1: { data: "Australia", properties: "*****" },
-        //       2: { data: "Houston", properties: "*****" },
-        //       3: { data: "5457952956", properties: "*****" },
-        //       4: { data: "1/10/1988", properties: "*****" },
-        //       5: { data: "71987", properties: "*****" },
-        //       6: { data: "74470", properties: "*****" },
-        //       7: { data: "118674", properties: "*****" },
-        //       8: { data: "111997", properties: "*****" },
-        //       9: { data: "52402", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     2: {
-        //       0: { data: "Jane OZUPM", properties: "*****" },
-        //       1: { data: "Germany", properties: "*****" },
-        //       2: { data: "New York", properties: "*****" },
-        //       3: { data: "3553305164", properties: "*****" },
-        //       4: { data: "4/15/1987", properties: "*****" },
-        //       5: { data: "137336", properties: "*****" },
-        //       6: { data: "41923", properties: "*****" },
-        //       7: { data: "80143", properties: "*****" },
-        //       8: { data: "87229", properties: "*****" },
-        //       9: { data: "73409", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     3: {
-        //       0: { data: "Katie HyTYR", properties: "*****" },
-        //       1: { data: "UK", properties: "*****" },
-        //       2: { data: "Chicago", properties: "*****" },
-        //       3: { data: "669768290", properties: "*****" },
-        //       4: { data: "4/6/1957", properties: "*****" },
-        //       5: { data: "140482", properties: "*****" },
-        //       6: { data: "92176", properties: "*****" },
-        //       7: { data: "73337", properties: "*****" },
-        //       8: { data: "66622", properties: "*****" },
-        //       9: { data: "147714", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     4: {
-        //       0: { data: "Katie aJetY", properties: "*****" },
-        //       1: { data: "UK", properties: "*****" },
-        //       2: { data: "Los Angeles", properties: "*****" },
-        //       3: { data: "8141480576", properties: "*****" },
-        //       4: { data: "5/16/1951", properties: "*****" },
-        //       5: { data: "140968", properties: "*****" },
-        //       6: { data: "116895", properties: "*****" },
-        //       7: { data: "145380", properties: "*****" },
-        //       8: { data: "75615", properties: "*****" },
-        //       9: { data: "122402", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     5: {
-        //       0: { data: "Jane jGX3L", properties: "*****" },
-        //       1: { data: "Germany", properties: "*****" },
-        //       2: { data: "New York", properties: "*****" },
-        //       3: { data: "353482959", properties: "*****" },
-        //       4: { data: "11/6/1974", properties: "*****" },
-        //       5: { data: "75468", properties: "*****" },
-        //       6: { data: "58173", properties: "*****" },
-        //       7: { data: "133088", properties: "*****" },
-        //       8: { data: "146254", properties: "*****" },
-        //       9: { data: "94909", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     6: {
-        //       0: { data: "Chris 9Rdzx", properties: "*****" },
-        //       1: { data: "USA", properties: "*****" },
-        //       2: { data: "New York", properties: "*****" },
-        //       3: { data: "4041565147", properties: "*****" },
-        //       4: { data: "10/14/1976", properties: "*****" },
-        //       5: { data: "51297", properties: "*****" },
-        //       6: { data: "76342", properties: "*****" },
-        //       7: { data: "52802", properties: "*****" },
-        //       8: { data: "41781", properties: "*****" },
-        //       9: { data: "148994", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     7: {
-        //       0: { data: "Katie X3Gx5", properties: "*****" },
-        //       1: { data: "UK", properties: "*****" },
-        //       2: { data: "Phoenix", properties: "*****" },
-        //       3: { data: "3469563819", properties: "*****" },
-        //       4: { data: "2/16/1972", properties: "*****" },
-        //       5: { data: "82928", properties: "*****" },
-        //       6: { data: "75816", properties: "*****" },
-        //       7: { data: "61833", properties: "*****" },
-        //       8: { data: "65611", properties: "*****" },
-        //       9: { data: "50962", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     8: {
-        //       0: { data: "Katie Bktxk", properties: "*****" },
-        //       1: { data: "Australia", properties: "*****" },
-        //       2: { data: "Los Angeles", properties: "*****" },
-        //       3: { data: "2712084976", properties: "*****" },
-        //       4: { data: "1/20/1999", properties: "*****" },
-        //       5: { data: "144688", properties: "*****" },
-        //       6: { data: "38226", properties: "*****" },
-        //       7: { data: "139676", properties: "*****" },
-        //       8: { data: "83774", properties: "*****" },
-        //       9: { data: "64938", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     9: {
-        //       0: { data: "Emily LPuzu", properties: "*****" },
-        //       1: { data: "Germany", properties: "*****" },
-        //       2: { data: "Phoenix", properties: "*****" },
-        //       3: { data: "9893149547", properties: "*****" },
-        //       4: { data: "12/27/1973", properties: "*****" },
-        //       5: { data: "63291", properties: "*****" },
-        //       6: { data: "76657", properties: "*****" },
-        //       7: { data: "69692", properties: "*****" },
-        //       8: { data: "105696", properties: "*****" },
-        //       9: { data: "70419", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     10: {
-        //       0: { data: "Jane zngX4", properties: "*****" },
-        //       1: { data: "USA", properties: "*****" },
-        //       2: { data: "Houston", properties: "*****" },
-        //       3: { data: "273436682", properties: "*****" },
-        //       4: { data: "8/28/1984", properties: "*****" },
-        //       5: { data: "133321", properties: "*****" },
-        //       6: { data: "114253", properties: "*****" },
-        //       7: { data: "111180", properties: "*****" },
-        //       8: { data: "141386", properties: "*****" },
-        //       9: { data: "71835", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     11: {
-        //       0: { data: "Alex kXRmf", properties: "*****" },
-        //       1: { data: "UK", properties: "*****" },
-        //       2: { data: "Houston", properties: "*****" },
-        //       3: { data: "2148165184", properties: "*****" },
-        //       4: { data: "11/17/1972", properties: "*****" },
-        //       5: { data: "88439", properties: "*****" },
-        //       6: { data: "44598", properties: "*****" },
-        //       7: { data: "112272", properties: "*****" },
-        //       8: { data: "39311", properties: "*****" },
-        //       9: { data: "83349", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     12: {
-        //       0: { data: "Emily 9kjPw", properties: "*****" },
-        //       1: { data: "USA", properties: "*****" },
-        //       2: { data: "Houston", properties: "*****" },
-        //       3: { data: "1313221870", properties: "*****" },
-        //       4: { data: "1/10/1997", properties: "*****" },
-        //       5: { data: "137643", properties: "*****" },
-        //       6: { data: "67790", properties: "*****" },
-        //       7: { data: "88627", properties: "*****" },
-        //       8: { data: "124546", properties: "*****" },
-        //       9: { data: "44625", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     13: {
-        //       0: { data: "Emily va43C", properties: "*****" },
-        //       1: { data: "USA", properties: "*****" },
-        //       2: { data: "Chicago", properties: "*****" },
-        //       3: { data: "7089910029", properties: "*****" },
-        //       4: { data: "10/28/1991", properties: "*****" },
-        //       5: { data: "108629", properties: "*****" },
-        //       6: { data: "59682", properties: "*****" },
-        //       7: { data: "47352", properties: "*****" },
-        //       8: { data: "140016", properties: "*****" },
-        //       9: { data: "45580", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     14: {
-        //       0: { data: "Chris P8cHX", properties: "*****" },
-        //       1: { data: "Australia", properties: "*****" },
-        //       2: { data: "Phoenix", properties: "*****" },
-        //       3: { data: "8052835565", properties: "*****" },
-        //       4: { data: "3/29/1973", properties: "*****" },
-        //       5: { data: "69460", properties: "*****" },
-        //       6: { data: "138752", properties: "*****" },
-        //       7: { data: "95032", properties: "*****" },
-        //       8: { data: "119769", properties: "*****" },
-        //       9: { data: "66099", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     15: {
-        //       0: { data: "Chris TeV18", properties: "*****" },
-        //       1: { data: "USA", properties: "*****" },
-        //       2: { data: "New York", properties: "*****" },
-        //       3: { data: "1284070085", properties: "*****" },
-        //       4: { data: "1/9/1989", properties: "*****" },
-        //       5: { data: "146852", properties: "*****" },
-        //       6: { data: "94918", properties: "*****" },
-        //       7: { data: "102026", properties: "*****" },
-        //       8: { data: "82699", properties: "*****" },
-        //       9: { data: "91803", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     16: {
-        //       0: { data: "Katie 0LpNB", properties: "*****" },
-        //       1: { data: "Germany", properties: "*****" },
-        //       2: { data: "Los Angeles", properties: "*****" },
-        //       3: { data: "3148045878", properties: "*****" },
-        //       4: { data: "2/19/1951", properties: "*****" },
-        //       5: { data: "50021", properties: "*****" },
-        //       6: { data: "135559", properties: "*****" },
-        //       7: { data: "98509", properties: "*****" },
-        //       8: { data: "34825", properties: "*****" },
-        //       9: { data: "120590", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     17: {
-        //       0: { data: "Katie csnVg", properties: "*****" },
-        //       1: { data: "Canada", properties: "*****" },
-        //       2: { data: "New York", properties: "*****" },
-        //       3: { data: "3777400485", properties: "*****" },
-        //       4: { data: "3/3/1992", properties: "*****" },
-        //       5: { data: "105875", properties: "*****" },
-        //       6: { data: "133601", properties: "*****" },
-        //       7: { data: "133361", properties: "*****" },
-        //       8: { data: "35466", properties: "*****" },
-        //       9: { data: "45354", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     18: {
-        //       0: { data: "Emily wB02d", properties: "*****" },
-        //       1: { data: "Australia", properties: "*****" },
-        //       2: { data: "New York", properties: "*****" },
-        //       3: { data: "2166261664", properties: "*****" },
-        //       4: { data: "9/29/1997", properties: "*****" },
-        //       5: { data: "48985", properties: "*****" },
-        //       6: { data: "82031", properties: "*****" },
-        //       7: { data: "149330", properties: "*****" },
-        //       8: { data: "48564", properties: "*****" },
-        //       9: { data: "88813", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     19: {
-        //       0: { data: "Alex Yl4Br", properties: "*****" },
-        //       1: { data: "Germany", properties: "*****" },
-        //       2: { data: "Phoenix", properties: "*****" },
-        //       3: { data: "1807641952", properties: "*****" },
-        //       4: { data: "12/21/1971", properties: "*****" },
-        //       5: { data: "44762", properties: "*****" },
-        //       6: { data: "107977", properties: "*****" },
-        //       7: { data: "86407", properties: "*****" },
-        //       8: { data: "142413", properties: "*****" },
-        //       9: { data: "107080", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     20: {
-        //       0: { data: "Jane SviWc", properties: "*****" },
-        //       1: { data: "Australia", properties: "*****" },
-        //       2: { data: "New York", properties: "*****" },
-        //       3: { data: "5823155588", properties: "*****" },
-        //       4: { data: "1/4/1982", properties: "*****" },
-        //       5: { data: "71502", properties: "*****" },
-        //       6: { data: "69496", properties: "*****" },
-        //       7: { data: "45688", properties: "*****" },
-        //       8: { data: "32109", properties: "*****" },
-        //       9: { data: "51437", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     21: {
-        //       0: { data: "John 2avKM", properties: "*****" },
-        //       1: { data: "Australia", properties: "*****" },
-        //       2: { data: "Houston", properties: "*****" },
-        //       3: { data: "2810470697", properties: "*****" },
-        //       4: { data: "9/18/1967", properties: "*****" },
-        //       5: { data: "112105", properties: "*****" },
-        //       6: { data: "147949", properties: "*****" },
-        //       7: { data: "80028", properties: "*****" },
-        //       8: { data: "124944", properties: "*****" },
-        //       9: { data: "130148", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     22: {
-        //       0: { data: "John 7uHEq", properties: "*****" },
-        //       1: { data: "Canada", properties: "*****" },
-        //       2: { data: "Houston", properties: "*****" },
-        //       3: { data: "2570504167", properties: "*****" },
-        //       4: { data: "5/22/1964", properties: "*****" },
-        //       5: { data: "59496", properties: "*****" },
-        //       6: { data: "59145", properties: "*****" },
-        //       7: { data: "47781", properties: "*****" },
-        //       8: { data: "48746", properties: "*****" },
-        //       9: { data: "131767", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     23: {
-        //       0: { data: "John xYSuW", properties: "*****" },
-        //       1: { data: "UK", properties: "*****" },
-        //       2: { data: "Chicago", properties: "*****" },
-        //       3: { data: "8436891984", properties: "*****" },
-        //       4: { data: "11/5/1993", properties: "*****" },
-        //       5: { data: "84744", properties: "*****" },
-        //       6: { data: "87399", properties: "*****" },
-        //       7: { data: "50861", properties: "*****" },
-        //       8: { data: "90180", properties: "*****" },
-        //       9: { data: "113477", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     24: {
-        //       0: { data: "Alex gA8Rf", properties: "*****" },
-        //       1: { data: "Germany", properties: "*****" },
-        //       2: { data: "Chicago", properties: "*****" },
-        //       3: { data: "8629339455", properties: "*****" },
-        //       4: { data: "7/28/1978", properties: "*****" },
-        //       5: { data: "58677", properties: "*****" },
-        //       6: { data: "104221", properties: "*****" },
-        //       7: { data: "119337", properties: "*****" },
-        //       8: { data: "96312", properties: "*****" },
-        //       9: { data: "98264", properties: "*****" },
-        //     },
-        //   },
-        //   {
-        //     25: {
-        //       0: { data: "Emily BpTl3", properties: "*****" },
-        //       1: { data: "UK", properties: "*****" },
-        //       2: { data: "Chicago", properties: "*****" },
-        //       3: { data: "9285496787", properties: "*****" },
-        //       4: { data: "12/28/1977", properties: "*****" },
-        //       5: { data: "132803", properties: "*****" },
-        //       6: { data: "69595", properties: "*****" },
-        //       7: { data: "50743", properties: "*****" },
-        //       8: { data: "62194", properties: "*****" },
-        //       9: { data: "76466", properties: "*****" },
-        //     },
-        //   },
-        // ];
     }
-
     createNewCanvas() {
         //sheet canvas
 
@@ -789,7 +419,6 @@ class newCanvas {
         topleftDiv.style.width = `${40 * this.scale}px`;
         topleftDiv.style.height = `${24 * this.scale}px`;
     }
-
     clearCanvas() {
         this.mainCtx.clearRect(
             0,
@@ -826,7 +455,6 @@ class newCanvas {
             this.topHeaderCanvas.height
         );
     }
-
     clearLeftHeader() {
         this.leftHeaderCtx.clearRect(
             0,
@@ -835,7 +463,6 @@ class newCanvas {
             this.leftHeaderCanvas.height
         );
     }
-
     inputBoxPosition() {
         this.inputBox.style.display = "block";
         this.inputBox.style.top = `${
@@ -853,10 +480,12 @@ class newCanvas {
             this.scale
         }px`;
     }
-
     findAndReplace = async (findText, replaceText) => {
-        this.findAndReplaceStatus.style.display = "block";
-        this.findAndReplaceStatus.innerText = "Updating...";
+        let findAndReplaceStatus = document.getElementById(
+            "findAndReplaceStatus"
+        );
+        findAndReplaceStatus.style.display = "block";
+        findAndReplaceStatus.innerText = "Updating...";
         const response = await fetch(
             `http://localhost:5022/api/Employee/findandreplace?findText=${findText}&replaceText=${replaceText}`,
             {
@@ -871,7 +500,7 @@ class newCanvas {
         if (data.status) {
             this.sheetData = [];
             await this.fetchUserData(0);
-            this.findAndReplaceStatus.innerText = `Matches Replaced (${data.noOfRowsAffected})`;
+            findAndReplaceStatus.innerText = `Matches Replaced (${data.noOfRowsAffected})`;
         }
 
         this.mainCtx.clearRect(
@@ -935,14 +564,12 @@ class newCanvas {
         this.drawColumns();
         this.renderData(strokeColor);
     }
-
     getPos(str = "", subStr, i) {
         return [
             str.split(subStr, i).join(subStr).length,
             str.split(subStr, i + 1).join(subStr).length,
         ];
     }
-
     renderTopHeader(transparentColor = "") {
         this.topHeaderCtx.save();
         this.topHeaderCtx.beginPath();
@@ -1135,7 +762,6 @@ class newCanvas {
     }
 
     //----------------------Scroll Functionality----------------------
-
     renderData() {
         let i = 0;
         const canvasHeight = this.mainCanvas.height;
@@ -1156,13 +782,19 @@ class newCanvas {
         const endCol = Math.ceil(
             (this.scrollLeftvalue + canvasWidth) / colWidth
         );
+
         let availableRow = [];
+        let a = startRow;
+
         for (let n = startRow; n <= endRow; n++) {
-            let rowNo = Object.keys(this.sheetData[n]);
-            availableRow.push(rowNo[0] - "0");
+            let result = this.sheetData.find((item) => item[n + 1]);
+            if (result) {
+                availableRow.push(n + 1);
+            }
         }
 
         let m = startRow;
+
         for (let n = startRow; n <= endRow; n++) {
             if (!availableRow.includes(n + 1)) {
                 cellPositionY += this.valueInst.getCurCellHeight(n);
@@ -1336,12 +968,10 @@ class newCanvas {
     //----------------------keyboard Evenets----------------------
     updateData = async () => {
         if (this.isValueupdate == false) return;
-        console.log(this.isValueupdate);
 
         let value = this.inputBox.value;
         let rowData = this.sheetData.find((item) => item[this.activeRow]);
         rowData[this.activeRow][this.x1CellIndex] = value;
-        console.log();
 
         const response = await fetch(
             `http://localhost:5022/api/Employee/updatevalue?column=${this.activeColumn}&row=${this.activeRow}&text=${value}`,
@@ -1356,7 +986,6 @@ class newCanvas {
         if (data.status) {
             this.inputBox.value = null;
             let length = this.sheetData.length;
-            console.log(length / 500);
 
             this.sheetData = [];
             for (let i = 0; i < length / 500; i++) {
@@ -1364,6 +993,46 @@ class newCanvas {
             }
         }
 
+        this.mainCtx.clearRect(
+            0,
+            0,
+            this.mainCanvas.width,
+            this.mainCanvas.height
+        );
+        this.highlightInst.highlightSelectedArea();
+        this.drawGrid();
+    };
+
+    deleteData = async () => {
+        console.log(this.selectedDimensionsMain);
+        const [startCol, startRow, endCol, endRow] =
+            this.selectedDimensionsMain;
+        console.log(startCol, startRow + 1, endCol, endRow + 1);
+        let startCol1 = this.valueInst.convertNumToChar(startCol + 1);
+        let endCol1 = this.valueInst.convertNumToChar(endCol + 1);
+
+        const response = await fetch(
+            `http://localhost:5022/api/Employee/deletedata?startRow=${
+                startRow + 1
+            }&endRow=${endRow + 1}&startCol=${startCol1}&endCol=${endCol1}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        const data = await response.json();
+        console.log(data);
+        if (data.status) {
+            this.inputBox.value = null;
+            let length = this.sheetData.length;
+
+            this.sheetData = [];
+            for (let i = 0; i < length / 500; i++) {
+                await this.fetchUserData(i);
+            }
+        }
         this.mainCtx.clearRect(
             0,
             0,
@@ -1399,11 +1068,13 @@ class newCanvas {
             this.isAnimationRunning = true;
             this.copyPasteInst.startMarchingAntsAnimation();
             this.copyPasteInst.copyToClipboard();
+            return;
         } else if (
             (e.ctrlKey && e.key === "v") ||
             (e.ctrlKey && e.key === "V")
         ) {
             this.copyPasteInst.pasteToSheet();
+            return;
         } else if (e.shiftKey) {
             this.inputBox.style.display = "none";
             if (e.key === "ArrowDown") {
@@ -1412,20 +1083,26 @@ class newCanvas {
                 this.x2CellIndex = Math.max(0, this.x2CellIndex + 1);
             } else if (e.key === "ArrowUp") {
                 this.y2CellIndex = Math.max(0, this.y2CellIndex - 1);
-            } else if (e.key === "ArrowLeft") {
+            } else if (e.key == "ArrowLeft") {
                 this.x2CellIndex = Math.max(0, this.x2CellIndex - 1);
-            } else {
+            } else if (/^[a-zA-Z()~!@#$%^&*]$/.test(e.key)) {
+                this.isValueupdate = true;
                 this.x2CellIndex = this.x1CellIndex;
                 this.y2CellIndex = this.y1CellIndex;
-                
                 flag = true;
-                this.formulaInputDiv.value = this.inputBox.value;
-                this.isValueupdate = true;
                 this.isAnimationRunning = false;
                 this.inputBoxPosition();
                 this.inputBox.focus();
                 return;
+            } else {
+                this.inputBox.blur();
+                this.x2CellIndex = this.x1CellIndex;
+                this.y2CellIndex = this.y1CellIndex;
+                flag = true;
+                this.isAnimationRunning = false;
+                return;
             }
+            this.inputBox.blur();
             flag = true;
             startX = Math.min(this.x1CellIndex, this.x2CellIndex);
             endX = Math.max(this.x1CellIndex, this.x2CellIndex);
@@ -1458,19 +1135,12 @@ class newCanvas {
                 this.x1CellIndex - 1
             );
             this.x1CellIndex = this.x1CellIndex - 1;
-        } else if (e.ctrlKey) {
+        } else if (e.ctrlKey || e.key == "CapsLock") {
             return;
-        } else 
-        // if (
-        //     (e.key >= "a" && e.key <= "z") ||
-        //     (e.key >= "A" && e.key <= "Z") ||
-        //     (e.key >= "0" && e.key <= "9") ||
-        //     e.key == "Backspace" ||
-        //     e.key == " "
-        // )
-         {
+        } else if (e.key == "Delete") {
+            this.deleteData();
+        } else {
             flag = true;
-            this.formulaInputDiv.value = this.inputBox.value;
             this.isValueupdate = true;
             this.isAnimationRunning = false;
             this.inputBoxPosition();
@@ -1478,12 +1148,13 @@ class newCanvas {
         }
 
         if (
-            e.key == "Enter" ||
-            e.key == "ArrowDown" ||
-            e.key == "ArrowUp" ||
-            e.key == "Tab" ||
-            e.key == "ArrowRight" ||
-            e.key == "ArrowLeft"
+            (e.key === "Enter" ||
+                e.key === "ArrowDown" ||
+                e.key === "ArrowUp" ||
+                e.key === "Tab" ||
+                e.key === "ArrowRight" ||
+                e.key === "ArrowLeft") &&
+            !e.shiftKey
         ) {
             this.updateData();
             this.inputBox.value = null;
@@ -1495,7 +1166,7 @@ class newCanvas {
             this.isRowSelected = false;
         }
 
-        if (!e.ctrlKey && flag == false) {
+        if (!e.ctrlKey && e.key != "Delete" && flag == false) {
             e.preventDefault();
             this.inputBox.blur();
             this.selectedDimensionsMain = [
@@ -1511,16 +1182,6 @@ class newCanvas {
             this.renderTopHeader();
             this.renderLeftHeader();
         }
-
-        if (!e.shiftKey && !e.ctrlKey) {
-            this.highlightInst.highlightSelectedArea();
-            this.drawGrid();
-            this.clearTopHeader();
-            this.clearLeftHeader();
-            this.renderTopHeader();
-            this.renderLeftHeader();
-        }
     };
 }
-
 export { newCanvas };

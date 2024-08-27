@@ -213,8 +213,8 @@ body {
         width: 500px;
         padding: 16px;
 
-        .findAndReplaceStatus{
-            background-color: #DFF6DD;
+        .findAndReplaceStatus {
+            background-color: #dff6dd;
             font-weight: 600;
             margin: 10px 0 0 0;
             padding: 10px;
@@ -595,9 +595,9 @@ body {
     outline: auto;
 }
 
-.progressbar{
+.progressbar {
     width: 100%;
-    progress{
+    progress {
         width: 100%;
         position: absolute;
         bottom: 0.5px;
@@ -605,5 +605,32 @@ body {
         z-index: 100;
         display: none;
         height: 5px;
+    }
+}
+
+.contextMenu {
+    display: none;
+    z-index: 10;
+    width: 300px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    position: absolute;
+    padding: 10px;
+    border-radius: 1px;
+    ul {
+        list-style-type: none;
+
+        hr{
+         margin: 3px 0;
+        }
+    }
+    li {
+        padding: 3px 20px;
+        font-weight: 400;
+        cursor: pointer;
+        text-decoration: none;
+        &:hover {
+            color: #555;
+        }
     }
 }

@@ -201,13 +201,13 @@
                         placeholder="Insert Text"
                     />
                 </div>
-                <div class="findAndReplaceStatus" id="findAndReplaceStatus">
-                    
-                </div>
+                <div
+                    class="findAndReplaceStatus"
+                    id="findAndReplaceStatus"
+                ></div>
                 <div class="btnSection">
                     <button id="replaceAllFun">Replace all</button>
                 </div>
-               
 
                 <div class="closeModal" id="closeEditingModal">
                     <span class="material-symbols-outlined"> close </span>
@@ -245,7 +245,7 @@
                     </svg>
                 </div>
                 <div class="inputDiv">
-                    <input type="text" id="formulaInputDiv"/>
+                    <input type="text" id="formulaInputDiv" />
                     <i class="fa-solid fa-chevron-down"></i>
                 </div>
             </div>
@@ -255,6 +255,15 @@
         </div>
 
         <div class="mainSheet">
+            <div class="contextMenu" id="contextmenu">
+                <ul>
+                  <li id="delete-row">Delete Row</li>
+                  <li id="delete-col">Delete Column</li>
+                  <hr/>
+                  <li id="insert-row">Insert Row Above</li>
+                  <li id="insert-col">Insert Column Left</li>
+                </ul>
+              </div>
             <div class="topleftDiv" id="topleftDiv">
                 <div class="topleft" id="topleft"></div>
             </div>
@@ -262,7 +271,6 @@
             <div class="leftHeader" id="leftHeader"></div>
             <div class="scroller" id="scroller">
                 <div id="main" class="mainSection">
-                    <!-- canvas -->
                     <input
                         type="text"
                         id="canvasinput"
