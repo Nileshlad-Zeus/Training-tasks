@@ -352,6 +352,7 @@ class DrawHighlight {
         });
 
         this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
+            if (e.button != 0) return;
             this.highlightAreaPointerDown(e);
         });
 

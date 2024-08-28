@@ -90,7 +90,8 @@ class newCanvas {
         this.rowColumnManagerInst = new RowColumnManager(
             this,
             this.mainCanvas,
-            this.valueInst
+            this.valueInst,
+            this.highlightInst
         );
     }
     initializefindandReplace() {
@@ -971,7 +972,15 @@ class newCanvas {
 
         let value = this.inputBox.value;
         let rowData = this.sheetData.find((item) => item[this.activeRow]);
-        rowData[this.activeRow][this.x1CellIndex] = value;
+        rowData[this.activeRow][this.x1CellIndex].data = value;
+        this.mainCtx.clearRect(
+            0,
+            0,
+            this.mainCanvas.width,
+            this.mainCanvas.height
+        );
+        this.highlightInst.highlightSelectedArea();
+        this.drawGrid();
 
         const response = await fetch(
             `http://localhost:5022/api/Employee/updatevalue?column=${this.activeColumn}&row=${this.activeRow}&text=${value}`,
@@ -1004,7 +1013,6 @@ class newCanvas {
     };
 
     deleteData = async () => {
-        console.log(this.selectedDimensionsMain);
         const [startCol, startRow, endCol, endRow] =
             this.selectedDimensionsMain;
         console.log(startCol, startRow + 1, endCol, endRow + 1);

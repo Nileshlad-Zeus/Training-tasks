@@ -1,54 +1,38 @@
 [HttpPost]
-[Route("findandreplace")]
-public async Task<IActionResult> FindandReplace(string findText, string replaceText)
+[Route("addrows")]
+public async Task<IActionResult> AddRows(int startRow, int numberOfRows)
 {
-    if (string.IsNullOrEmpty(findText) || string.IsNullOrEmpty(replaceText))
-    {
-        return BadRequest("Invalid parameters.");
-    }
-
-    var connectionString = _connectionString; // Replace with your actual connection string
-    var tableName = "employee_info"; // Table name is fixed
-    var databaseName = "database1"; // Database name is fixed
-
-    var query = new StringBuilder();
-    var updateStatements = new List<string>();
+    var connectionString = _connectionString;
+    var tableName = "employee_info";
 
     using (var connection = new MySqlConnection(connectionString))
     {
         await connection.OpenAsync();
 
-        // Fetch the columns for the specified table
-        var columnsQuery = @"SELECT COLUMN_NAME 
-                             FROM INFORMATION_SCHEMA.COLUMNS 
-                             WHERE TABLE_NAME = @TableName 
-                             AND TABLE_SCHEMA = @DatabaseName 
-                             AND DATA_TYPE IN ('varchar', 'char', 'text', 'nvarchar', 'nchar', 'ntext')";
-
-        var columns = await connection.QueryAsync<string>(columnsQuery, new { TableName = tableName, DatabaseName = databaseName });
-
-        if (columns.Any())
+        // Step 1: Shift existing rows down
+        var shiftQuery = $"UPDATE `{tableName}` SET `RowNo` = `RowNo` + @NumberOfRows WHERE `RowNo` >= @StartRow";
+        using (var shiftCommand = new MySqlCommand(shiftQuery, connection))
         {
-            // Construct the SET clause for the UPDATE statement
-            foreach (var column in columns)
+            shiftCommand.Parameters.AddWithValue("@NumberOfRows", numberOfRows);
+            shiftCommand.Parameters.AddWithValue("@StartRow", startRow);
+            await shiftCommand.ExecuteNonQueryAsync();
+        }
+
+        // Step 2: Insert new rows
+        for (int i = 0; i < numberOfRows; i++)
+        {
+            var insertQuery = $"INSERT INTO `{tableName}` (`RowNo`, `Column1`, `Column2`, ...) VALUES (@RowNo, @Value1, @Value2, ...)";
+            using (var insertCommand = new MySqlCommand(insertQuery, connection))
             {
-                updateStatements.Add($"{column} = REPLACE({column}, @FindText, @ReplaceText)");
+                insertCommand.Parameters.AddWithValue("@RowNo", startRow + i);
+                insertCommand.Parameters.AddWithValue("@Value1", /* your value here */);
+                insertCommand.Parameters.AddWithValue("@Value2", /* your value here */);
+                // Add parameters for other columns as needed
+
+                await insertCommand.ExecuteNonQueryAsync();
             }
-
-            // Construct the final UPDATE statement
-            query.Append($"UPDATE {tableName} SET ");
-            query.Append(string.Join(", ", updateStatements));
-            query.Append($" WHERE {string.Join(" OR ", columns.Select(c => $"{c} LIKE @FindText"))}");
-
-            // Execute the dynamically constructed SQL
-            var parameters = new { FindText = $"%{findText}%", ReplaceText = replaceText };
-            var result = await connection.ExecuteAsync(query.ToString(), parameters);
-
-            return Ok(new { RowsAffected = result });
         }
-        else
-        {
-            return NotFound("No columns found for the specified table.");
-        }
+
+        return Ok(new { Status = true });
     }
 }

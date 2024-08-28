@@ -247,5 +247,78 @@ namespace Backend2.Controllers
                 return Ok(new { Status = true });
             }
         }
+
+
+
+        [HttpPost]
+        [Route("deleterow")]
+        public async Task<IActionResult> DeleteRow(int startRow, int endRow)
+        {
+
+            var connectionString = _connectionString;
+            var tableName = "employee_info";
+            var databaseName = "database1";
+
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                var query = $"DELETE FROM `{tableName}` WHERE `RowNo` BETWEEN @StartRow AND @EndRow";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@StartRow", startRow);
+                    command.Parameters.AddWithValue("@EndRow", endRow);
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                int rowsDeleted = endRow - startRow + 1;
+                var updateQuery = $"UPDATE `{tableName}` SET `RowNo` = `RowNo` - @RowsDeleted WHERE `RowNo` > @EndRow";
+                using (var updateCommand = new MySqlCommand(updateQuery, connection))
+                {
+                    updateCommand.Parameters.AddWithValue("@RowsDeleted", rowsDeleted);
+                    updateCommand.Parameters.AddWithValue("@EndRow", endRow);
+                    await updateCommand.ExecuteNonQueryAsync();
+                }
+                var Status = true;
+                return Ok(new { Status = true });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("addrowabove")]
+        public async Task<IActionResult> AddRowAbove(int startRow, int endRow)
+        {
+
+            var connectionString = _connectionString;
+            var tableName = "employee_info";
+            var databaseName = "database1";
+
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                int numberOfRows = endRow - startRow + 1;
+                var query = $"UPDATE `{tableName}` SET `RowNo` = `RowNo` + @NumberOfRows WHERE `RowNo` >= @StartRow";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@StartRow", startRow);
+                    command.Parameters.AddWithValue("@NumberOfRows", numberOfRows);
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                for (int i = 0; i < numberOfRows; i++)
+                {
+                    var insertQuery = $"INSERT INTO `{tableName}` (`RowNo`) VALUES (@RowNo)";
+                    using (var insertCommand = new MySqlCommand(insertQuery, connection))
+                    {
+                        insertCommand.Parameters.AddWithValue("@RowNo", startRow + i);
+                        await insertCommand.ExecuteNonQueryAsync();
+                    }
+                }
+                var Status = true;
+                return Ok(new { Status = true });
+            }
+        }
     }
 }
