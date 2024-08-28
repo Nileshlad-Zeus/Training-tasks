@@ -153,6 +153,7 @@ class RowColumnManager {
     async addRows() {
         const [startCol, startRow, endCol, endRow] =
             this.mainInst.selectedDimensionsMain;
+        console.log(this.mainInst.selectedDimensionsMain);
 
         this.mainInst.sheetData = this.addAndAdjustRows(
             this.mainInst.sheetData,
@@ -200,6 +201,29 @@ class RowColumnManager {
         );
         this.highlightInst.highlightSelectedArea();
         this.mainInst.drawGrid();
+    }
+
+    async InsertRow() {
+        const [startCol, startRow, endCol, endRow] =
+            this.mainInst.selectedDimensionsMain;
+        this.contextmenu.style.display = "none";
+        const response = await fetch(
+            `http://localhost:5022/api/Employee/InsertRow?startRow=${
+                startRow + 1
+            }`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        const data = await response.json();
+        console.log(data);
+        
+        if (data.status) {
+            this.mainInst.inputBox.value = null;
+        }
     }
 }
 
