@@ -26,6 +26,19 @@ class CopyPaste {
          * @type {number}
          */
         this.lineDashOffset = 0;
+
+        let copyIcon = document.querySelector(".copyIcon");
+        let pasteIcon = document.querySelector(".pasteIcon");
+        copyIcon.addEventListener("click", () => {
+            this.marchingAntsCoordinates = this.mainInst.selectedDimensionsMain;
+            this.mainInst.isAnimationRunning = true;
+            this.startMarchingAntsAnimation();
+            this.copyToClipboard();
+        });
+        
+        pasteIcon.addEventListener("click", () => {
+            this.pasteToSheet();
+        });
     }
 
     /**

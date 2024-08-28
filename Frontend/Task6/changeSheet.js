@@ -131,7 +131,7 @@ class sheetManager {
         //find and replace
         const replaceIcon = document.querySelector("#replaceIcon");
         const editingSectionModal = document.querySelector(
-            ".editingSectionModal"
+            ".findandselectSectionModal"
         );
         const closeEditingModal = document.querySelector("#closeEditingModal");
         replaceIcon.addEventListener("click", () => {

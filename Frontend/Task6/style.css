@@ -140,7 +140,8 @@ body {
 .toolsSection .fontSection .fontStyle .fontColor .colorSelector {
   display: none;
 }
-.toolsSection .editingSection,
+.toolsSection .clipBoardSection,
+.toolsSection .findandselectSection,
 .toolsSection .chartSection {
   position: relative;
   display: flex;
@@ -148,18 +149,22 @@ body {
   justify-content: center;
   padding: 0 15px;
 }
-.toolsSection .editingSection div,
+.toolsSection .clipBoardSection div,
+.toolsSection .findandselectSection div,
 .toolsSection .chartSection div {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.toolsSection .editingSection div label,
+.toolsSection .clipBoardSection div label,
+.toolsSection .findandselectSection div label,
 .toolsSection .chartSection div label {
   font-size: 14px;
   color: rgb(95, 88, 88);
+  cursor: pointer;
 }
-.toolsSection .editingSection .icon,
+.toolsSection .clipBoardSection .icon,
+.toolsSection .findandselectSection .icon,
 .toolsSection .chartSection .icon {
   cursor: pointer;
   font-size: 30px;
@@ -178,7 +183,7 @@ body {
   transform: rotate(90deg);
 }
 
-.editingSectionModal {
+.findandselectSectionModal {
   display: none;
   position: absolute;
   top: 240px;
@@ -190,31 +195,31 @@ body {
   justify-content: center;
   align-items: center;
 }
-.editingSectionModal .modal {
+.findandselectSectionModal .modal {
   position: relative;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   background-color: white;
   width: 500px;
   padding: 16px;
 }
-.editingSectionModal .modal .findAndReplaceStatus {
+.findandselectSectionModal .modal .findAndReplaceStatus {
   background-color: #dff6dd;
   font-weight: 600;
   margin: 10px 0 0 0;
   padding: 10px;
   display: none;
 }
-.editingSectionModal .modal .closeModal {
+.findandselectSectionModal .modal .closeModal {
   position: absolute;
   right: 10px;
   top: 10px;
   cursor: pointer;
 }
-.editingSectionModal .modal h2 {
+.findandselectSectionModal .modal h2 {
   color: rgb(16, 124, 65);
   font-weight: 500;
 }
-.editingSectionModal .modal .inputSection {
+.findandselectSectionModal .modal .inputSection {
   display: flex;
   flex-direction: column;
   font-size: 14px;
@@ -223,16 +228,16 @@ body {
   gap: 5px;
   margin-top: 16px;
 }
-.editingSectionModal .modal .inputSection input {
+.findandselectSectionModal .modal .inputSection input {
   height: 36px;
   padding-left: 10px;
   font-size: 14px;
   outline: none;
 }
-.editingSectionModal .modal .btnSection {
+.findandselectSectionModal .modal .btnSection {
   margin-top: 10px;
 }
-.editingSectionModal .modal .btnSection button {
+.findandselectSectionModal .modal .btnSection button {
   padding: 6px 10px;
   background-color: transparent;
   border: 1px solid rgb(95, 88, 88);

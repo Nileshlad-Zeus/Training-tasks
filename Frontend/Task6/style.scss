@@ -151,21 +151,25 @@ body {
         }
     }
 
-    .editingSection,
+    .clipBoardSection,
+    .findandselectSection,
     .chartSection {
         position: relative;
         display: flex;
         gap: 20px;
         justify-content: center;
         padding: 0 15px;
+        
         div {
             display: flex;
             flex-direction: column;
             align-items: center;
-
+            
+            
             label {
                 font-size: 14px;
                 color: rgb(95, 88, 88);
+                cursor: pointer;
             }
         }
 
@@ -192,7 +196,7 @@ body {
     }
 }
 
-.editingSectionModal {
+.findandselectSectionModal {
     display: none;
     position: absolute;
     top: 240px;

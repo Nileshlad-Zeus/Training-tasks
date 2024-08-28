@@ -42,7 +42,7 @@ class newCanvas {
     eventListeners() {
         document.addEventListener("keydown", (event) => {
             const editingSectionModal = document.querySelector(
-                ".editingSectionModal"
+                ".findandselectSectionModal"
             );
             if (
                 editingSectionModal.style.display == "" ||

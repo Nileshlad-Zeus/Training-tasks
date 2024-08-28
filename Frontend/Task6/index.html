@@ -19,6 +19,22 @@
     </head>
     <body>
         <div class="toolsSection">
+            <div class="clipBoardSection tool">
+                <div class="pasteIcon">
+                    <span class="material-symbols-outlined icon">
+                        content_paste
+                    </span>
+                    <label for="pasteIcon">Paste</label>
+                </div>
+                <div class="copyIcon">
+                    <span class="material-symbols-outlined icon">
+                        content_copy
+                    </span>
+                    <label for="copyIcon">Copy</label>
+                </div>
+
+                <span class="toolNameHeading">Clipboard</span>
+            </div>
             <div class="uploadFileSection tool">
                 <div class="uploadFile">
                     <input
@@ -107,7 +123,7 @@
                 <span class="toolNameHeading">Font</span>
             </div>
 
-            <div class="editingSection tool">
+            <div class="findandselectSection tool">
                 <div class="findIcon">
                     <span class="material-symbols-outlined icon" id="findIcon">
                         search
@@ -124,7 +140,7 @@
                     <label for="replaceIcon">Replace</label>
                 </div>
 
-                <span class="toolNameHeading">Editing</span>
+                <span class="toolNameHeading">Find and Select</span>
             </div>
 
             <div class="chartSection tool">
@@ -182,7 +198,7 @@
             </div>
         </div>
 
-        <div class="editingSectionModal">
+        <div class="findandselectSectionModal">
             <div class="modal">
                 <h2>Find and Replace</h2>
                 <div class="inputSection">
@@ -257,13 +273,13 @@
         <div class="mainSheet">
             <div class="contextMenu" id="contextmenu">
                 <ul>
-                  <li id="delete-row">Delete Row</li>
-                  <li id="delete-col">Delete Column</li>
-                  <hr/>
-                  <li id="insert-row">Insert Row Above</li>
-                  <li id="insert-col">Insert Column Left</li>
+                    <li id="delete-row">Delete Row</li>
+                    <li id="delete-col">Delete Column</li>
+                    <hr />
+                    <li id="insert-row">Insert Row Above</li>
+                    <li id="insert-col">Insert Column Left</li>
                 </ul>
-              </div>
+            </div>
             <div class="topleftDiv" id="topleftDiv">
                 <div class="topleft" id="topleft"></div>
             </div>
