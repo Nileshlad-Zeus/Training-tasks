@@ -201,28 +201,53 @@
         <div class="findandselectSectionModal">
             <div class="modal">
                 <h2>Find and Replace</h2>
-                <div class="inputSection">
-                    <label for="findtextInput">Find</label>
-                    <input
-                        type="text"
-                        id="findtextInput"
-                        placeholder="Insert Text"
-                    />
+                <div class="findandselectSectionModalToggle">
+                    <span id="toogleFind" class="toogleFind active">Find</span>
+                    <span id="toogleReplace" class="toogleReplace"
+                        >Replace</span
+                    >
                 </div>
-                <div class="inputSection">
-                    <label for="replacetextInput">Replace with</label>
-                    <input
-                        type="text"
-                        id="replacetextInput"
-                        placeholder="Insert Text"
-                    />
+                <div class="findSection">
+                    <div class="inputSection">
+                        <label for="findtextInput">Find</label>
+                        <input
+                            type="text"
+                            id="findtextInput"
+                            placeholder="Insert Text"
+                        />
+                    </div>
+                    <div
+                        class="findAndReplaceStatus"
+                        id="findAndReplaceStatus"
+                    ></div>
+                    <div class="btnSection">
+                        <button id="findNextBtn">Find Next</button>
+                    </div>
                 </div>
-                <div
-                    class="findAndReplaceStatus"
-                    id="findAndReplaceStatus"
-                ></div>
-                <div class="btnSection">
-                    <button id="replaceAllFun">Replace all</button>
+                <div class="replaceSection">
+                    <div class="inputSection">
+                        <label for="findtextInput">Find</label>
+                        <input
+                            type="text"
+                            id="findtextInput"
+                            placeholder="Insert Text"
+                        />
+                    </div>
+                    <div class="inputSection">
+                        <label for="replacetextInput">Replace with</label>
+                        <input
+                            type="text"
+                            id="replacetextInput"
+                            placeholder="Insert Text"
+                        />
+                    </div>
+                    <div
+                        class="findAndReplaceStatus"
+                        id="findAndReplaceStatus"
+                    ></div>
+                    <div class="btnSection">
+                        <button id="replaceAllFun">Replace all</button>
+                    </div>
                 </div>
 
                 <div class="closeModal" id="closeEditingModal">

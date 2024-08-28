@@ -95,7 +95,40 @@ class newCanvas {
         );
     }
     initializefindandReplace() {
+        const findSection = document.querySelector(".findSection");
+        const toogleFind = document.querySelector("#toogleFind");
+        const replaceSection = document.querySelector(".replaceSection");
+        const toogleReplace = document.querySelector("#toogleReplace");
+        let findAndReplaceStatus = document.getElementById(
+            "findAndReplaceStatus"
+        );
+
+        toogleFind.addEventListener("click", () => {
+            findSection.style.display = "block";
+            replaceSection.style.display = "none";
+            toogleFind.classList.toggle("active");
+            toogleReplace.classList.toggle("active");
+        });
+
+        toogleReplace.addEventListener("click", () => {
+            findSection.style.display = "none";
+            replaceSection.style.display = "block";
+            toogleReplace.classList.toggle("active");
+            toogleFind.classList.toggle("active");
+        });
+
         const findtextInput = document.querySelector("#findtextInput");
+        const findNextBtn = document.getElementById("findNextBtn");
+        findNextBtn.addEventListener("click", () => {
+            if (findtextInput.value == "") {
+                findAndReplaceStatus.style.display = "block";
+                findAndReplaceStatus.innerText =
+                    "Your search should include at least one character";
+            } else {
+                findAndReplaceStatus.style.display = "none";
+            }
+        });
+
         const replacetextInput = document.querySelector("#replacetextInput");
         const replaceAllFun = document.querySelector("#replaceAllFun");
         replaceAllFun.addEventListener("click", () => {
@@ -765,6 +798,7 @@ class newCanvas {
     //----------------------Scroll Functionality----------------------
     renderData() {
         let i = 0;
+
         const canvasHeight = this.mainCanvas.height;
         const canvasWidth = this.mainCanvas.width;
 
@@ -784,19 +818,19 @@ class newCanvas {
             (this.scrollLeftvalue + canvasWidth) / colWidth
         );
 
+        let m = startRow;
         let availableRow = [];
-        let a = startRow;
-
-        for (let n = startRow; n <= endRow; n++) {
+        let endRow1 = endRow;
+        for (let n = startRow; n <= endRow1; n++) {
             let result = this.sheetData.find((item) => item[n + 1]);
             if (result) {
                 availableRow.push(n + 1);
+            } else {
+                endRow1 = endRow1 + 1;
             }
         }
 
-        let m = startRow;
-
-        for (let n = startRow; n <= endRow; n++) {
+        for (let n = startRow; n <= endRow1 + 1; n++) {
             if (!availableRow.includes(n + 1)) {
                 cellPositionY += this.valueInst.getCurCellHeight(n);
                 continue;
@@ -972,15 +1006,18 @@ class newCanvas {
 
         let value = this.inputBox.value;
         let rowData = this.sheetData.find((item) => item[this.activeRow]);
+        if (rowData == undefined) {
+            const formattedItem = {};
+            const newRowNo = this.activeRow.toString();
+            formattedItem[this.x1CellIndex] = {
+                data: value,
+                properties: "*****",
+            };
+            this.sheetData.push({ [newRowNo]: formattedItem });
+            await this.rowColumnManagerInst.InsertRow();
+        }
+        rowData = this.sheetData.find((item) => item[this.activeRow]);
         rowData[this.activeRow][this.x1CellIndex].data = value;
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
-        this.highlightInst.highlightSelectedArea();
-        this.drawGrid();
 
         const response = await fetch(
             `http://localhost:5022/api/Employee/updatevalue?column=${this.activeColumn}&row=${this.activeRow}&text=${value}`,
@@ -1015,7 +1052,7 @@ class newCanvas {
     deleteData = async () => {
         const [startCol, startRow, endCol, endRow] =
             this.selectedDimensionsMain;
-        console.log(startCol, startRow + 1, endCol, endRow + 1);
+
         let startCol1 = this.valueInst.convertNumToChar(startCol + 1);
         let endCol1 = this.valueInst.convertNumToChar(endCol + 1);
 
@@ -1031,7 +1068,6 @@ class newCanvas {
             }
         );
         const data = await response.json();
-        console.log(data);
         if (data.status) {
             this.inputBox.value = null;
             let length = this.sheetData.length;

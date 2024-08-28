@@ -34,6 +34,69 @@ namespace Backend2.Controllers
         }
 
         [HttpPost]
+        [Route("findvalue")]
+        public async Task<IActionResult> FindValue([FromBody] FindTextRequest request)
+        {
+            if (string.IsNullOrEmpty(request.findText))
+            {
+                return BadRequest("Invalid parameters.");
+            }
+
+            var connectionString = _connectionString;
+            var tableName = "employee_info";
+            var databaseName = "database1";
+
+            var updateStatements = new List<string>();
+
+
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                var columnsQuery = @" SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @TableName AND TABLE_SCHEMA = @DatabaseName 
+                                    AND DATA_TYPE IN ('varchar', 'char', 'text', 'nvarchar', 'nchar', 'ntext')";
+
+                var columns = await connection.QueryAsync<string>(columnsQuery, new { TableName = tableName, DatabaseName = databaseName });
+                if (columns.Any())
+                {
+                    var foundResults = new List<dynamic>();
+                    foreach (var column in columns)
+                    {
+                        var selectQuery = $@"SELECT * FROM `{tableName}` WHERE `{column}` LIKE @FindText ORDER BY `rowNo`  LIMIT 50";
+                        using (var command = new MySqlCommand(selectQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@FindText", "%" + request.findText + "%");
+                            using (var reader = await command.ExecuteReaderAsync())
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    var rowNo = reader["RowNo"].ToString();
+                                    var value = reader[column].ToString();
+
+                                    foundResults.Add(new
+                                    {
+                                        RowNo = rowNo,
+                                        ColumnName = column,
+                                        Value = value
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    var Status = true;
+                    return Ok(new { Status = true, Result = foundResults });
+                }
+                else
+                {
+                    return NotFound("No columns found for the specified table.");
+                }
+            }
+        }
+
+
+
+
+        [HttpPost]
         [Route("UploadFile")]
         public async Task<IActionResult> Post(IFormFile file)
         {
@@ -75,7 +138,9 @@ namespace Backend2.Controllers
 
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            var query = $"INSERT INTO progress (totalchunks) VALUES ({lines.Count / chunkSize});";
+            var newValue = Math.Ceiling((decimal)lines.Count / chunkSize);
+
+            var query = $"INSERT INTO progress (totalchunks) VALUES ({newValue});";
 
             using (var command = new MySqlCommand(query, connection))
             {
@@ -320,5 +385,37 @@ namespace Backend2.Controllers
                 return Ok(new { Status = true });
             }
         }
+
+
+        [HttpPost]
+        [Route("InsertRow")]
+        public async Task<IActionResult> InsertRow(int startRow)
+        {
+
+            var connectionString = _connectionString;
+            var tableName = "employee_info";
+            var databaseName = "database1";
+
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                var insertQuery = $"INSERT INTO `{tableName}` (`RowNo`) VALUES (@RowNo)";
+                using (var insertCommand = new MySqlCommand(insertQuery, connection))
+                {
+                    insertCommand.Parameters.AddWithValue("@RowNo", startRow);
+                    await insertCommand.ExecuteNonQueryAsync();
+                }
+                var Status = true;
+                return Ok(new { Status = true });
+            }
+        }
     }
+}
+
+
+
+public class FindTextRequest
+{
+    public string findText { get; set; }
 }

@@ -202,6 +202,25 @@ body {
   width: 500px;
   padding: 16px;
 }
+.findandselectSectionModal .modal .findandselectSectionModalToggle {
+  margin-top: 10px;
+  display: flex;
+  gap: 16px;
+}
+.findandselectSectionModal .modal .findandselectSectionModalToggle span {
+  color: red;
+  font-size: 16px;
+  color: rgb(75, 75, 75);
+  font-weight: 500;
+  cursor: pointer;
+}
+.findandselectSectionModal .modal .findandselectSectionModalToggle .active {
+  padding: 0 5px;
+  border-bottom: 3px solid rgb(16, 124, 65);
+}
+.findandselectSectionModal .modal .replaceSection {
+  display: none;
+}
 .findandselectSectionModal .modal .findAndReplaceStatus {
   background-color: #dff6dd;
   font-weight: 600;
