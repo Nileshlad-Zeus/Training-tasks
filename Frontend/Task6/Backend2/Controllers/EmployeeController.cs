@@ -199,9 +199,9 @@ namespace Backend2.Controllers
 
         [HttpPost]
         [Route("findandreplace")]
-        public async Task<IActionResult> FindandReplace(string findText, string replaceText)
+        public async Task<IActionResult> FindandReplace([FromBody] FindAndReplace request)
         {
-            if (string.IsNullOrEmpty(findText) || string.IsNullOrEmpty(replaceText))
+            if (string.IsNullOrEmpty(request.findText) || string.IsNullOrEmpty(request.replaceText))
             {
                 return BadRequest("Invalid parameters.");
             }
@@ -230,11 +230,11 @@ namespace Backend2.Controllers
 
                 foreach (var column in columns)
                 {
-                    var selectQuery = $@"SELECT COUNT(*) FROM `{tableName}` WHERE `{column}` = @FindText";
+                    var selectQuery = $@"SELECT COUNT(*) FROM `{tableName}` WHERE `{column}` LIKE @FindText";
 
                     using (var command = new MySqlCommand(selectQuery, _connection))
                     {
-                        command.Parameters.AddWithValue("@FindText", findText);
+                        command.Parameters.AddWithValue("@FindText", "%" + request.findText + "%");
                         var count = (long)await command.ExecuteScalarAsync();
                         noOfRowsAffected += count;
                     }
@@ -242,19 +242,19 @@ namespace Backend2.Controllers
 
                 foreach (var column in columns)
                 {
-                    var query = $"UPDATE `{tableName}` SET `{column}` = @ReplaceText WHERE `{column}` = @FindText";
+                    var query = $"UPDATE `{tableName}` SET `{column}` = REPLACE(`{column}`, @FindText, @ReplaceText)  WHERE `{column}` LIKE CONCAT('%', @FindText, '%')";
                     using (var command = new MySqlCommand(query, _connection))
                     {
-                        command.Parameters.AddWithValue("@FindText", findText);
-                        command.Parameters.AddWithValue("@ReplaceText", replaceText);
+                        command.Parameters.AddWithValue("@FindText", request.findText);
+                        command.Parameters.AddWithValue("@ReplaceText", request.replaceText);
                         await command.ExecuteNonQueryAsync();
                     }
                 }
                 return Ok(new { Status = true, noOfRowsAffected });
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     Status = false,
@@ -479,7 +479,7 @@ namespace Backend2.Controllers
                     var foundResults = new List<dynamic>();
                     foreach (var column in columns)
                     {
-                        var selectQuery = $@"SELECT * FROM `{tableName}` WHERE `{column}` LIKE @FindText ORDER BY `rowNo` LIMIT 50";
+                        var selectQuery = $@"SELECT * FROM `{tableName}` WHERE `{column}` LIKE @FindText ORDER BY `rowNo`";
                         using (var command = new MySqlCommand(selectQuery, _connection))
                         {
                             command.Parameters.AddWithValue("@FindText", "%" + request.findText + "%");
@@ -533,4 +533,10 @@ namespace Backend2.Controllers
 public class FindTextRequest
 {
     public string findText { get; set; }
+}
+
+public class FindAndReplace
+{
+    public string findText { get; set; }
+    public string replaceText { get; set; }
 }
