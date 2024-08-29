@@ -546,7 +546,7 @@ class newCanvas {
             this.selectedDimensionsMain = [y, x - 1, y, x - 1];
             this.scrollTopvalue = Math.max(0, (x - 10) * 21);
 
-                scroller.scrollTop = this.scrollTopvalue;
+            scroller.scrollTop = this.scrollTopvalue;
             this.mainCtx.clearRect(
                 0,
                 0,
@@ -1031,6 +1031,14 @@ class newCanvas {
             this.drawGrid();
             this.renderLeftHeader();
             this.renderTopHeader();
+        });
+
+        this.mainCanvas.addEventListener("wheel", (e) => {
+            if (e.deltaY > 0) {
+                scroller.scrollTop = scroller.scrollTop + (e.deltaY + 100);
+            } else {
+                scroller.scrollTop = scroller.scrollTop + (e.deltaY - 100);
+            }
         });
     }
 
