@@ -1,38 +1,57 @@
 [HttpPost]
-[Route("addrows")]
-public async Task<IActionResult> AddRows(int startRow, int numberOfRows)
+[Route("deletedata")]
+public async Task<IActionResult> DeleteData(int startRow, int endRow, char startCol, char endCol)
 {
     var connectionString = _connectionString;
     var tableName = "employee_info";
 
-    using (var connection = new MySqlConnection(connectionString))
+    // Build the list of columns to update
+    var columns = new List<string>();
+    for (char i = startCol; i <= endCol; i++)
     {
-        await connection.OpenAsync();
+        columns.Add($"`{i}` = NULL");
+    }
 
-        // Step 1: Shift existing rows down
-        var shiftQuery = $"UPDATE `{tableName}` SET `RowNo` = `RowNo` + @NumberOfRows WHERE `RowNo` >= @StartRow";
-        using (var shiftCommand = new MySqlCommand(shiftQuery, connection))
-        {
-            shiftCommand.Parameters.AddWithValue("@NumberOfRows", numberOfRows);
-            shiftCommand.Parameters.AddWithValue("@StartRow", startRow);
-            await shiftCommand.ExecuteNonQueryAsync();
-        }
+    // Join the columns to create the SET clause
+    var setClause = string.Join(", ", columns);
 
-        // Step 2: Insert new rows
-        for (int i = 0; i < numberOfRows; i++)
+    // Construct the query
+    var query = $"UPDATE `{tableName}` SET {setClause} WHERE `RowNo` BETWEEN @StartRow AND @EndRow";
+
+    try
+    {
+        using (var connection = new MySqlConnection(connectionString))
         {
-            var insertQuery = $"INSERT INTO `{tableName}` (`RowNo`, `Column1`, `Column2`, ...) VALUES (@RowNo, @Value1, @Value2, ...)";
-            using (var insertCommand = new MySqlCommand(insertQuery, connection))
+            await connection.OpenAsync();
+
+            using (var command = new MySqlCommand(query, connection))
             {
-                insertCommand.Parameters.AddWithValue("@RowNo", startRow + i);
-                insertCommand.Parameters.AddWithValue("@Value1", /* your value here */);
-                insertCommand.Parameters.AddWithValue("@Value2", /* your value here */);
-                // Add parameters for other columns as needed
+                // Add parameters
+                command.Parameters.AddWithValue("@StartRow", startRow);
+                command.Parameters.AddWithValue("@EndRow", endRow);
 
-                await insertCommand.ExecuteNonQueryAsync();
+                // Execute the query
+                var affectedRows = await command.ExecuteNonQueryAsync();
+
+                // Return success response with affected rows
+                return Ok(new { Status = true, Message = $"{affectedRows} rows updated successfully." });
             }
         }
+    }
+    catch (MySqlException ex)
+    {
+        // Log the exception (you can replace this with your logging framework)
+        Console.Error.WriteLine($"MySQL Error: {ex.Message}");
 
-        return Ok(new { Status = true });
+        // Return a detailed error response
+        return StatusCode(StatusCodes.Status500InternalServerError, new { Status = false, Error = "Database error occurred.", Details = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        // Log the exception
+        Console.Error.WriteLine($"Error: {ex.Message}");
+
+        // Return a generic error response
+        return StatusCode(StatusCodes.Status500InternalServerError, new { Status = false, Error = "An unexpected error occurred.", Details = ex.Message });
     }
 }

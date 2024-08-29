@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Backend2.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MySql.Data.MySqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,13 @@ builder.Services.AddCors(options =>
 // builder.Services.AddDbContext<Database1Context>(options =>
 //     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
 //                       Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.37-mysql")));
+
+// var connection = new MySqlConnection("server=localhost;database=database1;uid=root;pwd=bAKU@#0919;")
+builder.Services.AddTransient(sp =>
+{
+    return new MySqlConnection("server=localhost;database=database1;uid=root;pwd=bAKU@#0919;");
+});
+ 
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
