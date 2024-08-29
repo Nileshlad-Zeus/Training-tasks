@@ -56,7 +56,6 @@ class RowColumnManager {
         for (let row = startRow; row <= endRow; row++) {
             deleteRowNos.push(row.toString());
         }
-        console.log(typeof deleteRowNos);
 
         const remainingData = data.filter(
             (row) => !deleteRowNos.includes(Object.keys(row)[0])
@@ -220,7 +219,7 @@ class RowColumnManager {
         );
         const data = await response.json();
         console.log(data);
-        
+
         if (data.status) {
             this.mainInst.inputBox.value = null;
         }

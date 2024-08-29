@@ -221,6 +221,7 @@ body {
 .findandselectSectionModal .modal .replaceSection {
   display: none;
 }
+.findandselectSectionModal .modal .findAndReplaceStatus2,
 .findandselectSectionModal .modal .findAndReplaceStatus {
   background-color: #dff6dd;
   font-weight: 600;
@@ -526,6 +527,7 @@ body {
 .scroller {
   position: relative;
   overflow: scroll;
+  scroll-behavior: smooth;
   background-color: red;
   margin-left: 40px;
   top: 24px;

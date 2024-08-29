@@ -95,44 +95,26 @@ class newCanvas {
         );
     }
     initializefindandReplace() {
-        const findSection = document.querySelector(".findSection");
-        const toogleFind = document.querySelector("#toogleFind");
-        const replaceSection = document.querySelector(".replaceSection");
-        const toogleReplace = document.querySelector("#toogleReplace");
-        let findAndReplaceStatus = document.getElementById(
-            "findAndReplaceStatus"
-        );
-
-        toogleFind.addEventListener("click", () => {
-            findSection.style.display = "block";
-            replaceSection.style.display = "none";
-            toogleFind.classList.toggle("active");
-            toogleReplace.classList.toggle("active");
-        });
-
-        toogleReplace.addEventListener("click", () => {
-            findSection.style.display = "none";
-            replaceSection.style.display = "block";
-            toogleReplace.classList.toggle("active");
-            toogleFind.classList.toggle("active");
-        });
-
+        this.startPosition = {
+            rowNo: -1,
+            columnNo: -1,
+            searchRow: 0,
+            searchCol: 0,
+        };
         const findtextInput = document.querySelector("#findtextInput");
+        const findtextInput2 = document.querySelector("#findtextInput2");
         const findNextBtn = document.getElementById("findNextBtn");
+
         findNextBtn.addEventListener("click", () => {
-            if (findtextInput.value == "") {
-                findAndReplaceStatus.style.display = "block";
-                findAndReplaceStatus.innerText =
-                    "Your search should include at least one character";
-            } else {
-                findAndReplaceStatus.style.display = "none";
-            }
+            let findvalue = findtextInput2.value;
+            this.findNext(findvalue);
         });
 
         const replacetextInput = document.querySelector("#replacetextInput");
         const replaceAllFun = document.querySelector("#replaceAllFun");
         replaceAllFun.addEventListener("click", () => {
             let findText = findtextInput.value;
+
             let replaceText = replacetextInput.value;
             this.findAndReplace(findText, replaceText);
         });
@@ -185,8 +167,10 @@ class newCanvas {
                 }
             );
             const data = await response.json();
+
             let percentage =
-                (data[0].currentchunks / data[0].totalchunks) * 100;
+                (data.result[0].currentchunks / data.result[0].totalchunks) *
+                100;
             this.progressbarEle.value = percentage;
             if (percentage > 0) {
                 this.progressbarEle.style.display = "block";
@@ -211,7 +195,7 @@ class newCanvas {
             }
         );
         const data = await response.json();
-        let sheetData = this.convertJsonData(data);
+        let sheetData = this.convertJsonData(data.result);
         this.sheetData.push(...sheetData);
         this.renderData();
     };
@@ -514,19 +498,92 @@ class newCanvas {
             this.scale
         }px`;
     }
+
+    searchData(dataArray, searchValue, startPosition) {
+        for (let i = startPosition.searchRow; i < dataArray.length; i++) {
+            const rowNo = parseInt(Object.keys(dataArray[i])[0]);
+            const columns = dataArray[i][rowNo];
+
+            for (let colNo in columns) {
+                if (parseInt(colNo) > startPosition.columnNo) {
+                    if (columns[colNo].data === searchValue) {
+                        return {
+                            rowNo: rowNo,
+                            columnNo: parseInt(colNo),
+                            searchRow: i,
+                        };
+                    }
+                }
+            }
+            startPosition.columnNo = 0;
+        }
+        startPosition.rowNo = 0;
+        return null;
+    }
+
+    findNext(findvalue) {
+        const scroller = document.getElementById("scroller");
+        let findAndReplaceStatus2 = document.getElementById(
+            "findAndReplaceStatus2"
+        );
+        if (findvalue == "") {
+            findAndReplaceStatus2.style.display = "block";
+            findAndReplaceStatus2.innerText =
+                "Your search should include at least one character";
+            return;
+        }
+        let result = this.searchData(
+            this.sheetData,
+            findvalue,
+            this.startPosition
+        );
+        if (result) {
+            this.startPosition = result;
+            let x = result.rowNo;
+            let y = result.columnNo;
+            console.log(x, y);
+
+            this.selectedDimensionsMain = [y, x - 1, y, x - 1];
+            this.scrollTopvalue = Math.max(0, (x - 10) * 21);
+
+                scroller.scrollTop = this.scrollTopvalue;
+            this.mainCtx.clearRect(
+                0,
+                0,
+                this.mainCanvas.width,
+                this.mainCanvas.height
+            );
+            this.clearLeftHeader();
+            this.clearTopHeader();
+            this.renderLeftHeader();
+            this.renderTopHeader();
+            this.highlightInst.highlightSelectedArea();
+            this.drawGrid();
+        } else {
+            findAndReplaceStatus2.style.display = "block";
+            findAndReplaceStatus2.innerText = "No more occurrences found.";
+            this.startPosition = { rowNo: 0, colNo: -1 };
+        }
+    }
+
     findAndReplace = async (findText, replaceText) => {
         let findAndReplaceStatus = document.getElementById(
             "findAndReplaceStatus"
         );
+
         findAndReplaceStatus.style.display = "block";
         findAndReplaceStatus.innerText = "Updating...";
         const response = await fetch(
-            `http://localhost:5022/api/Employee/findandreplace?findText=${findText}&replaceText=${replaceText}`,
+            `http://localhost:5022/api/Employee/findandreplace`,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify({
+                    findText: findText,
+                    replaceText: replaceText,
+                }),
             }
         );
         const data = await response.json();
@@ -545,29 +602,6 @@ class newCanvas {
         );
         this.highlightInst.highlightSelectedArea();
         this.drawGrid();
-
-        // this.sheetData.forEach((data) => {
-        //     let i = Object.keys(data);
-        //     let min = 0,
-        //         max = 0;
-        //     if (data[i]) {
-        //         min = Object.keys(data[i])[0] || 0;
-        //         max = Object.keys(data[i])[0] || 0;
-        //         Object.keys(data[i]).forEach((ele) => {
-        //             min = Math.min(min, ele);
-        //             max = Math.max(max, ele);
-        //         });
-        //     }
-        //     let result = this.sheetData.find((item) => item[i]);
-        //     if (result) {
-        //         for (let j = 0; j <= max && min != max; j++) {
-        //             let currData = data[i][j]?.data;
-        //             if (currData == findText) {
-        //                 result[i][j].data = replaceText;
-        //             }
-        //         }
-        //     }
-        // });
     };
 
     //----------------------draw grid----------------------
@@ -1003,7 +1037,6 @@ class newCanvas {
     //----------------------keyboard Evenets----------------------
     updateData = async () => {
         if (this.isValueupdate == false) return;
-
         let value = this.inputBox.value;
         let rowData = this.sheetData.find((item) => item[this.activeRow]);
         if (rowData == undefined) {
@@ -1019,6 +1052,15 @@ class newCanvas {
         rowData = this.sheetData.find((item) => item[this.activeRow]);
         rowData[this.activeRow][this.x1CellIndex].data = value;
 
+        this.mainCtx.clearRect(
+            0,
+            0,
+            this.mainCanvas.width,
+            this.mainCanvas.height
+        );
+        this.highlightInst.highlightSelectedArea();
+        this.drawGrid();
+
         const response = await fetch(
             `http://localhost:5022/api/Employee/updatevalue?column=${this.activeColumn}&row=${this.activeRow}&text=${value}`,
             {
@@ -1029,6 +1071,7 @@ class newCanvas {
             }
         );
         const data = await response.json();
+
         if (data.status) {
             this.inputBox.value = null;
             let length = this.sheetData.length;
@@ -1055,37 +1098,60 @@ class newCanvas {
 
         let startCol1 = this.valueInst.convertNumToChar(startCol + 1);
         let endCol1 = this.valueInst.convertNumToChar(endCol + 1);
-
-        const response = await fetch(
-            `http://localhost:5022/api/Employee/deletedata?startRow=${
-                startRow + 1
-            }&endRow=${endRow + 1}&startCol=${startCol1}&endCol=${endCol1}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-        const data = await response.json();
-        if (data.status) {
-            this.inputBox.value = null;
-            let length = this.sheetData.length;
-
-            this.sheetData = [];
-            for (let i = 0; i < length / 500; i++) {
-                await this.fetchUserData(i);
+        let isThereAnyData = false;
+        for (let row = startRow; row <= endRow; row++) {
+            let rowData = this.sheetData.find((item) => item[row + 1]);
+            if (rowData) {
+                for (let col = startCol; col <= endCol; col++) {
+                    if (rowData[row + 1][col].data) {
+                        isThereAnyData = true;
+                    }
+                    rowData[row + 1][col].data = null;
+                }
             }
         }
+
         this.mainCtx.clearRect(
             0,
             0,
             this.mainCanvas.width,
             this.mainCanvas.height
         );
-        this.highlightInst.highlightSelectedArea();
         this.drawGrid();
+
+        if (isThereAnyData) {
+            const response = await fetch(
+                `http://localhost:5022/api/Employee/deletedata?startRow=${
+                    startRow + 1
+                }&endRow=${endRow + 1}&startCol=${startCol1}&endCol=${endCol1}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            const data = await response.json();
+
+            if (data.status) {
+                this.inputBox.value = null;
+                let length = this.sheetData.length;
+
+                this.sheetData = [];
+                for (let i = 0; i < length / 500; i++) {
+                    await this.fetchUserData(i);
+                }
+            }
+            this.mainCtx.clearRect(
+                0,
+                0,
+                this.mainCanvas.width,
+                this.mainCanvas.height
+            );
+            this.drawGrid();
+        }
     };
+
     keyBoardEvents = async (e) => {
         let flag = false;
         this.activeColumn = this.valueInst.convertNumToChar(

@@ -129,6 +129,7 @@ class MakeChart {
                 });
             }
         });
+
         let adjustedtypeOfGraph =
             typeOfGraph == "horizontalBar" ? "bar" : typeOfGraph;
         let indexAxis = typeOfGraph == "horizontalBar" ? "y" : "x";

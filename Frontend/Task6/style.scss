@@ -237,6 +237,7 @@ body {
         .replaceSection{
             display: none;
         }
+        .findAndReplaceStatus2,
         .findAndReplaceStatus {
             background-color: #dff6dd;
             font-weight: 600;
@@ -581,6 +582,7 @@ body {
 .scroller {
     position: relative;
     overflow: scroll;
+    scroll-behavior: smooth;
     background-color: red;
     margin-left: 40px;
     top: 24px;

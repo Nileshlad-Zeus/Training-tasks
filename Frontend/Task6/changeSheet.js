@@ -129,7 +129,8 @@ class sheetManager {
 
     findandReplace() {
         //find and replace
-        const replaceIcon = document.querySelector("#replaceIcon");
+        const replaceIcon = document.querySelector(".findAndReplaceIcon");
+        const findIcon = document.querySelector(".findIcon");
         const editingSectionModal = document.querySelector(
             ".findandselectSectionModal"
         );
@@ -137,20 +138,57 @@ class sheetManager {
         replaceIcon.addEventListener("click", () => {
             if (editingSectionModal.style.display == "none") {
                 editingSectionModal.style.display = "flex";
+                findSection.style.display = "none";
+                replaceSection.style.display = "block";
+                toogleReplace.classList.add("active");
+                toogleFind.classList.remove("active");
             } else {
                 editingSectionModal.style.display = "none";
             }
         });
+
+        findIcon.addEventListener("click", () => {
+            if (editingSectionModal.style.display == "none") {
+                editingSectionModal.style.display = "flex";
+                findSection.style.display = "block";
+                replaceSection.style.display = "none";
+                toogleFind.classList.add("active");
+                toogleReplace.classList.remove("active");
+            } else {
+                editingSectionModal.style.display = "none";
+            }
+        });
+
         const findtextInput = document.querySelector("#findtextInput");
         const replacetextInput = document.querySelector("#replacetextInput");
         const findAndReplaceStatus = document.getElementById(
             "findAndReplaceStatus"
         );
+
         closeEditingModal.addEventListener("click", () => {
             findAndReplaceStatus.style.display = "none";
             editingSectionModal.style.display = "none";
             findtextInput.value = null;
             replacetextInput.value = null;
+        });
+
+        const findSection = document.querySelector(".findSection");
+        const toogleFind = document.querySelector("#toogleFind");
+        const replaceSection = document.querySelector(".replaceSection");
+        const toogleReplace = document.querySelector("#toogleReplace");
+
+        toogleFind.addEventListener("click", () => {
+            findSection.style.display = "block";
+            replaceSection.style.display = "none";
+            toogleFind.classList.toggle("active");
+            toogleReplace.classList.toggle("active");
+        });
+
+        toogleReplace.addEventListener("click", () => {
+            findSection.style.display = "none";
+            replaceSection.style.display = "block";
+            toogleReplace.classList.toggle("active");
+            toogleFind.classList.toggle("active");
         });
     }
 }
