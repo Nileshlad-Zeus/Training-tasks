@@ -35,7 +35,7 @@ class CopyPaste {
             this.startMarchingAntsAnimation();
             this.copyToClipboard();
         });
-        
+
         pasteIcon.addEventListener("click", () => {
             this.pasteToSheet();
         });
@@ -67,6 +67,9 @@ class CopyPaste {
      */
     pasteToSheet = async () => {
         let copiedText = await navigator.clipboard.readText();
+        let tempText = copiedText.replace(/\t/g, "\t").replace(/\r\n/g, "\n");
+        console.log(tempText);
+
         if (copiedText) {
             let rowsOfText = copiedText.split("\r\n");
             let numberofRows = rowsOfText.length - 2;
@@ -99,6 +102,7 @@ class CopyPaste {
                 rowData = this.mainInst.sheetData.find((item) => item[row + 1]);
 
                 let cells = rowsOfText[rowIndex].split("\t");
+
                 rowIndex++;
                 colIndex = 0;
                 for (
@@ -118,6 +122,25 @@ class CopyPaste {
                 }
             }
             this.mainInst.renderData();
+
+            const response = await fetch(
+                `http://localhost:5022/api/Employee/pastedata`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        startRow: this.mainInst.y1CellIndex + 1,
+                        startCol: this.mainInst.x1CellIndex,
+                        copiedText: tempText,
+                    }),
+                }
+            );
+            const data = await response.json();
+            if(data.Status){
+                this.mainInst.renderData();
+            }
         }
     };
 

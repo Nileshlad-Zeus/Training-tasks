@@ -267,6 +267,53 @@ namespace Backend2.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("pastedata")]
+        public async Task<IActionResult> PasteData([FromBody] PasteData request)
+        {
+            // string[] rowsOfText = request.copiedText.Split(new[] { "\r\n" }, StringSplitOptions.None);
+            var rowsOfText = request.copiedText.Split('\n');
+            int numberOfRows = rowsOfText.Length - 1;
+            int numberOfCols = rowsOfText[0].Split('\t').Length;
+
+            var tableName = "employee_info";
+            try
+            {
+                await _connection.OpenAsync();
+                int rowIndex = 0;
+                for (int row = request.startRow; row < request.startRow + numberOfRows; row++)
+                {
+                    string[] cells = rowsOfText[rowIndex].Split('\t');
+                    rowIndex++;
+                    int colIndex = 0;
+                    for (int col = request.startCol; col < request.startCol + numberOfCols; col++)
+                    {
+                        char character = (char)('A' + col);
+                        var query = $"UPDATE employee_info SET `{character.ToString()}` = @Text WHERE `RowNo` = @Row";
+                        using var command = new MySqlCommand(query, _connection);
+                        command.Parameters.AddWithValue("@Text", cells[colIndex]);
+                        command.Parameters.AddWithValue("@Row", row);
+                        await command.ExecuteNonQueryAsync();
+                        colIndex++;
+                    }
+                }
+                return Ok(new { Status = true, Message = $"Data Pasted Successfully" });
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Status = false,
+                    Message = "An unexpected error occurred"
+                });
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+        }
+
 
         [HttpPost]
         [Route("deletedata")]
@@ -311,10 +358,7 @@ namespace Backend2.Controllers
             {
                 await _connection.CloseAsync();
             }
-
-
         }
-
 
 
         [HttpPost]
@@ -530,6 +574,7 @@ namespace Backend2.Controllers
 
 
 
+
 public class FindTextRequest
 {
     public string findText { get; set; }
@@ -539,4 +584,11 @@ public class FindAndReplace
 {
     public string findText { get; set; }
     public string replaceText { get; set; }
+}
+
+public class PasteData
+{
+    public int startRow { get; set; }
+    public int startCol { get; set; }
+    public string copiedText { get; set; }
 }
