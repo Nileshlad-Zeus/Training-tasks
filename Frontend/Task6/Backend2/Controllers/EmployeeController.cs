@@ -231,7 +231,6 @@ namespace Backend2.Controllers
                 foreach (var column in columns)
                 {
                     var selectQuery = $@"SELECT COUNT(*) FROM `{tableName}` WHERE `{column}` LIKE @FindText";
-
                     using (var command = new MySqlCommand(selectQuery, _connection))
                     {
                         command.Parameters.AddWithValue("@FindText", "%" + request.findText + "%");
@@ -327,7 +326,7 @@ namespace Backend2.Controllers
                 var setClauseBuilder = new StringBuilder();
                 for (char i = startCol; i <= endCol; i++)
                 {
-                    setClauseBuilder.Append($"`{i}` = NULL, ");
+                    setClauseBuilder.Append($"`{i}` = '', ");
                 }
 
                 var setClause = setClauseBuilder.ToString(0, setClauseBuilder.Length - 2);

@@ -14,6 +14,20 @@ class MakeChart {
         this.sheetData = sheetData;
         this.scale = window.devicePixelRatio;
         this.isGraphDraggable = false;
+
+        this.initializeGraphFun();
+    }
+
+    initializeGraphFun() {
+        var charts = document.querySelectorAll(".chart");
+        Array.from(charts).forEach((chart) => {
+            chart.addEventListener("click", (e) => {
+                let chartType = e.target.htmlFor
+                    ? e.target.htmlFor
+                    : e.target.id;
+                this.drawChart(chartType, this.mainInst.selectedDimensionsMain);
+            });
+        });
     }
 
     /**

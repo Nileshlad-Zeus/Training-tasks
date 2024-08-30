@@ -68,7 +68,6 @@ class CopyPaste {
     pasteToSheet = async () => {
         let copiedText = await navigator.clipboard.readText();
         let tempText = copiedText.replace(/\t/g, "\t").replace(/\r\n/g, "\n");
-        console.log(tempText);
 
         if (copiedText) {
             let rowsOfText = copiedText.split("\r\n");

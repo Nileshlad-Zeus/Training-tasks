@@ -80,12 +80,7 @@ class RowColumnManager {
         );
         this.contextmenu.style.display = "none";
 
-        this.mainInst.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
+        this.mainInst.clearMainCanvas();
         this.highlightInst.highlightSelectedArea();
         this.mainInst.drawGrid();
 
@@ -108,15 +103,10 @@ class RowColumnManager {
 
             this.mainInst.sheetData = [];
             for (let i = 0; i < length / 500; i++) {
-                await this.mainInst.fetchUserData(i);
+                await this.mainInst.apiRequestsInst.fetchUserData(i);
             }
         }
-        this.mainInst.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
+        this.mainInst.clearMainCanvas();
         this.highlightInst.highlightSelectedArea();
         this.mainInst.drawGrid();
     }
@@ -161,12 +151,7 @@ class RowColumnManager {
         );
         this.contextmenu.style.display = "none";
 
-        this.mainInst.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
+        this.mainInst.clearMainCanvas();
         this.highlightInst.highlightSelectedArea();
         this.mainInst.drawGrid();
 
@@ -189,15 +174,10 @@ class RowColumnManager {
 
             this.mainInst.sheetData = [];
             for (let i = 0; i < length / 500; i++) {
-                await this.mainInst.fetchUserData(i);
+                await this.mainInst.apiRequestsInst.fetchUserData(i);
             }
         }
-        this.mainInst.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
+        this.mainInst.clearMainCanvas();
         this.highlightInst.highlightSelectedArea();
         this.mainInst.drawGrid();
     }

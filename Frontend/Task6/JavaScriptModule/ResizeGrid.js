@@ -453,12 +453,7 @@ class ResizeGrid {
         this.mainInst.isLeftAreaSelected = false;
 
         if (this.isDraggingTopHeader) {
-            this.mainInst.mainCtx.clearRect(
-                0,
-                0,
-                this.mainInst.mainCanvas.width,
-                this.mainInst.mainCanvas.height
-            );
+            this.mainInst.clearMainCanvas();
             this.highlightInst.highlightSelectedArea();
             this.mainInst.drawGrid();
             this.mainInst.clearTopHeader();
@@ -470,12 +465,7 @@ class ResizeGrid {
             this.resizeColIndex = -1;
         }
         if (this.isDraggingLeftHeader) {
-            this.mainInst.mainCtx.clearRect(
-                0,
-                0,
-                this.mainInst.mainCanvas.width,
-                this.mainInst.mainCanvas.height
-            );
+            this.mainInst.clearMainCanvas();
             this.highlightInst.highlightSelectedArea();
             this.mainInst.drawGrid();
             this.mainInst.clearLeftHeader();

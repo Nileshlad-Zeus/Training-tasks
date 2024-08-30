@@ -5,18 +5,16 @@ import { FontStyle } from "./JavaScriptModule/ChangeFontStyle.js";
 import { ResizeGrid } from "./JavaScriptModule/ResizeGrid.js";
 import { CopyPaste } from "./JavaScriptModule/CopyPaste.js";
 import { RowColumnManager } from "./JavaScriptModule/RowColumnManager.js";
+import { ApiRequests } from "./JavaScriptModule/ApiRequests.js";
+import { DataSearcher } from "./JavaScriptModule/DataSearcher.js";
 
 class newCanvas {
     constructor(sheetName) {
         this.sheetName = sheetName;
         this.sheetData = [];
         this.prevOffset = -1;
-        this.progressbarEle = document.getElementById("progressbarEle");
         this.inputBox = document.getElementById("canvasinput");
         this.scale = window.devicePixelRatio;
-
-        this.intervalid = setInterval(this.fetchProgress, 100);
-
         // window.addEventListener("resize", () => {
         //     location.reload();
         // });
@@ -25,12 +23,10 @@ class newCanvas {
         this.inputBoxPosition();
         this.inputBox.style.display = "none";
         this.eventListeners();
-        this.initializefindandReplace();
-        this.initializeGraphFun();
         this.handleTopLeftClick();
-
         this.scrollFunction();
     }
+
     setupCanvas() {
         this.createNewCanvas();
         this.initialVariables();
@@ -39,6 +35,7 @@ class newCanvas {
         this.renderLeftHeader();
         this.renderTopHeader();
     }
+
     eventListeners() {
         document.addEventListener("keydown", (event) => {
             const editingSectionModal = document.querySelector(
@@ -53,9 +50,10 @@ class newCanvas {
         });
 
         this.mainCtx.canvas.addEventListener("pointerdown", (e) => {
-            this.updateData();
+            this.apiRequestsInst.updateData();
         });
     }
+
     initializeInstances() {
         this.valueInst = new GetValues(this);
         this.highlightInst = new DrawHighlight(
@@ -93,133 +91,20 @@ class newCanvas {
             this.valueInst,
             this.highlightInst
         );
-    }
-    initializefindandReplace() {
-        this.startPosition = {
-            rowNo: -1,
-            columnNo: -1,
-            searchRow: 0,
-            searchCol: 0,
-        };
-        const findtextInput = document.querySelector("#findtextInput");
-        const findtextInput2 = document.querySelector("#findtextInput2");
-        const findNextBtn = document.getElementById("findNextBtn");
-
-        findNextBtn.addEventListener("click", () => {
-            let findvalue = findtextInput2.value;
-            this.findNext(findvalue);
-        });
-
-        const replacetextInput = document.querySelector("#replacetextInput");
-        const replaceAllFun = document.querySelector("#replaceAllFun");
-        replaceAllFun.addEventListener("click", () => {
-            let findText = findtextInput.value;
-
-            let replaceText = replacetextInput.value;
-            this.findAndReplace(findText, replaceText);
-        });
-    }
-    initializeGraphFun() {
-        var charts = document.querySelectorAll(".chart");
-        this.chartArray = [];
-        Array.from(charts).forEach((chart) => {
-            chart.addEventListener("click", (e) => {
-                let chartType = e.target.htmlFor
-                    ? e.target.htmlFor
-                    : e.target.id;
-                this.chartInst.drawChart(
-                    chartType,
-                    this.selectedDimensionsMain
-                );
-            });
-        });
-    }
-    handleTopLeftClick() {
-        const topleft = document.getElementById("topleft");
-        topleft.addEventListener("click", () => {
-            this.x1CellIndex = 0;
-            this.y1CellIndex = 0;
-            this.topheaderSelected = true;
-            this.leftheaderSelected = true;
-
-            this.isColSelected = true;
-            this.isRowSelected = true;
-
-            this.currSelectedCol = [0, 100];
-            this.currSelectedRow = [0, 100];
-
-            this.selectedDimensionsMain = [0, 0, 200, 200];
-            this.highlightInst.highlightSelectedArea();
-            this.drawGrid();
-            this.renderLeftHeader();
-            this.renderTopHeader();
-        });
-    }
-    fetchProgress = async () => {
-        try {
-            const response = await fetch(
-                `http://localhost:5022/api/Employee/GetProgress`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            const data = await response.json();
-
-            let percentage =
-                (data.result[0].currentchunks / data.result[0].totalchunks) *
-                100;
-            this.progressbarEle.value = percentage;
-            if (percentage > 0) {
-                this.progressbarEle.style.display = "block";
-            }
-            if (percentage == 100) {
-                this.progressbarEle.style.display = "none";
-                clearInterval(this.intervalid);
-                this.fetchUserData(0);
-            }
-        } catch (error) {
-            clearInterval(this.intervalid);
-        }
-    };
-    fetchUserData = async (offset = 0) => {
-        const response = await fetch(
-            `http://localhost:5022/api/Employee?offset=${offset}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
+        this.apiRequestsInst = new ApiRequests(
+            this,
+            this.mainCtx,
+            this.highlightInst,
+            this.valueInst,
+            this.rowColumnManagerInst
         );
-        const data = await response.json();
-        let sheetData = this.convertJsonData(data.result);
-        this.sheetData.push(...sheetData);
-        this.renderData();
-    };
-    convertJsonData = (data) => {
-        const result = [];
-        if (data.length > 0) {
-            const keys = Object.keys(data[0]);
-            data.forEach((item, index) => {
-                const formattedItem = {};
+        this.dataSearcherInst = new DataSearcher(
+            this,
+            this.highlightInst,
+            this.apiRequestsInst
+        );
+    }
 
-                keys.forEach((key, idx) => {
-                    if (key != "RowNo" && key != "id") {
-                        formattedItem[idx - 2] = {
-                            data: item[key],
-                            properties: "*****",
-                        };
-                    }
-                });
-
-                result.push({ [item["RowNo"]]: formattedItem });
-            });
-        }
-        return result;
-    };
     initialVariables() {
         /**
          * check whether to update a value or not
@@ -378,6 +263,7 @@ class newCanvas {
             "resizeLineHorizontal"
         );
     }
+
     createNewCanvas() {
         //sheet canvas
 
@@ -386,14 +272,8 @@ class newCanvas {
         const mainCanvas = document.createElement("canvas");
         mainCanvas.setAttribute("id", this.sheetName);
         mainCanvas.setAttribute("class", "canvas");
-
-        // mainCanvas.width = Math.floor(2100 * this.scale);
-        // mainCanvas.width = Math.floor(1200 * this.scale);
         mainCanvas.height = (scroller.offsetHeight - 20) * this.scale;
         mainCanvas.width = (scroller.offsetWidth - 20) * this.scale;
-        // mainCanvas.width = Math.floor(1200 * this.scale);
-        // mainCanvas.height = (500 - 20) * this.scale;
-        // mainCanvas.height = (main.offsetHeight - 20) * this.scale;
         main.appendChild(mainCanvas);
         this.mainCanvas = mainCanvas;
         this.mainCtx = this.mainCanvas.getContext("2d");
@@ -428,8 +308,6 @@ class newCanvas {
 
         const topleftDiv = document.getElementById("topleftDiv");
 
-        // main.style.top = `${24 * this.scale}px`;
-        // main.style.marginLeft = `${40 * this.scale}px`;
         topHeader.style.height = `${24 * this.scale}px`;
         topHeader.style.zIndex = 100;
         topHeader.style.marginLeft = `${40 * this.scale}px`;
@@ -437,26 +315,48 @@ class newCanvas {
         topleftDiv.style.width = `${40 * this.scale}px`;
         topleftDiv.style.height = `${24 * this.scale}px`;
     }
-    clearCanvas() {
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
-        this.topHeaderCtx.clearRect(
-            0,
-            0,
-            this.topHeaderCanvas.width,
-            this.topHeaderCanvas.height
-        );
-        this.leftHeaderCtx.clearRect(
-            0,
-            0,
-            this.leftHeaderCanvas.width,
-            this.leftHeaderCanvas.height
-        );
+
+    inputBoxPosition() {
+        this.inputBox.style.display = "block";
+        this.inputBox.style.top = `${
+            (this.cellPositionTop + 0.6) * this.scale
+        }px`;
+        this.inputBox.style.left = `${
+            (this.cellPositionLeft + 0.6) * this.scale
+        }px`;
+        this.inputBox.style.height = `${
+            (this.valueInst.getCurCellHeight(this.y1CellIndex) - 1.2) *
+            this.scale
+        }px`;
+        this.inputBox.style.width = `${
+            (this.valueInst.getCurCellWidth(this.x1CellIndex) - 1.2) *
+            this.scale
+        }px`;
     }
+
+    handleTopLeftClick() {
+        const topleft = document.getElementById("topleft");
+        topleft.addEventListener("click", () => {
+            this.x1CellIndex = 0;
+            this.y1CellIndex = 0;
+            this.topheaderSelected = true;
+            this.leftheaderSelected = true;
+
+            this.isColSelected = true;
+            this.isRowSelected = true;
+
+            this.currSelectedCol = [0, 100];
+            this.currSelectedRow = [0, 100];
+
+            this.selectedDimensionsMain = [0, 0, 200, 200];
+            this.highlightInst.highlightSelectedArea();
+            this.drawGrid();
+            this.renderLeftHeader();
+            this.renderTopHeader();
+        });
+    }
+
+    //---------------------clear canvas-------------------
     clearMainCanvas() {
         this.mainCtx.clearRect(
             0,
@@ -481,446 +381,15 @@ class newCanvas {
             this.leftHeaderCanvas.height
         );
     }
-    inputBoxPosition() {
-        this.inputBox.style.display = "block";
-        this.inputBox.style.top = `${
-            (this.cellPositionTop + 0.6) * this.scale
-        }px`;
-        this.inputBox.style.left = `${
-            (this.cellPositionLeft + 0.6) * this.scale
-        }px`;
-        this.inputBox.style.height = `${
-            (this.valueInst.getCurCellHeight(this.y1CellIndex) - 1.2) *
-            this.scale
-        }px`;
-        this.inputBox.style.width = `${
-            (this.valueInst.getCurCellWidth(this.x1CellIndex) - 1.2) *
-            this.scale
-        }px`;
-    }
-
-    searchData(dataArray, searchValue, startPosition) {
-        for (let i = startPosition.searchRow; i < dataArray.length; i++) {
-            const rowNo = parseInt(Object.keys(dataArray[i])[0]);
-            const columns = dataArray[i][rowNo];
-
-            for (let colNo in columns) {
-                if (parseInt(colNo) > startPosition.columnNo) {
-                    console.log(columns[colNo].data);
-                    if (columns[colNo].data === searchValue) {
-                        return {
-                            rowNo: rowNo,
-                            columnNo: parseInt(colNo),
-                            searchRow: i,
-                        };
-                    }
-                }
-            }
-            startPosition.columnNo = -1;
-        }
-        startPosition.rowNo = 0;
-        return null;
-    }
-
-    findNext(findvalue) {
-        const scroller = document.getElementById("scroller");
-        let findAndReplaceStatus2 = document.getElementById(
-            "findAndReplaceStatus2"
-        );
-        if (findvalue == "") {
-            findAndReplaceStatus2.style.display = "block";
-            findAndReplaceStatus2.innerText =
-                "Your search should include at least one character";
-            return;
-        }
-        let result = this.searchData(
-            this.sheetData,
-            findvalue,
-            this.startPosition
-        );
-        if (result) {
-            this.startPosition = result;
-            let x = result.rowNo;
-            let y = result.columnNo;
-
-            this.selectedDimensionsMain = [y, x - 1, y, x - 1];
-            this.scrollTopvalue = Math.max(0, (x - 10) * 21);
-
-            scroller.scrollTop = this.scrollTopvalue;
-            this.mainCtx.clearRect(
-                0,
-                0,
-                this.mainCanvas.width,
-                this.mainCanvas.height
-            );
-            this.clearLeftHeader();
-            this.clearTopHeader();
-            this.highlightInst.highlightSelectedArea();
-            this.renderLeftHeader();
-            this.renderTopHeader();
-            this.drawGrid();
-        } else {
-            findAndReplaceStatus2.style.display = "block";
-            findAndReplaceStatus2.innerText = "No more occurrences found.";
-            this.startPosition = { rowNo: 0, columnNo: -1 };
-        }
-    }
-
-    findAndReplace = async (findText, replaceText) => {
-        let findAndReplaceStatus = document.getElementById(
-            "findAndReplaceStatus"
-        );
-
-        findAndReplaceStatus.style.display = "block";
-        findAndReplaceStatus.innerText = "Updating...";
-        const response = await fetch(
-            `http://localhost:5022/api/Employee/findandreplace`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    findText: findText,
-                    replaceText: replaceText,
-                }),
-            }
-        );
-        const data = await response.json();
-
-        if (data.status) {
-            this.sheetData = [];
-            await this.fetchUserData(0);
-            findAndReplaceStatus.innerText = `Matches Replaced (${data.noOfRowsAffected})`;
-        }
-
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
-        this.highlightInst.highlightSelectedArea();
-        this.drawGrid();
-    };
 
     //----------------------draw grid----------------------
     drawGrid(strokeColor = "", fillColor = "") {
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
+        this.clearMainCanvas();
         this.highlightInst.highlightSelectedArea(strokeColor, fillColor);
         this.drawRows();
         this.drawColumns();
-        this.renderData(strokeColor);
+        this.renderData();
     }
-    getPos(str = "", subStr, i) {
-        return [
-            str.split(subStr, i).join(subStr).length,
-            str.split(subStr, i + 1).join(subStr).length,
-        ];
-    }
-    renderTopHeader(transparentColor = "") {
-        this.topHeaderCtx.save();
-        this.topHeaderCtx.beginPath();
-
-        this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
-        this.topHeaderCtx.moveTo(0, 24 - 0.5);
-        this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24 - 0.5);
-        this.topHeaderCtx.stroke();
-        this.topHeaderCtx.restore();
-        this.highlightInst.highlightTopHeader(transparentColor);
-
-        this.topHeaderCtx.font = "10pt Arial";
-        this.topHeaderCtx.textAlign = "center";
-
-        const canvasHeight = this.mainCanvas.width;
-        const colWidth = 100;
-
-        const startCol = Math.floor(this.scrollLeftvalue / colWidth);
-        const endCol = Math.ceil(
-            (this.scrollLeftvalue + canvasHeight) / colWidth
-        );
-
-        let cellPositionX = -this.scrollLeftvalue % colWidth;
-
-        for (let i = startCol; i <= endCol; i++) {
-            cellPositionX += this.valueInst.getCurCellWidth(i);
-            this.topHeaderCtx.save();
-            this.topHeaderCtx.beginPath();
-            this.topHeaderCtx.moveTo(cellPositionX + 0.5, 0);
-            this.topHeaderCtx.lineTo(
-                cellPositionX + 0.5,
-                this.topHeaderCtx.canvas.height
-            );
-
-            if (
-                this.topheaderSelected &&
-                this.currSelectedCol[0] <= i &&
-                i < this.currSelectedCol[1]
-            ) {
-                this.topHeaderCtx.strokeStyle = this.whiteColor;
-                this.topHeaderCtx.lineWidth = 1;
-            } else {
-                this.topHeaderCtx.lineWidth = 0.2;
-                this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
-            }
-            this.topHeaderCtx.stroke();
-            this.topHeaderCtx.restore();
-        }
-
-        cellPositionX = -this.scrollLeftvalue % colWidth;
-        for (let i = startCol; i <= endCol; i++) {
-            cellPositionX += this.valueInst.getCurCellWidth(i);
-            this.topHeaderCtx.save();
-            let text = this.valueInst.convertNumToChar(i + 1);
-            let xPosition =
-                cellPositionX - this.valueInst.getCurCellWidth(i) / 2;
-            let yPosition = 15;
-
-            this.topHeaderCtx.fillStyle = this.gridStrokeColor;
-            if (transparentColor != "") {
-                this.topHeaderCtx.fillStyle = this.gridStrokeColor;
-            } else if (Array.isArray(this.currSelectedCol)) {
-                if (
-                    this.topheaderSelected &&
-                    this.currSelectedCol[0] <= i &&
-                    i <= this.currSelectedCol[1]
-                ) {
-                    this.topHeaderCtx.font = "bold 16px Arial";
-                    this.topHeaderCtx.fillStyle = this.whiteColor;
-                } else if (
-                    this.currSelectedCol[0] <= i &&
-                    i <= this.currSelectedCol[1]
-                ) {
-                    this.topHeaderCtx.fillStyle = this.strokeColor;
-                }
-            } else if (this.currSelectedCol == i) {
-                this.topHeaderCtx.fillStyle = this.whiteColor;
-                this.topHeaderCtx.font = "bold 16px Arial";
-            } else if (this.currSelectedCol == "all") {
-                this.topHeaderCtx.fillStyle = this.strokeColor;
-            } else {
-                this.topHeaderCtx.fillStyle = this.gridStrokeColor;
-            }
-            this.topHeaderCtx.fillText(text, xPosition, yPosition + 1);
-            this.topHeaderCtx.restore();
-
-            if (
-                i == this.resizeGridInst.columnIndexAtDraggablepoint &&
-                cellPositionX - this.resizeGridInst.columnDraggedPos >= 20
-            ) {
-                this.resizeLineVertical.style.top = 0;
-                this.resizeLineVertical.style.left = `${
-                    cellPositionX * this.scale
-                }px`;
-            }
-        }
-    }
-    renderLeftHeader(transparentColor = "") {
-        this.leftHeaderCtx.save();
-        this.leftHeaderCtx.beginPath();
-        this.leftHeaderCtx.moveTo(40 - 0.5, 0);
-        this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
-        this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
-        this.leftHeaderCtx.stroke();
-        this.leftHeaderCtx.restore();
-        this.highlightInst.highlightLeftHeaders(transparentColor);
-
-        const canvasHeight = this.mainCanvas.height;
-        const rowHeight = this.valueInst.getCurCellHeight(0);
-        const startRow = Math.floor(this.scrollTopvalue / rowHeight);
-        const endRow = Math.ceil(
-            (this.scrollTopvalue + canvasHeight) / rowHeight
-        );
-        let cellPosition = -this.scrollTopvalue % rowHeight;
-        for (let i = startRow; i <= endRow; i++) {
-            cellPosition += this.valueInst.getCurCellHeight(i);
-            this.leftHeaderCtx.save();
-            this.leftHeaderCtx.beginPath();
-            this.leftHeaderCtx.moveTo(2, cellPosition + 0.5);
-            this.leftHeaderCtx.lineTo(
-                this.leftHeaderCtx.canvas.width,
-                cellPosition + 0.5
-            );
-
-            if (
-                this.leftheaderSelected &&
-                this.currSelectedRow[0] <= i &&
-                i < this.currSelectedRow[1]
-            ) {
-                this.leftHeaderCtx.lineWidth = 1;
-                this.leftHeaderCtx.strokeStyle = this.whiteColor;
-            } else {
-                this.leftHeaderCtx.lineWidth = 0.2;
-                this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
-            }
-
-            this.leftHeaderCtx.stroke();
-            this.leftHeaderCtx.restore();
-        }
-
-        cellPosition = -this.scrollTopvalue % rowHeight;
-        this.leftHeaderCtx.font = "14px Arial";
-        for (let i = startRow; i <= endRow; i++) {
-            cellPosition += this.valueInst.getCurCellHeight(i);
-            this.leftHeaderCtx.save();
-            let text = (i + 1).toString();
-            let yPosition =
-                cellPosition - this.valueInst.getCurCellHeight(i) / 2;
-
-            this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
-            if (transparentColor != "") {
-                this.topHeaderCtx.fillStyle = this.gridStrokeColor;
-            } else if (Array.isArray(this.currSelectedRow)) {
-                if (
-                    this.leftheaderSelected &&
-                    this.currSelectedRow[0] <= i &&
-                    i <= this.currSelectedRow[1]
-                ) {
-                    this.leftHeaderCtx.font = "bold 14px Arial";
-                    this.leftHeaderCtx.fillStyle = this.whiteColor;
-                } else if (
-                    this.currSelectedRow[0] <= i &&
-                    i <= this.currSelectedRow[1]
-                ) {
-                    this.leftHeaderCtx.fillStyle = this.strokeColor;
-                }
-            } else if (this.currSelectedRow == i) {
-                this.leftHeaderCtx.font = "bold 14px Arial";
-                this.leftHeaderCtx.fillStyle = this.whiteColor;
-            } else if (this.currSelectedRow == "all") {
-                this.leftHeaderCtx.fillStyle = this.strokeColor;
-            } else {
-                this.leftHeaderCtx.fillStyle = this.gridStrokeColor;
-            }
-            this.leftHeaderCtx.textAlign = "right";
-            this.leftHeaderCtx.fillText(text, 35, yPosition + 4);
-            this.leftHeaderCtx.restore();
-
-            if (
-                i == this.resizeGridInst.rowIndexAtDraggablepoint &&
-                cellPosition - this.resizeGridInst.rowDraggedPos > 10
-            ) {
-                this.resizeLineHorizontal.style.top = `${
-                    cellPosition * this.scale
-                }px`;
-                this.resizeLineHorizontal.style.left = 0;
-            }
-        }
-    }
-
-    //----------------------Scroll Functionality----------------------
-    renderData() {
-        let i = 0;
-
-        const canvasHeight = this.mainCanvas.height;
-        const canvasWidth = this.mainCanvas.width;
-
-        const rowHeight = this.valueInst.getCurCellHeight(0);
-        const colWidth = 100;
-
-        const startRow = Math.floor(this.scrollTopvalue / rowHeight);
-        const endRow = Math.min(
-            this.sheetData.length - 1,
-            Math.ceil((this.scrollTopvalue + canvasHeight) / rowHeight)
-        );
-
-        let cellPositionY = -this.scrollTopvalue % rowHeight;
-
-        const startCol = Math.floor(this.scrollLeftvalue / colWidth);
-        const endCol = Math.ceil(
-            (this.scrollLeftvalue + canvasWidth) / colWidth
-        );
-
-        let m = startRow;
-        let availableRow = [];
-        let endRow1 = endRow;
-        for (let n = startRow; n <= endRow1; n++) {
-            let result = this.sheetData.find((item) => item[n + 1]);
-            if (result) {
-                availableRow.push(n + 1);
-            } else {
-                endRow1 = endRow1 + 1;
-            }
-        }
-
-        for (let n = startRow; n <= endRow1 + 1; n++) {
-            if (!availableRow.includes(n + 1)) {
-                cellPositionY += this.valueInst.getCurCellHeight(n);
-                continue;
-            } else {
-                m++;
-            }
-
-            let cellPositionX = -this.scrollLeftvalue % colWidth;
-            let data = this.sheetData[m - 1];
-
-            cellPositionY += this.valueInst.getCurCellHeight(n);
-            i = Object.keys(data) - "0";
-
-            for (let j = startCol; j <= endCol; j++) {
-                let currProperties = data[i][j]?.properties;
-
-                if (currProperties) {
-                    let colorPos = this.getPos(currProperties, "*", 1);
-                    let fontColor = currProperties?.slice(
-                        colorPos[0] + 1,
-                        colorPos[1]
-                    );
-
-                    let fontStylePos = this.getPos(currProperties, "*", 2);
-                    let fontStyle = currProperties?.slice(
-                        fontStylePos[0] + 1,
-                        fontStylePos[1]
-                    );
-
-                    let fontWeightPos = this.getPos(currProperties, "*", 3);
-                    let fontWeight = currProperties?.slice(
-                        fontWeightPos[0] + 1,
-                        fontWeightPos[1]
-                    );
-
-                    let fontSizePos = this.getPos(currProperties, "*", 4);
-                    let fontSize =
-                        currProperties?.slice(
-                            fontSizePos[0] + 1,
-                            fontSizePos[1]
-                        ) || "12pt";
-
-                    let fontFamPos = this.getPos(currProperties, "*", 5);
-                    let fontFam =
-                        currProperties?.slice(
-                            fontFamPos[0] + 1,
-                            fontFamPos[1]
-                        ) || "calibri";
-                    this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
-                    this.mainCtx.fillStyle = `${fontColor}`;
-                    this.mainCtx.save();
-                    this.mainCtx.beginPath();
-                    this.mainCtx.rect(
-                        cellPositionX + 4,
-                        cellPositionY - 21,
-                        this.valueInst.getCurCellWidth(j) - 10,
-                        this.valueInst.getCurCellHeight(n)
-                    );
-                    this.mainCtx.clip();
-                    this.mainCtx.fillText(
-                        data[i][j]?.data,
-                        cellPositionX + 4,
-                        cellPositionY - 1
-                    );
-                    this.mainCtx.restore();
-                }
-                cellPositionX += this.valueInst.getCurCellWidth(j);
-            }
-            i++;
-        }
-    }
-
     drawRows() {
         const canvasHeight = this.mainCanvas.height;
         const rowHeight = this.valueInst.getCurCellHeight(0);
@@ -945,7 +414,6 @@ class newCanvas {
             // this.mainCtx.restore();
         }
     }
-
     drawColumns() {
         const canvasHeight = this.mainCanvas.width;
         const colWidth = 100;
@@ -971,6 +439,321 @@ class newCanvas {
         }
     }
 
+    //----------------------Render Data----------------------
+    renderData() {
+        const canvasHeight = this.mainCanvas.height;
+        const canvasWidth = this.mainCanvas.width;
+
+        const rowHeight = 21;
+        const colWidth = 100;
+
+        const startRow = Math.floor(this.scrollTopvalue / rowHeight);
+        const endRow = Math.min(
+            this.sheetData.length - 1,
+            Math.ceil((this.scrollTopvalue + canvasHeight) / rowHeight)
+        );
+
+        let cellPositionY = -this.scrollTopvalue % rowHeight;
+
+        const startCol = Math.floor(this.scrollLeftvalue / colWidth);
+        const endCol = Math.ceil(
+            (this.scrollLeftvalue + canvasWidth) / colWidth
+        );
+
+        let adjustedStartRow = startRow;
+        let availableRow = [];
+        let adjustedEndRow = endRow;
+        for (let rowIndex = startRow; rowIndex <= adjustedEndRow; rowIndex++) {
+            let result = this.sheetData.find((item) => item[rowIndex + 1]);
+            if (result) {
+                availableRow.push(rowIndex + 1);
+            } else {
+                adjustedEndRow++;
+            }
+        }
+
+        for (
+            let rowIndex = startRow;
+            rowIndex <= adjustedEndRow + 1;
+            rowIndex++
+        ) {
+            if (!availableRow.includes(rowIndex + 1)) {
+                cellPositionY += this.valueInst.getCurCellHeight(rowIndex);
+                continue;
+            } else {
+                adjustedStartRow++;
+            }
+
+            let cellPositionX = -this.scrollLeftvalue % colWidth;
+            let rowData = this.sheetData[adjustedStartRow - 1];
+
+            cellPositionY += this.valueInst.getCurCellHeight(rowIndex);
+            let availableRowIndex = Object.keys(rowData) - "0";
+
+            for (let colIndex = startCol; colIndex <= endCol; colIndex++) {
+                let cellProperties =
+                    rowData[availableRowIndex][colIndex]?.properties;
+
+                if (cellProperties) {
+                    const fontColor = this.extractProperty(cellProperties, 1);
+                    const fontStyle = this.extractProperty(cellProperties, 2);
+                    const fontWeight = this.extractProperty(cellProperties, 3);
+                    const fontSize = this.extractProperty(
+                        cellProperties,
+                        4,
+                        "12pt"
+                    );
+                    const fontFamily = this.extractProperty(
+                        cellProperties,
+                        5,
+                        "calibri"
+                    );
+
+                    this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFamily}`;
+                    this.mainCtx.fillStyle = `${fontColor}`;
+
+                    let newData = rowData[availableRowIndex][colIndex]?.data;
+                    this.mainCtx.save();
+                    this.mainCtx.beginPath();
+                    this.mainCtx.rect(
+                        cellPositionX + 4,
+                        cellPositionY - 21,
+                        this.valueInst.getCurCellWidth(colIndex) - 10,
+                        this.valueInst.getCurCellHeight(rowIndex)
+                    );
+                    this.mainCtx.clip();
+                    this.mainCtx.fillText(
+                        newData,
+                        cellPositionX + 4,
+                        cellPositionY - 1
+                    );
+                    this.mainCtx.restore();
+                }
+                cellPositionX += this.valueInst.getCurCellWidth(colIndex);
+            }
+            availableRowIndex++;
+        }
+    }
+
+    extractProperty(properties, position, defaultValue = "") {
+        const positions = this.getPos(properties, "*", position);
+        return (
+            properties?.slice(positions[0] + 1, positions[1]) || defaultValue
+        );
+    }
+
+    getPos(str = "", subStr, i) {
+        return [
+            str.split(subStr, i).join(subStr).length,
+            str.split(subStr, i + 1).join(subStr).length,
+        ];
+    }
+
+    renderTopHeader(transparentColor = "") {
+        const canvasHeight = this.mainCanvas.width;
+        const colWidth = 100;
+        const startCol = Math.floor(this.scrollLeftvalue / colWidth);
+        const endCol = Math.ceil(
+            (this.scrollLeftvalue + canvasHeight) / colWidth
+        );
+        let cellPositionX = -this.scrollLeftvalue % colWidth;
+
+        this.topHeaderCtx.save();
+        this.topHeaderCtx.beginPath();
+        this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
+        this.topHeaderCtx.moveTo(0, 24 - 0.5);
+        this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 24 - 0.5);
+        this.topHeaderCtx.stroke();
+        this.topHeaderCtx.restore();
+
+        this.highlightInst.highlightTopHeader(transparentColor);
+
+        this.topHeaderCtx.font = "10pt Arial";
+        this.topHeaderCtx.textAlign = "center";
+
+        for (let colIndex = startCol; colIndex <= endCol; colIndex++) {
+            cellPositionX += this.valueInst.getCurCellWidth(colIndex);
+
+            this.topHeaderCtx.save();
+            this.topHeaderCtx.beginPath();
+            this.topHeaderCtx.moveTo(cellPositionX + 0.5, 0);
+            this.topHeaderCtx.lineTo(
+                cellPositionX + 0.5,
+                this.topHeaderCtx.canvas.height
+            );
+
+            if (this.isColumnSelectedFun(colIndex + 1)) {
+                this.topHeaderCtx.strokeStyle = this.whiteColor;
+                this.topHeaderCtx.lineWidth = 1;
+            } else {
+                this.topHeaderCtx.lineWidth = 0.2;
+                this.topHeaderCtx.strokeStyle = this.gridStrokeColor;
+            }
+            this.topHeaderCtx.stroke();
+            this.topHeaderCtx.restore();
+        }
+
+        cellPositionX = -this.scrollLeftvalue % colWidth;
+        for (let colIndex = startCol; colIndex <= endCol; colIndex++) {
+            cellPositionX += this.valueInst.getCurCellWidth(colIndex);
+            this.topHeaderCtx.save();
+            let headerText = this.valueInst.convertNumToChar(colIndex + 1);
+            let xPosition =
+                cellPositionX - this.valueInst.getCurCellWidth(colIndex) / 2;
+            let yPosition = 16;
+
+            this.topHeaderCtx.fillStyle = this.headerFillStyle(
+                "topheader",
+                colIndex,
+                transparentColor,
+                this.currSelectedCol
+            );
+            this.topHeaderCtx.font = this.topHeaderFont(colIndex);
+            this.topHeaderCtx.fillText(headerText, xPosition, yPosition + 1);
+            this.topHeaderCtx.restore();
+
+            if (
+                colIndex == this.resizeGridInst.columnIndexAtDraggablepoint &&
+                cellPositionX - this.resizeGridInst.columnDraggedPos >= 20
+            ) {
+                this.resizeLineVertical.style.top = 0;
+                this.resizeLineVertical.style.left = `${
+                    cellPositionX * this.scale
+                }px`;
+            }
+        }
+    }
+
+    topHeaderFont(colIndex) {
+        if (
+            this.isColumnSelectedFun(colIndex) ||
+            this.currSelectedCol === colIndex
+        ) {
+            return "bold 16px Arial";
+        }
+        return "10pt Arial";
+    }
+
+    isColumnSelectedFun(colIndex) {
+        return (
+            this.topheaderSelected &&
+            this.currSelectedCol &&
+            this.currSelectedCol[0] <= colIndex &&
+            colIndex <= this.currSelectedCol[1]
+        );
+    }
+
+    renderLeftHeader(transparentColor = "") {
+        const rowHeight = 21;
+        const startRow = Math.floor(this.scrollTopvalue / rowHeight);
+        const endRow = Math.ceil(
+            (this.scrollTopvalue + this.mainCanvas.height) / rowHeight
+        );
+        let cellPosition = -this.scrollTopvalue % rowHeight;
+
+        this.leftHeaderCtx.save();
+        this.leftHeaderCtx.beginPath();
+        this.leftHeaderCtx.moveTo(40 - 0.5, 0);
+        this.leftHeaderCtx.lineTo(40 - 0.5, this.leftHeaderCtx.canvas.height);
+        this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
+        this.leftHeaderCtx.stroke();
+        this.leftHeaderCtx.restore();
+        this.highlightInst.highlightLeftHeaders(transparentColor);
+
+        for (let rowIndex = startRow; rowIndex <= endRow; rowIndex++) {
+            cellPosition += this.valueInst.getCurCellHeight(rowIndex);
+
+            this.leftHeaderCtx.save();
+            this.leftHeaderCtx.beginPath();
+            this.leftHeaderCtx.moveTo(2, cellPosition + 0.5);
+            this.leftHeaderCtx.lineTo(
+                this.leftHeaderCtx.canvas.width,
+                cellPosition + 0.5
+            );
+
+            if (this.isRowSelectedFun(rowIndex)) {
+                this.leftHeaderCtx.lineWidth = 1;
+                this.leftHeaderCtx.strokeStyle = this.whiteColor;
+            } else {
+                this.leftHeaderCtx.lineWidth = 0.2;
+                this.leftHeaderCtx.strokeStyle = this.gridStrokeColor;
+            }
+
+            this.leftHeaderCtx.stroke();
+            this.leftHeaderCtx.restore();
+        }
+
+        cellPosition = -this.scrollTopvalue % rowHeight;
+        this.leftHeaderCtx.font = "14px Arial";
+        for (let rowIndex = startRow; rowIndex <= endRow; rowIndex++) {
+            cellPosition += this.valueInst.getCurCellHeight(rowIndex);
+            this.leftHeaderCtx.save();
+            let headerText = (rowIndex + 1).toString();
+            let yPosition =
+                cellPosition - this.valueInst.getCurCellHeight(rowIndex) / 2;
+
+            this.leftHeaderCtx.fillStyle = this.headerFillStyle(
+                "leftheader",
+                rowIndex,
+                transparentColor,
+                this.currSelectedRow
+            );
+            this.leftHeaderCtx.font = this.leftHeaderFont(rowIndex);
+
+            this.leftHeaderCtx.textAlign = "right";
+            this.leftHeaderCtx.fillText(headerText, 35, yPosition + 4);
+            this.leftHeaderCtx.restore();
+
+            if (
+                rowIndex == this.resizeGridInst.rowIndexAtDraggablepoint &&
+                cellPosition - this.resizeGridInst.rowDraggedPos > 10
+            ) {
+                this.resizeLineHorizontal.style.top = `${
+                    cellPosition * this.scale
+                }px`;
+                this.resizeLineHorizontal.style.left = 0;
+            }
+        }
+    }
+
+    headerFillStyle(header, index, transparentColor, currSelectedIndex) {
+        if (transparentColor) return this.gridStrokeColor;
+        if (Array.isArray(currSelectedIndex)) {
+            if (header == "leftheader") {
+                if (this.isRowSelectedFun(index)) return this.whiteColor;
+            } else {
+                if (this.isColumnSelectedFun(index)) return this.whiteColor;
+            }
+            if (currSelectedIndex[0] <= index && index <= currSelectedIndex[1])
+                return this.strokeColor;
+        } else if (currSelectedIndex === index) {
+            return this.whiteColor;
+        } else if (currSelectedIndex === "all") {
+            return this.strokeColor;
+        }
+        return this.gridStrokeColor;
+    }
+
+    leftHeaderFont(rowIndex) {
+        if (
+            this.isRowSelectedFun(rowIndex) ||
+            this.currSelectedRow === rowIndex
+        ) {
+            return "bold 14px Arial";
+        }
+        return "10pt Arial";
+    }
+
+    isRowSelectedFun(rowIndex) {
+        return (
+            this.leftheaderSelected &&
+            this.currSelectedRow &&
+            this.currSelectedRow[0] <= rowIndex &&
+            rowIndex <= this.currSelectedRow[1]
+        );
+    }
+
+    //----------------------Scroll Functionality----------------------
     scrollFunction() {
         const scroller = document.getElementById("scroller");
         const main = document.getElementById("main");
@@ -989,7 +772,7 @@ class newCanvas {
                 this.prevOffset != offset
             ) {
                 this.prevOffset = offset;
-                this.fetchUserData(offset);
+                this.apiRequestsInst.fetchUserData(offset);
             }
 
             if (this.scrollTopvalue > 9000) {
@@ -1000,24 +783,9 @@ class newCanvas {
                 main.style.width = `${this.scrollLeftvalue + 2000}px`;
             }
 
-            this.mainCtx.clearRect(
-                0,
-                0,
-                this.mainCanvas.width,
-                this.mainCanvas.height
-            );
-            this.leftHeaderCtx.clearRect(
-                0,
-                0,
-                this.leftHeaderCanvas.width,
-                this.leftHeaderCanvas.height
-            );
-            this.topHeaderCtx.clearRect(
-                0,
-                0,
-                this.topHeaderCanvas.width,
-                this.topHeaderCanvas.height
-            );
+            this.clearMainCanvas();
+            this.clearLeftHeader();
+            this.clearTopHeader();
             this.highlightInst.highlightSelectedArea();
             this.drawGrid();
             this.renderLeftHeader();
@@ -1034,123 +802,6 @@ class newCanvas {
     }
 
     //----------------------keyboard Evenets----------------------
-    updateData = async () => {
-        if (this.isValueupdate == false) return;
-        let value = this.inputBox.value;
-        let rowData = this.sheetData.find((item) => item[this.activeRow]);
-        if (rowData == undefined) {
-            const formattedItem = {};
-            const newRowNo = this.activeRow.toString();
-            formattedItem[this.x1CellIndex] = {
-                data: value,
-                properties: "*****",
-            };
-            this.sheetData.push({ [newRowNo]: formattedItem });
-            await this.rowColumnManagerInst.InsertRow();
-        }
-        rowData = this.sheetData.find((item) => item[this.activeRow]);
-        rowData[this.activeRow][this.x1CellIndex].data = value;
-
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
-        this.highlightInst.highlightSelectedArea();
-        this.drawGrid();
-
-        const response = await fetch(
-            `http://localhost:5022/api/Employee/updatevalue?column=${this.activeColumn}&row=${this.activeRow}&text=${value}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-        const data = await response.json();
-
-        if (data.status) {
-            this.inputBox.value = null;
-            let length = this.sheetData.length;
-
-            this.sheetData = [];
-            for (let i = 0; i < length / 500; i++) {
-                await this.fetchUserData(i);
-            }
-        }
-
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
-        this.highlightInst.highlightSelectedArea();
-        this.drawGrid();
-    };
-
-    deleteData = async () => {
-        const [startCol, startRow, endCol, endRow] =
-            this.selectedDimensionsMain;
-
-        let startCol1 = this.valueInst.convertNumToChar(startCol + 1);
-        let endCol1 = this.valueInst.convertNumToChar(endCol + 1);
-        let isThereAnyData = false;
-        for (let row = startRow; row <= endRow; row++) {
-            let rowData = this.sheetData.find((item) => item[row + 1]);
-            if (rowData) {
-                for (let col = startCol; col <= endCol; col++) {
-                    if (rowData[row + 1][col].data) {
-                        isThereAnyData = true;
-                    }
-                    rowData[row + 1][col].data = null;
-                }
-            }
-        }
-
-        this.mainCtx.clearRect(
-            0,
-            0,
-            this.mainCanvas.width,
-            this.mainCanvas.height
-        );
-        this.drawGrid();
-
-        if (isThereAnyData) {
-            const response = await fetch(
-                `http://localhost:5022/api/Employee/deletedata?startRow=${
-                    startRow + 1
-                }&endRow=${endRow + 1}&startCol=${startCol1}&endCol=${endCol1}`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            const data = await response.json();
-
-            if (data.status) {
-                this.inputBox.value = null;
-                let length = this.sheetData.length;
-
-                this.sheetData = [];
-                for (let i = 0; i < length / 500; i++) {
-                    await this.fetchUserData(i);
-                }
-            }
-            this.mainCtx.clearRect(
-                0,
-                0,
-                this.mainCanvas.width,
-                this.mainCanvas.height
-            );
-            this.drawGrid();
-        }
-    };
-
     keyBoardEvents = async (e) => {
         let flag = false;
         this.activeColumn = this.valueInst.convertNumToChar(
@@ -1247,7 +898,7 @@ class newCanvas {
         } else if (e.ctrlKey || e.key == "CapsLock") {
             return;
         } else if (e.key == "Delete") {
-            this.deleteData();
+            this.apiRequestsInst.deleteData();
         } else {
             flag = true;
             this.isValueupdate = true;
@@ -1265,7 +916,7 @@ class newCanvas {
                 e.key === "ArrowLeft") &&
             !e.shiftKey
         ) {
-            this.updateData();
+            this.apiRequestsInst.updateData();
             this.inputBox.value = null;
             this.isValueupdate = false;
             this.inputBox.style.display = "none";
