@@ -64,9 +64,10 @@ class DrawHighlight {
 
         let cellPositionY =
             -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
-        let startTop = this.valueInst.getCurRowIndex(
-            this.mainInst.scrollTopvalue
-        );
+        // let startTop = this.valueInst.getCurRowIndex(
+        //     this.mainInst.scrollTopvalue
+        // );
+        let startTop = Math.ceil(this.mainInst.scrollTopvalue / 21);
 
         let cellPositionX =
             -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
@@ -92,7 +93,12 @@ class DrawHighlight {
                 width += this.valueInst.getCurCellWidth(i);
             }
         }
-        y = y + cellPositionY;
+        if (cellPositionY <= -1) {
+            y = y + 21 + cellPositionY;
+        } else {
+            y = y + cellPositionY;
+        }
+
         x = x + cellPositionX;
         return [x, y, width, height];
     }
@@ -218,9 +224,10 @@ class DrawHighlight {
 
         let cellPositionY =
             -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
-        let startTop = this.valueInst.getCurRowIndex(
-            this.mainInst.scrollTopvalue
-        );
+        // let startTop = this.valueInst.getCurRowIndex(
+        //     (this.mainInst.scrollTopvalue)
+        // );
+        let startTop = Math.ceil(this.mainInst.scrollTopvalue / 21);
 
         let cellPositionX =
             -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
@@ -234,8 +241,13 @@ class DrawHighlight {
         for (let i = startTop; i < startY; i++) {
             y += this.valueInst.getCurCellHeight(i);
         }
-        y = y + cellPositionY;
+        if (cellPositionY <= -1) {
+            y = y + 21 + cellPositionY;
+        } else {
+            y = y + cellPositionY;
+        }
         x = x + cellPositionX;
+
         let temp2 = Math.max(startLeft, startX);
         for (let i = temp2; i <= endX; i++) {
             width += this.valueInst.getCurCellWidth(i);

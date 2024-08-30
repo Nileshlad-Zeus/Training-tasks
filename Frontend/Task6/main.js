@@ -506,6 +506,7 @@ class newCanvas {
 
             for (let colNo in columns) {
                 if (parseInt(colNo) > startPosition.columnNo) {
+                    console.log(columns[colNo].data);
                     if (columns[colNo].data === searchValue) {
                         return {
                             rowNo: rowNo,
@@ -515,7 +516,7 @@ class newCanvas {
                     }
                 }
             }
-            startPosition.columnNo = 0;
+            startPosition.columnNo = -1;
         }
         startPosition.rowNo = 0;
         return null;
@@ -541,7 +542,6 @@ class newCanvas {
             this.startPosition = result;
             let x = result.rowNo;
             let y = result.columnNo;
-            console.log(x, y);
 
             this.selectedDimensionsMain = [y, x - 1, y, x - 1];
             this.scrollTopvalue = Math.max(0, (x - 10) * 21);
@@ -555,14 +555,14 @@ class newCanvas {
             );
             this.clearLeftHeader();
             this.clearTopHeader();
+            this.highlightInst.highlightSelectedArea();
             this.renderLeftHeader();
             this.renderTopHeader();
-            this.highlightInst.highlightSelectedArea();
             this.drawGrid();
         } else {
             findAndReplaceStatus2.style.display = "block";
             findAndReplaceStatus2.innerText = "No more occurrences found.";
-            this.startPosition = { rowNo: 0, colNo: -1 };
+            this.startPosition = { rowNo: 0, columnNo: -1 };
         }
     }
 
@@ -735,7 +735,6 @@ class newCanvas {
             }
         }
     }
-
     renderLeftHeader(transparentColor = "") {
         this.leftHeaderCtx.save();
         this.leftHeaderCtx.beginPath();

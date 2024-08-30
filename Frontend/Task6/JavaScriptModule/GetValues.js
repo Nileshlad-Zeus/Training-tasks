@@ -61,7 +61,7 @@ class GetValues {
             if (
                 x >= cellPosition - 5 &&
                 x <= cellPosition + this.getCurCellHeight(row) + 5
-            ) {
+            ) { 
                 return row;
             }
             cellPosition += this.getCurCellHeight(row);
