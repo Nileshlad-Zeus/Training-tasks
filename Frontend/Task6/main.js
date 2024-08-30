@@ -5,7 +5,7 @@ import { FontStyle } from "./JavaScriptModule/ChangeFontStyle.js";
 import { ResizeGrid } from "./JavaScriptModule/ResizeGrid.js";
 import { CopyPaste } from "./JavaScriptModule/CopyPaste.js";
 import { RowColumnManager } from "./JavaScriptModule/RowColumnManager.js";
-//infinite scrolling
+
 class newCanvas {
     constructor(sheetName) {
         this.sheetName = sheetName;
@@ -605,21 +605,6 @@ class newCanvas {
     };
 
     //----------------------draw grid----------------------
-    trimData(data, j, fontSize) {
-        if (data == null) {
-            return " ";
-        }
-        if (!isNaN(data)) {
-            data = data.toString();
-        }
-        let cellwidth = this.valueInst.getCurCellWidth(j);
-        let length = data.length;
-        let textWidth = this.mainCtx.measureText(data).width;
-        let newfontSize = fontSize.slice(0, -2);
-        let length2 = (textWidth - cellwidth) / (newfontSize - 2);
-        data = data.slice(0, length - length2 - 2);
-        return data;
-    }
     drawGrid(strokeColor = "", fillColor = "") {
         this.mainCtx.clearRect(
             0,
@@ -912,14 +897,21 @@ class newCanvas {
                             fontFamPos[0] + 1,
                             fontFamPos[1]
                         ) || "calibri";
-                    this.mainCtx.save();
                     this.mainCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFam}`;
-                    let newData = this.trimData(data[i][j]?.data, j, fontSize);
                     this.mainCtx.fillStyle = `${fontColor}`;
-                    this.mainCtx.fillText(
-                        newData,
+                    this.mainCtx.save();
+                    this.mainCtx.beginPath();
+                    this.mainCtx.rect(
                         cellPositionX + 4,
-                        cellPositionY - 4
+                        cellPositionY - 21,
+                        this.valueInst.getCurCellWidth(j) - 10,
+                        this.valueInst.getCurCellHeight(n)
+                    );
+                    this.mainCtx.clip();
+                    this.mainCtx.fillText(
+                        data[i][j]?.data,
+                        cellPositionX + 4,
+                        cellPositionY - 1
                     );
                     this.mainCtx.restore();
                 }

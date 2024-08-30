@@ -138,7 +138,7 @@ class CopyPaste {
                 }
             );
             const data = await response.json();
-            if(data.Status){
+            if (data.Status) {
                 this.mainInst.renderData();
             }
         }
