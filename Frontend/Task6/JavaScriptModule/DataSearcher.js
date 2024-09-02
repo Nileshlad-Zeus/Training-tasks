@@ -1,11 +1,23 @@
+/**
+ * Provides functionality to search and replace data within a grid.
+ */
 class DataSearcher {
+    /**
+     *
+     * @param {Object} mainInst
+     * @param {Object} highlightInst
+     * @param {Object} apiRequestsInst
+     */
     constructor(mainInst, highlightInst, apiRequestsInst) {
         this.mainInst = mainInst;
         this.highlightInst = highlightInst;
-        this.apiRequestsInst = apiRequestsInst
+        this.apiRequestsInst = apiRequestsInst;
         this.initializefindandReplace();
     }
 
+    /**
+     * Initializes the find and replace functionality.
+     */
     initializefindandReplace() {
         this.startPosition = {
             rowNo: -1,
@@ -32,6 +44,13 @@ class DataSearcher {
         });
     }
 
+    /**
+     * Searches for a specific value in the data array starting from a given position.
+     * @param {Object[]} dataArray - The array of data to search through.
+     * @param {string} searchValue - The value to search for.
+     * @param {Object} startPosition - The starting position for the search.
+     * @returns {Object||null}
+     */
     searchData(dataArray, searchValue, startPosition) {
         for (let i = startPosition.searchRow; i < dataArray.length; i++) {
             const rowNo = parseInt(Object.keys(dataArray[i])[0]);
@@ -54,6 +73,10 @@ class DataSearcher {
         return null;
     }
 
+    /**
+     * Finds the next occurrence of the specified value in the sheet data and highlights it.
+     * @param {string} findvalue - The value to search for.
+     */
     findNext(findvalue) {
         const scroller = document.getElementById("scroller");
         let findAndReplaceStatus2 = document.getElementById(
@@ -93,6 +116,13 @@ class DataSearcher {
         }
     }
 
+    /**
+     * Finds all occurrences of the specified value and replaces them with a new value.
+     * Updates the grid and the server with the replaced values.
+     * @param {string} findText - The value to search for.
+     * @param {string} replaceText - The value to replace the found occurrences with.
+     * @async
+     */
     findAndReplace = async (findText, replaceText) => {
         let findAndReplaceStatus = document.getElementById(
             "findAndReplaceStatus"

@@ -55,6 +55,11 @@ class DrawHighlight {
         this.highlightSelectedArea();
     }
 
+    /**
+     * Calculates the fill area based on the header type and scroll positions.
+     * @param {string} header - The header type, either "leftheader" or another value indicating column header.
+     * @returns {number[]} - An array containing [x, y, width, height] representing the fill area coordinates and dimensions.
+     */
     calculateFillArea(header) {
         const [startX, startY, endX, endY] = this.headersHighlightCoordinate;
         let x = 0,
@@ -62,61 +67,62 @@ class DrawHighlight {
             width = 0,
             height = 0;
 
-        let cellPositionY =
-            -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
-        // let startTop = this.valueInst.getCurRowIndex(
-        //     this.mainInst.scrollTopvalue
-        // );
-        let startTop = Math.ceil(this.mainInst.scrollTopvalue / 21);
+        const scrollTop = this.mainInst.scrollTopvalue;
+        const scrollLeft = this.mainInst.scrollLeftvalue;
+        const cellHeight = this.valueInst.defaultCellHeight;
+        const cellWidth = this.valueInst.defaultCellWidth;
 
-        let cellPositionX =
-            -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
-        let startLeft = this.valueInst.getCurColumnIndex(
-            this.mainInst.scrollLeftvalue
-        );
+        let cellPositionY = -scrollTop % cellHeight;
+        let startTop = Math.ceil(scrollTop / 21);
+
+        let cellPositionX = -scrollLeft % cellWidth;
+        let startLeft = this.valueInst.getCurColumnIndex(scrollLeft);
 
         if (header == "leftheader") {
             for (let i = startTop; i < startY; i++) {
                 y += this.valueInst.getCurCellHeight(i);
             }
 
-            let temp = Math.max(startTop, startY);
-            for (let i = temp; i <= endY; i++) {
+            for (let i = Math.max(startTop, startY); i <= endY; i++) {
                 height += this.valueInst.getCurCellHeight(i);
             }
         } else {
             for (let i = startLeft; i < startX; i++) {
                 x += this.valueInst.getCurCellWidth(i);
             }
-            let temp2 = Math.max(startLeft, startX);
-            for (let i = temp2; i <= endX; i++) {
+            for (let i = Math.max(startLeft, startX); i <= endX; i++) {
                 width += this.valueInst.getCurCellWidth(i);
             }
         }
-        if (cellPositionY <= -1) {
-            y = y + 21 + cellPositionY;
-        } else {
-            y = y + cellPositionY;
-        }
-
-        x = x + cellPositionX;
+        y += cellPositionY <= -1 ? 21 + cellPositionY : cellPositionY;
+        x += cellPositionX;
         return [x, y, width, height];
     }
 
+    /**
+     * Highlights the left headers based on the selected columns or rows.
+     * @param {string} [transparentColor=""] - The color to be used for transparent highlighting. Defaults to an empty string.
+     */
     highlightLeftHeaders(transparentColor = "") {
         const [x, y, width, height] = this.calculateFillArea("leftheader");
 
         this.leftHeaderCtx.save();
         this.leftHeaderCtx.beginPath();
-        if (this.mainInst.isColSelected && this.mainInst.isRowSelected) {
-            this.leftHeaderCtx.fillStyle = this.mainInst.strokeColor;
+
+        const isColSelected = this.mainInst.isColSelected;
+        const isRowSelected = this.mainInst.isRowSelected;
+        const strokeColor = this.mainInst.strokeColor;
+        const highlightColor = transparentColor || this.headersHighlightColor;
+
+        if (isColSelected && isRowSelected) {
+            this.leftHeaderCtx.fillStyle = strokeColor;
             this.leftHeaderCtx.fillRect(
                 0,
                 0,
                 44,
                 this.leftHeaderCtx.canvas.height
             );
-        } else if (this.mainInst.isColSelected) {
+        } else if (isColSelected) {
             this.leftHeaderCtx.moveTo(39, 0);
             this.leftHeaderCtx.lineTo(39, this.leftHeaderCtx.canvas.height);
             this.leftHeaderCtx.fillStyle = this.headersHighlightColor;
@@ -127,10 +133,10 @@ class DrawHighlight {
                 this.leftHeaderCtx.canvas.height
             );
             this.leftHeaderCtx.lineWidth = 2;
-            this.leftHeaderCtx.strokeStyle = this.mainInst.strokeColor;
+            this.leftHeaderCtx.strokeStyle = strokeColor;
             this.leftHeaderCtx.stroke();
-        } else if (this.mainInst.isRowSelected) {
-            this.leftHeaderCtx.fillStyle = this.mainInst.strokeColor;
+        } else if (isRowSelected) {
+            this.leftHeaderCtx.fillStyle = strokeColor;
             this.leftHeaderCtx.fillRect(
                 0,
                 y - 2,
@@ -155,28 +161,38 @@ class DrawHighlight {
         this.leftHeaderCtx.restore();
     }
 
+    /**
+     * Highlights the top header based on the selected columns or rows.
+     * @param {string} [transparentColor=""] - The color to be used for transparent highlighting. Defaults to an empty string.
+     */
     highlightTopHeader(transparentColor = "") {
         const [x, y, width, height] = this.calculateFillArea("topheader");
 
         this.topHeaderCtx.save();
         this.topHeaderCtx.beginPath();
-        if (this.mainInst.isColSelected && this.mainInst.isRowSelected) {
-            this.topHeaderCtx.fillStyle = this.mainInst.strokeColor;
+
+        const isColSelected = this.mainInst.isColSelected;
+        const isRowSelected = this.mainInst.isRowSelected;
+        const strokeColor = this.mainInst.strokeColor;
+        const highlightColor = transparentColor || this.headersHighlightColor;
+
+        if (isColSelected && isRowSelected) {
+            this.topHeaderCtx.fillStyle = strokeColor;
             this.topHeaderCtx.fillRect(
                 0,
                 0,
                 this.topHeaderCtx.canvas.width,
                 24
             );
-        } else if (this.mainInst.isColSelected) {
-            this.topHeaderCtx.fillStyle = this.mainInst.strokeColor;
+        } else if (isColSelected) {
+            this.topHeaderCtx.fillStyle = strokeColor;
             this.topHeaderCtx.fillRect(
                 x - 2,
                 0,
                 width + 4,
                 this.topHeaderCtx.canvas.height
             );
-        } else if (this.mainInst.isRowSelected) {
+        } else if (isRowSelected) {
             this.topHeaderCtx.moveTo(0, 23);
             this.topHeaderCtx.lineTo(this.topHeaderCtx.canvas.width, 23);
             this.topHeaderCtx.fillStyle = this.headersHighlightColor;
@@ -187,26 +203,26 @@ class DrawHighlight {
                 26
             );
             this.topHeaderCtx.lineWidth = 2;
-            this.topHeaderCtx.strokeStyle = this.mainInst.strokeColor;
+            this.topHeaderCtx.strokeStyle = strokeColor;
             this.topHeaderCtx.stroke();
         } else {
-            this.topHeaderCtx.fillStyle =
-                transparentColor == ""
-                    ? this.headersHighlightColor
-                    : "#ffffff00";
+            this.topHeaderCtx.fillStyle = highlightColor;
             this.topHeaderCtx.fillRect(x, 0, width, 24);
             this.topHeaderCtx.moveTo(x - 2, 23);
             this.topHeaderCtx.lineTo(x + width + 2.5, 23);
             this.topHeaderCtx.lineWidth = 2;
             this.topHeaderCtx.strokeStyle =
-                transparentColor == ""
-                    ? this.mainInst.strokeColor
-                    : transparentColor;
+                transparentColor || this.mainInst.strokeColor;
             this.topHeaderCtx.stroke();
         }
         this.topHeaderCtx.restore();
     }
 
+    /**
+     * Highlights the selected area within the grid based on the current selection.
+     * @param {string} [strokeColor=""] - The color for the border stroke. Defaults to an empty string, which uses the default stroke color.
+     * @param {string} [fillColor=""] - The color for filling the selected area. Defaults to an empty string, which uses the default fill color.
+     */
     highlightSelectedArea(strokeColor = "", fillColor = "") {
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;
@@ -217,23 +233,19 @@ class DrawHighlight {
         }`;
         nameBoxInput.value = currentCell;
 
-        let x = 0;
-        let y = 0;
-        let width = 0;
-        let height = 0;
+        let x = 0,
+            y = 0,
+            width = 0,
+            height = 0;
 
-        let cellPositionY =
-            -this.mainInst.scrollTopvalue % this.valueInst.defaultCellHeight;
-        // let startTop = this.valueInst.getCurRowIndex(
-        //     (this.mainInst.scrollTopvalue)
-        // );
-        let startTop = Math.ceil(this.mainInst.scrollTopvalue / 21);
+        const scrollTop = this.mainInst.scrollTopvalue;
+        const scrollLeft = this.mainInst.scrollLeftvalue;
 
-        let cellPositionX =
-            -this.mainInst.scrollLeftvalue % this.valueInst.defaultCellWidth;
-        let startLeft = this.valueInst.getCurColumnIndex(
-            this.mainInst.scrollLeftvalue
-        );
+        let cellPositionY = -scrollTop % this.valueInst.defaultCellHeight;
+        let startTop = Math.ceil(scrollTop / 21);
+
+        let cellPositionX = -scrollLeft % this.valueInst.defaultCellWidth;
+        let startLeft = this.valueInst.getCurColumnIndex(scrollLeft);
 
         for (let i = startLeft; i < startX; i++) {
             x += this.valueInst.getCurCellWidth(i);
@@ -241,19 +253,15 @@ class DrawHighlight {
         for (let i = startTop; i < startY; i++) {
             y += this.valueInst.getCurCellHeight(i);
         }
-        if (cellPositionY <= -1) {
-            y = y + 21 + cellPositionY;
-        } else {
-            y = y + cellPositionY;
-        }
-        x = x + cellPositionX;
 
-        let temp2 = Math.max(startLeft, startX);
-        for (let i = temp2; i <= endX; i++) {
+        y += cellPositionY <= -1 ? 21 + cellPositionY : cellPositionY;
+        x += cellPositionX;
+
+        for (let i = Math.max(startLeft, startX); i <= endX; i++) {
             width += this.valueInst.getCurCellWidth(i);
         }
-        let temp = Math.max(startTop, startY);
-        for (let i = temp; i <= endY; i++) {
+
+        for (let i = Math.max(startTop, startY); i <= endY; i++) {
             height += this.valueInst.getCurCellHeight(i);
         }
 
@@ -271,7 +279,6 @@ class DrawHighlight {
 
         let cellPositionTop = 0;
         let cellPositionLeft = 0;
-        let [colIndex, rowIndex] = this.startingIndex;
 
         for (let i = startTop; i < this.mainInst.y1CellIndex; i++) {
             cellPositionTop += this.valueInst.getCurCellHeight(i);
@@ -348,10 +355,12 @@ class DrawHighlight {
         }
 
         this.mainCtx.restore();
-
         this.headersHighlightCoordinate = [startX, startY, endX, endY];
     }
 
+    /**
+     * event listeners to handle highlighting and interaction within the grid.
+     */
     highlightSelectedAreaEvents() {
         this.mainCtx.canvas.addEventListener("dblclick", (e) => {
             this.mainInst.inputBoxPosition();
@@ -372,15 +381,19 @@ class DrawHighlight {
             this.highlightAreaPointerMove(e);
         });
 
-        window.addEventListener("pointerup", (e) => {
+        window.addEventListener("pointerup", () => {
             this.highlightAreaPointerUp();
         });
 
-        window.addEventListener("pointerleave", (e) => {
+        window.addEventListener("pointerleave", () => {
             this.highlightAreaPointerUp();
         });
     }
 
+    /**
+     * Handles the pointer down event to initiate the selection of an area in the grid.
+     * @param {PointerEvent} e
+     */
     highlightAreaPointerDown(e) {
         const contextmenu = document.getElementById("contextmenu");
         contextmenu.style.display = "none";
@@ -439,6 +452,11 @@ class DrawHighlight {
         this.mainInst.renderTopHeader();
     }
 
+    /**
+     * Handles the pointer move event to update the selection area in the grid.
+     * @param {PointerEvent} e
+     * */
+
     highlightAreaPointerMove(e) {
         if (this.isAreaSelected) {
             const rect = this.mainCtx.canvas.getBoundingClientRect();
@@ -475,7 +493,10 @@ class DrawHighlight {
         }
     }
 
-    highlightAreaPointerUp(e) {
+    /**
+     * Handles the pointer up event, finalizing the selection area and calculating statistical data.
+     */
+    highlightAreaPointerUp() {
         this.isAreaSelected = false;
         const [startX, startY, endX, endY] =
             this.mainInst.selectedDimensionsMain;

@@ -1,4 +1,11 @@
 class RowColumnManager {
+    /**
+     * Creates an instance of the RowColumnManager class.
+     * @param {Object} mainInst - The main instance of the application, managing sheet data and rendering.
+     * @param {HTMLCanvasElement} mainCanvas - The canvas element used for drawing and rendering.
+     * @param {Object} valueInst - Instance responsible for value-related operations (e.g., converting numbers to characters).
+     * @param {Object} highlightInst - Instance responsible for highlighting elements on the canvas.
+     */
     constructor(mainInst, mainCanvas, valueInst, highlightInst) {
         this.mainInst = mainInst;
         this.mainCanvas = mainCanvas;
@@ -8,6 +15,9 @@ class RowColumnManager {
         this.eventListner();
     }
 
+    /**
+     * Initializes event listeners for context menu actions.
+     */
     eventListner() {
         this.contextmenu = document.getElementById("contextmenu");
         const deleteRow = document.getElementById("delete-row");
@@ -51,6 +61,13 @@ class RowColumnManager {
         });
     }
 
+    /**
+     * Deletes rows from the data and adjusts the remaining rows.
+     * @param {Object[]} data - The array of data to update.
+     * @param {number} startRow - The starting row number to delete.
+     * @param {number} endRow - The ending row number to delete.
+     * @returns {Object[]} - The updated array of data with rows deleted.
+     */
     deleteAndUpdateRows(data, startRow, endRow) {
         let deleteRowNos = [];
         for (let row = startRow; row <= endRow; row++) {
@@ -69,6 +86,11 @@ class RowColumnManager {
         return adjustedData;
     }
 
+    /**
+     * Handles the deletion of rows based on selected dimensions.
+     * Updates the view and sends a request to the server.
+     * @async
+     */
     async deleteRows() {
         const [startCol, startRow, endCol, endRow] =
             this.mainInst.selectedDimensionsMain;
@@ -85,14 +107,16 @@ class RowColumnManager {
         this.mainInst.drawGrid();
 
         const response = await fetch(
-            `http://localhost:5022/api/Employee/deleterow?startRow=${
-                startRow + 1
-            }&endRow=${endRow + 1}`,
+            `http://localhost:5022/api/Employee/deleterow`,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify({
+                    startRow: startRow + 1,
+                    endRow: endRow + 1,
+                }),
             }
         );
         const data = await response.json();
@@ -111,6 +135,13 @@ class RowColumnManager {
         this.mainInst.drawGrid();
     }
 
+    /**
+     * Adds new rows to the data and adjusts existing rows accordingly.
+     * @param {Object[]} data - The array of data to update.
+     * @param {number} startRow - The starting row number to add new rows.
+     * @param {number} endRow - The ending row number to add new rows.
+     * @returns {Object[]} - The updated array of data with rows added.
+     */
     addAndAdjustRows(data, startRow, endRow) {
         const newRows = [];
         let numberOfRows = endRow - startRow + 1;
@@ -139,6 +170,11 @@ class RowColumnManager {
         return combinedData;
     }
 
+    /**
+     * Handles the addition of rows based on selected dimensions.
+     * Updates the view and sends a request to the server.
+     * @async
+     */
     async addRows() {
         const [startCol, startRow, endCol, endRow] =
             this.mainInst.selectedDimensionsMain;
@@ -156,14 +192,16 @@ class RowColumnManager {
         this.mainInst.drawGrid();
 
         const response = await fetch(
-            `http://localhost:5022/api/Employee/addrowabove?startRow=${
-                startRow + 1
-            }&endRow=${endRow + 1}`,
+            `http://localhost:5022/api/Employee/addrowabove`,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify({
+                    startRow: startRow + 1,
+                    endRow: endRow + 1,
+                }),
             }
         );
         const data = await response.json();
@@ -182,6 +220,11 @@ class RowColumnManager {
         this.mainInst.drawGrid();
     }
 
+    /**
+     * Inserts a new row at the specified position.
+     * and Sends a request to the server to insert the row.
+     * @async
+     */
     async InsertRow() {
         const [startCol, startRow, endCol, endRow] =
             this.mainInst.selectedDimensionsMain;

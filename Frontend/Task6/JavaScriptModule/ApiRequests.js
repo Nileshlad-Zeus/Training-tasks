@@ -1,4 +1,16 @@
+/**
+ * Handles API requests for fetching, updating, and deleting data.
+ */
+
 class ApiRequests {
+    /**
+     *
+     * @param {Object} mainInst
+     * @param {CanvasRenderingContext2D} mainCtx
+     * @param {Object} highlightInst
+     * @param {Object} valueInst
+     * @param {Object} rowColumnManagerInst
+     */
     constructor(
         mainInst,
         mainCtx,
@@ -15,6 +27,10 @@ class ApiRequests {
         this.progressbarEle = document.getElementById("progressbarEle");
     }
 
+    /**
+     * Fetches progress data from the server and updates the progress bar.
+     * @async
+     */
     async fetchProgress() {
         try {
             const response = await fetch(
@@ -46,6 +62,11 @@ class ApiRequests {
         }
     }
 
+    /**
+     * Fetches user data from the server and updates the sheet data.
+     * @param {number} [offset = 0]
+     * @async
+     */
     async fetchUserData(offset = 0) {
         console.log("Fetch");
 
@@ -63,6 +84,12 @@ class ApiRequests {
         this.mainInst.sheetData.push(...sheetData);
         this.mainInst.renderData();
     }
+
+    /**
+     *  Converts raw JSON data to a format suitable for the sheet.
+     * @param {Object[]} data
+     * @returns {Object[]}
+     */
     convertJsonData = (data) => {
         const result = [];
         if (data.length > 0) {
@@ -85,6 +112,10 @@ class ApiRequests {
         return result;
     };
 
+    /**
+     *  Updates data in the sheet and on the server.
+     * @async
+     */
     async updateData() {
         if (this.mainInst.isValueupdate == false) return;
         let value = this.mainInst.inputBox.value;
@@ -114,12 +145,17 @@ class ApiRequests {
         this.mainInst.drawGrid();
 
         const response = await fetch(
-            `http://localhost:5022/api/Employee/updatevalue?column=${this.mainInst.activeColumn}&row=${this.mainInst.activeRow}&text=${value}`,
+            `http://localhost:5022/api/Employee/updatevalue`,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify({
+                    column: this.mainInst.activeColumn,
+                    row: this.mainInst.activeRow,
+                    text: value,
+                }),
             }
         );
         const data = await response.json();
@@ -138,6 +174,10 @@ class ApiRequests {
         this.mainInst.drawGrid();
     }
 
+    /**
+     * Deletes data from the sheet and the server for the selected area.
+     * @async
+     */
     async deleteData() {
         const [startCol, startRow, endCol, endRow] =
             this.mainInst.selectedDimensionsMain;
@@ -162,14 +202,18 @@ class ApiRequests {
 
         if (isThereAnyData) {
             const response = await fetch(
-                `http://localhost:5022/api/Employee/deletedata?startRow=${
-                    startRow + 1
-                }&endRow=${endRow + 1}&startCol=${startCol1}&endCol=${endCol1}`,
+                `http://localhost:5022/api/Employee/deletedata`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
+                    body: JSON.stringify({
+                        startRow: startRow + 1,
+                        endRow: endRow + 1,
+                        startCol:startCol1,
+                        endCol:endCol1
+                    }),
                 }
             );
             const data = await response.json();
