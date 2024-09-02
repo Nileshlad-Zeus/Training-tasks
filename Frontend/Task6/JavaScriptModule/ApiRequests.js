@@ -100,7 +100,7 @@ class ApiRequests {
                 keys.forEach((key, idx) => {
                     if (key != "RowNo" && key != "id") {
                         formattedItem[idx - 2] = {
-                            data: item[key],
+                            data: item[key] == null ? "" : item[key],
                             properties: "*****",
                         };
                     }
@@ -211,8 +211,8 @@ class ApiRequests {
                     body: JSON.stringify({
                         startRow: startRow + 1,
                         endRow: endRow + 1,
-                        startCol:startCol1,
-                        endCol:endCol1
+                        startCol: startCol1,
+                        endCol: endCol1,
                     }),
                 }
             );

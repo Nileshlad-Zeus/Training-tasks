@@ -363,6 +363,14 @@ class DrawHighlight {
      */
     highlightSelectedAreaEvents() {
         this.mainCtx.canvas.addEventListener("dblclick", (e) => {
+            console.log(this.startingIndex);
+            const result = this.sheetData.find(
+                (item) => item[this.startingIndex[1] + 1]
+            );
+            let value =
+                result[this.startingIndex[1] + 1][this.startingIndex[0]];
+            this.inputBox.value = value.data;
+
             this.mainInst.inputBoxPosition();
             this.inputBox.focus();
             this.mainInst.isAnimationRunning = false;
