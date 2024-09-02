@@ -1,0 +1,57 @@
+[HttpPost]
+[Route("deletedata")]
+public async Task<IActionResult> DeleteData(int startRow, int endRow, char startCol, char endCol)
+{
+    var connectionString = _connectionString;
+    var tableName = "employee_info";
+
+    // Build the list of columns to update
+    var columns = new List<string>();
+    for (char i = startCol; i <= endCol; i++)
+    {
+        columns.Add($"`{i}` = NULL");
+    }
+
+    // Join the columns to create the SET clause
+    var setClause = string.Join(", ", columns);
+
+    // Construct the query
+    var query = $"UPDATE `{tableName}` SET {setClause} WHERE `RowNo` BETWEEN @StartRow AND @EndRow";
+
+    try
+    {
+        using (var connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (var command = new MySqlCommand(query, connection))
+            {
+                // Add parameters
+                command.Parameters.AddWithValue("@StartRow", startRow);
+                command.Parameters.AddWithValue("@EndRow", endRow);
+
+                // Execute the query
+                var affectedRows = await command.ExecuteNonQueryAsync();
+
+                // Return success response with affected rows
+                return Ok(new { Status = true, Message = $"{affectedRows} rows updated successfully." });
+            }
+        }
+    }
+    catch (MySqlException ex)
+    {
+        // Log the exception (you can replace this with your logging framework)
+        Console.Error.WriteLine($"MySQL Error: {ex.Message}");
+
+        // Return a detailed error response
+        return StatusCode(StatusCodes.Status500InternalServerError, new { Status = false, Error = "Database error occurred.", Details = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        // Log the exception
+        Console.Error.WriteLine($"Error: {ex.Message}");
+
+        // Return a generic error response
+        return StatusCode(StatusCodes.Status500InternalServerError, new { Status = false, Error = "An unexpected error occurred.", Details = ex.Message });
+    }
+}
