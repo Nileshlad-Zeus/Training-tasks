@@ -2523,11 +2523,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Training-tasks\\Frontend\\Task6\\backend\\Task1.csproj",
+      "projectUniqueName": "D:\\Training-tasks\\Frontend\\Task6\\Backend_MinimalApi_C#\\Task1.csproj",
       "projectName": "Task1",
-      "projectPath": "D:\\Training-tasks\\Frontend\\Task6\\backend\\Task1.csproj",
+      "projectPath": "D:\\Training-tasks\\Frontend\\Task6\\Backend_MinimalApi_C#\\Task1.csproj",
       "packagesPath": "C:\\Users\\nilesh.lad\\.nuget\\packages\\",
-      "outputPath": "D:\\Training-tasks\\Frontend\\Task6\\backend\\obj\\",
+      "outputPath": "D:\\Training-tasks\\Frontend\\Task6\\Backend_MinimalApi_C#\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -2602,7 +2602,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
