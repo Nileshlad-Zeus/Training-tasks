@@ -154,7 +154,7 @@ class ApiRequests {
                 body: JSON.stringify({
                     column: this.mainInst.activeColumn,
                     row: this.mainInst.activeRow,
-                    text: value,
+                    text: value==""?" ":value,
                 }),
             }
         );
