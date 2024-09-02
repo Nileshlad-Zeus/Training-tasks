@@ -1,5 +1,9 @@
 import { newCanvas } from "./main.js";
 
+/**
+ * Manages spreadsheet operations such as adding new sheets, uploading files,
+ * selecting sheets.
+ */
 class sheetManager {
     constructor() {
         this.fetchUserData("sheet-1");

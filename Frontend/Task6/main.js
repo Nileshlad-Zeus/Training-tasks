@@ -27,6 +27,9 @@ class newCanvas {
         this.scrollFunction();
     }
 
+    /**
+     * Sets up the canvas and initializes necessary components.
+     */
     setupCanvas() {
         this.createNewCanvas();
         this.initialVariables();
@@ -36,6 +39,64 @@ class newCanvas {
         this.renderTopHeader();
     }
 
+    /**
+     * Creates and configures the main, top header, and left header canvases.
+     */
+    createNewCanvas() {
+        //sheet canvas
+
+        const main = document.getElementById("main");
+        const scroller = document.getElementById("scroller");
+        const mainCanvas = document.createElement("canvas");
+        mainCanvas.setAttribute("id", this.sheetName);
+        mainCanvas.setAttribute("class", "canvas");
+        mainCanvas.height = (scroller.offsetHeight - 20) * this.scale;
+        mainCanvas.width = (scroller.offsetWidth - 20) * this.scale;
+        main.appendChild(mainCanvas);
+        this.mainCanvas = mainCanvas;
+        this.mainCtx = this.mainCanvas.getContext("2d");
+        this.mainCtx.scale(this.scale, this.scale);
+
+        //topheader canvas
+        const topHeader = document.getElementById("topHeader");
+        const topHeaderCanvas = document.createElement("canvas");
+        topHeaderCanvas.setAttribute("id", `topHeader-${this.sheetName}`);
+        topHeaderCanvas.setAttribute("class", "topHeaderCanvas");
+        topHeaderCanvas.width = Math.floor(2100 * this.scale);
+        topHeaderCanvas.height = Math.floor(24 * this.scale);
+        topHeader.appendChild(topHeaderCanvas);
+        this.topHeaderCanvas = topHeaderCanvas;
+        this.topHeaderCtx = this.topHeaderCanvas.getContext("2d");
+        this.topHeaderCtx.scale(this.scale, this.scale);
+
+        //leftheader canvas
+        const leftHeader = document.getElementById("leftHeader");
+        const leftHeaderCanvas = document.createElement("canvas");
+        leftHeaderCanvas.setAttribute("id", `leftHeader-${this.sheetName}`);
+        leftHeaderCanvas.setAttribute("class", "leftHeaderCanvas");
+        leftHeaderCanvas.width = Math.floor(40 * this.scale);
+        // leftHeaderCanvas.height = Math.floor(1200 * this.scale);
+        leftHeaderCanvas.height = leftHeader.offsetHeight * this.scale;
+        leftHeader.appendChild(leftHeaderCanvas);
+        this.leftHeaderCanvas = leftHeaderCanvas;
+        this.leftHeaderCtx = this.leftHeaderCanvas.getContext("2d");
+        this.leftHeaderCtx.scale(this.scale, this.scale);
+
+        this.mainCanvas.style.cursor = "cell";
+
+        const topleftDiv = document.getElementById("topleftDiv");
+
+        topHeader.style.height = `${24 * this.scale}px`;
+        topHeader.style.zIndex = 100;
+        topHeader.style.marginLeft = `${40 * this.scale}px`;
+        leftHeader.style.marginTop = `${24 * this.scale}px`;
+        topleftDiv.style.width = `${40 * this.scale}px`;
+        topleftDiv.style.height = `${24 * this.scale}px`;
+    }
+
+    /**
+     * Registers event listeners for keyboard and mouse interactions.
+     */
     eventListeners() {
         document.addEventListener("keydown", (event) => {
             const editingSectionModal = document.querySelector(
@@ -54,6 +115,9 @@ class newCanvas {
         });
     }
 
+    /**
+     * Initializes various instances required for grid functionality.
+     */
     initializeInstances() {
         this.valueInst = new GetValues(this);
         this.highlightInst = new DrawHighlight(
@@ -105,6 +169,9 @@ class newCanvas {
         );
     }
 
+    /**
+     * Initializes various variables used for grid management.
+     */
     initialVariables() {
         /**
          * check whether to update a value or not
@@ -264,58 +331,9 @@ class newCanvas {
         );
     }
 
-    createNewCanvas() {
-        //sheet canvas
-
-        const main = document.getElementById("main");
-        const scroller = document.getElementById("scroller");
-        const mainCanvas = document.createElement("canvas");
-        mainCanvas.setAttribute("id", this.sheetName);
-        mainCanvas.setAttribute("class", "canvas");
-        mainCanvas.height = (scroller.offsetHeight - 20) * this.scale;
-        mainCanvas.width = (scroller.offsetWidth - 20) * this.scale;
-        main.appendChild(mainCanvas);
-        this.mainCanvas = mainCanvas;
-        this.mainCtx = this.mainCanvas.getContext("2d");
-        this.mainCtx.scale(this.scale, this.scale);
-
-        //topheader canvas
-        const topHeader = document.getElementById("topHeader");
-        const topHeaderCanvas = document.createElement("canvas");
-        topHeaderCanvas.setAttribute("id", `topHeader-${this.sheetName}`);
-        topHeaderCanvas.setAttribute("class", "topHeaderCanvas");
-        topHeaderCanvas.width = Math.floor(2100 * this.scale);
-        topHeaderCanvas.height = Math.floor(24 * this.scale);
-        topHeader.appendChild(topHeaderCanvas);
-        this.topHeaderCanvas = topHeaderCanvas;
-        this.topHeaderCtx = this.topHeaderCanvas.getContext("2d");
-        this.topHeaderCtx.scale(this.scale, this.scale);
-
-        //leftheader canvas
-        const leftHeader = document.getElementById("leftHeader");
-        const leftHeaderCanvas = document.createElement("canvas");
-        leftHeaderCanvas.setAttribute("id", `leftHeader-${this.sheetName}`);
-        leftHeaderCanvas.setAttribute("class", "leftHeaderCanvas");
-        leftHeaderCanvas.width = Math.floor(40 * this.scale);
-        // leftHeaderCanvas.height = Math.floor(1200 * this.scale);
-        leftHeaderCanvas.height = leftHeader.offsetHeight * this.scale;
-        leftHeader.appendChild(leftHeaderCanvas);
-        this.leftHeaderCanvas = leftHeaderCanvas;
-        this.leftHeaderCtx = this.leftHeaderCanvas.getContext("2d");
-        this.leftHeaderCtx.scale(this.scale, this.scale);
-
-        this.mainCanvas.style.cursor = "cell";
-
-        const topleftDiv = document.getElementById("topleftDiv");
-
-        topHeader.style.height = `${24 * this.scale}px`;
-        topHeader.style.zIndex = 100;
-        topHeader.style.marginLeft = `${40 * this.scale}px`;
-        leftHeader.style.marginTop = `${24 * this.scale}px`;
-        topleftDiv.style.width = `${40 * this.scale}px`;
-        topleftDiv.style.height = `${24 * this.scale}px`;
-    }
-
+    /**
+     *  Positions the input box based on the current cell's location.
+     */
     inputBoxPosition() {
         this.inputBox.style.display = "block";
         this.inputBox.style.top = `${
@@ -334,6 +352,9 @@ class newCanvas {
         }px`;
     }
 
+    /**
+     *  Handles the click event on the top-left corner of the grid.
+     */
     handleTopLeftClick() {
         const topleft = document.getElementById("topleft");
         topleft.addEventListener("click", () => {
@@ -357,6 +378,9 @@ class newCanvas {
     }
 
     //---------------------clear canvas-------------------
+    /**
+     * Clears the main canvas by removing all content within its bounds.
+     */
     clearMainCanvas() {
         this.mainCtx.clearRect(
             0,
@@ -365,6 +389,10 @@ class newCanvas {
             this.mainCanvas.height
         );
     }
+
+    /**
+     * Clears the top header canvas by removing all content within its bounds.
+     */
     clearTopHeader() {
         this.topHeaderCtx.clearRect(
             0,
@@ -373,6 +401,10 @@ class newCanvas {
             this.topHeaderCanvas.height
         );
     }
+
+    /**
+     * Clears the left header canvas by removing all content within its bounds.
+     */
     clearLeftHeader() {
         this.leftHeaderCtx.clearRect(
             0,
@@ -383,6 +415,11 @@ class newCanvas {
     }
 
     //----------------------draw grid----------------------
+    /**
+     * Draws a grid on the main canvas, highlighting a selected area and rendering data.
+     * @param {String} strokeColor
+     * @param {String} fillColor
+     */
     drawGrid(strokeColor = "", fillColor = "") {
         this.clearMainCanvas();
         this.highlightInst.highlightSelectedArea(strokeColor, fillColor);
@@ -390,6 +427,10 @@ class newCanvas {
         this.drawColumns();
         this.renderData();
     }
+
+    /**
+     * Draws the rows of the grid on the main canvas.
+     */
     drawRows() {
         const canvasHeight = this.mainCanvas.height;
         const rowHeight = this.valueInst.getCurCellHeight(0);
@@ -414,6 +455,10 @@ class newCanvas {
             // this.mainCtx.restore();
         }
     }
+
+    /**
+     * Draws the columns of the grid on the main canvas.
+     */
     drawColumns() {
         const canvasHeight = this.mainCanvas.width;
         const colWidth = 100;
@@ -440,6 +485,9 @@ class newCanvas {
     }
 
     //----------------------Render Data----------------------
+    /**
+     * Render the visible portion of a grid data onto the main canvas
+     */
     renderData() {
         const canvasHeight = this.mainCanvas.height;
         const canvasWidth = this.mainCanvas.width;
@@ -535,6 +583,13 @@ class newCanvas {
         }
     }
 
+    /**
+     * Extracts a specific property value from a string of properties.
+     * @param {String} properties
+     * @param {number} position
+     * @param {string} [defaultValue=""]
+     * @returns {string}
+     */
     extractProperty(properties, position, defaultValue = "") {
         const positions = this.getPos(properties, "*", position);
         return (
@@ -542,6 +597,13 @@ class newCanvas {
         );
     }
 
+    /**
+     * Finds the start and end positions of the nth occurrence of a substring within a string.
+     * @param {String} [str=""]
+     * @param {String} subStr
+     * @param {number[]} i
+     * @returns
+     */
     getPos(str = "", subStr, i) {
         return [
             str.split(subStr, i).join(subStr).length,
@@ -549,6 +611,10 @@ class newCanvas {
         ];
     }
 
+    /**
+     * Renders the top header row on the canvas, displaying column headers
+     * @param {string} [transparentColor=""]
+     */
     renderTopHeader(transparentColor = "") {
         const canvasHeight = this.mainCanvas.width;
         const colWidth = 100;
@@ -608,7 +674,7 @@ class newCanvas {
                 transparentColor,
                 this.currSelectedCol
             );
-            this.topHeaderCtx.font = this.topHeaderFont(colIndex);
+            this.topHeaderCtx.font = this.headerFont("topheader", colIndex);
             this.topHeaderCtx.fillText(headerText, xPosition, yPosition + 1);
             this.topHeaderCtx.restore();
 
@@ -624,25 +690,10 @@ class newCanvas {
         }
     }
 
-    topHeaderFont(colIndex) {
-        if (
-            this.isColumnSelectedFun(colIndex) ||
-            this.currSelectedCol === colIndex
-        ) {
-            return "bold 16px Arial";
-        }
-        return "10pt Arial";
-    }
-
-    isColumnSelectedFun(colIndex) {
-        return (
-            this.topheaderSelected &&
-            this.currSelectedCol &&
-            this.currSelectedCol[0] <= colIndex &&
-            colIndex <= this.currSelectedCol[1]
-        );
-    }
-
+    /**
+     * Renders the left header row on the canvas, displaying column headers
+     * @param {string} [transparentColor=""]
+     */
     renderLeftHeader(transparentColor = "") {
         const rowHeight = 21;
         const startRow = Math.floor(this.scrollTopvalue / rowHeight);
@@ -698,7 +749,7 @@ class newCanvas {
                 transparentColor,
                 this.currSelectedRow
             );
-            this.leftHeaderCtx.font = this.leftHeaderFont(rowIndex);
+            this.leftHeaderCtx.font = this.headerFont("leftheader", rowIndex);
 
             this.leftHeaderCtx.textAlign = "right";
             this.leftHeaderCtx.fillText(headerText, 35, yPosition + 4);
@@ -716,6 +767,35 @@ class newCanvas {
         }
     }
 
+    /**
+     * Determines the font style for the header based on the header type and selection state.
+     * @param {String} header
+     * @param {Number} index
+     * @returns {String}
+     */
+    headerFont(header, index) {
+        if (
+            header == "leftheader" &&
+            (this.isRowSelectedFun(index) || this.currSelectedRow === index)
+        ) {
+            return "bold 14px Arial";
+        } else if (
+            this.isColumnSelectedFun(index) ||
+            this.currSelectedCol === index
+        ) {
+            return "bold 16px Arial";
+        }
+        return "10pt Arial";
+    }
+
+    /**
+     * Determines the fill style for the header based on the header type, selection state, and other parameters.
+     * @param {String} header
+     * @param {Number} index
+     * @param {Sting} transparentColor
+     * @param {number} currSelectedIndex
+     * @returns {string}
+     */
     headerFillStyle(header, index, transparentColor, currSelectedIndex) {
         if (transparentColor) return this.gridStrokeColor;
         if (Array.isArray(currSelectedIndex)) {
@@ -734,16 +814,25 @@ class newCanvas {
         return this.gridStrokeColor;
     }
 
-    leftHeaderFont(rowIndex) {
-        if (
-            this.isRowSelectedFun(rowIndex) ||
-            this.currSelectedRow === rowIndex
-        ) {
-            return "bold 14px Arial";
-        }
-        return "10pt Arial";
+    /**
+     * Checks if a column is selected based on the current selection state
+     * @param {Number} colIndex
+     * @returns
+     */
+    isColumnSelectedFun(colIndex) {
+        return (
+            this.topheaderSelected &&
+            this.currSelectedCol &&
+            this.currSelectedCol[0] <= colIndex &&
+            colIndex <= this.currSelectedCol[1]
+        );
     }
 
+    /**
+     * Checks if a row is selected based on the current selection state
+     * @param {Number} rowIndex
+     * @returns
+     */
     isRowSelectedFun(rowIndex) {
         return (
             this.leftheaderSelected &&
@@ -754,6 +843,10 @@ class newCanvas {
     }
 
     //----------------------Scroll Functionality----------------------
+
+    /**
+     * a function to handle scroll behaviour
+     */
     scrollFunction() {
         const scroller = document.getElementById("scroller");
         const main = document.getElementById("main");
@@ -801,7 +894,12 @@ class newCanvas {
         });
     }
 
-    //----------------------keyboard Evenets----------------------
+    //----------------------keyboard Events----------------------
+    /**
+     * a function to handle to all keyboard events
+     * @param {PointerEvent} e - took the value of a key
+     * @returns
+     */
     keyBoardEvents = async (e) => {
         let flag = false;
         this.activeColumn = this.valueInst.convertNumToChar(
