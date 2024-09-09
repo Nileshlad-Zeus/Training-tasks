@@ -32,6 +32,7 @@ class ApiRequests {
      * @async
      */
     async fetchProgress() {
+        console.log("Fetch Progress");
         try {
             const response = await fetch(
                 `http://localhost:5022/api/Employee/GetProgress`,
@@ -43,9 +44,11 @@ class ApiRequests {
                 }
             );
             const data = await response.json();
+
             let percentage =
                 (data.result[0].currentchunks / data.result[0].totalchunks) *
                 100;
+            console.log(percentage);
 
             this.progressbarEle.value = percentage;
             if (percentage > 0) {
@@ -80,6 +83,8 @@ class ApiRequests {
             }
         );
         const data = await response.json();
+        console.log(data);
+        
         let sheetData = this.convertJsonData(data.result);
         this.mainInst.sheetData.push(...sheetData);
         this.mainInst.renderData();
@@ -154,7 +159,7 @@ class ApiRequests {
                 body: JSON.stringify({
                     column: this.mainInst.activeColumn,
                     row: this.mainInst.activeRow,
-                    text: value==""?" ":value,
+                    text: value == "" ? " " : value,
                 }),
             }
         );

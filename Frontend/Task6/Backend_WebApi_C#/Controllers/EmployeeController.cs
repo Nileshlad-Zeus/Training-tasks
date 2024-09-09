@@ -194,7 +194,6 @@ namespace Backend2.Controllers
             {
                 await _connection.CloseAsync();
             }
-
         }
 
 

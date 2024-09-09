@@ -95,7 +95,7 @@ public class RabbitMQService
                     var employeeCollection = _database.GetCollection<BsonDocument>("excel_data");
                     await employeeCollection.InsertManyAsync(valuesList);
                     var progressCollection = _database.GetCollection<BsonDocument>("progress");
-                    var update = Builders<BsonDocument>.Update.Inc("CompletedChunks", 1);
+                    var update = Builders<BsonDocument>.Update.Inc("currentchunks", 1);
                     await progressCollection.UpdateOneAsync(new BsonDocument(), update);
                 }
 
